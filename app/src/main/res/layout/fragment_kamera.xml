@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:backgroundTintMode="add"
+    android:hapticFeedbackEnabled="false"
+    tools:context=".Kamera">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView28"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@color/yellow"
+            android:padding="5dp"
+            android:text="@string/kamera_label_date"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/date_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/kamera_date"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="15dp"
+                android:layout_weight="1"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:text="@string/date_sample"
+                android:textAlignment="center" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:id="@+id/kamera_date_refresh_button"
+                android:layout_width="@dimen/buttons_1"
+                android:layout_height="@dimen/buttons_1"
+                android:layout_margin="5dp"
+                android:background="@color/purple_500"
+                android:src="@drawable/ic_baseline_cached_24"
+                android:textAlignment="center" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@color/yellow"
+            android:padding="5dp"
+            android:text="@string/kamera_dir"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/spinner4"
+                android:layout_width="230dp"
+                android:layout_height="match_parent"
+                android:dropDownWidth="wrap_content"
+                android:spinnerMode="dialog"
+                android:textAlignment="viewStart"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+            <ImageButton
+                android:id="@+id/imageButton7"
+                android:layout_width="@dimen/buttons_1"
+                android:layout_height="@dimen/buttons_1"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:src="@drawable/ic_baseline_library_add_24"
+                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+            <ImageButton
+                android:id="@+id/imageButton9"
+                android:layout_width="@dimen/buttons_1"
+                android:layout_height="@dimen/buttons_1"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:src="@drawable/ic_baseline_mode_24"
+                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+            <ImageButton
+                android:id="@+id/imageButton10"
+                android:layout_width="@dimen/buttons_1"
+                android:layout_height="@dimen/buttons_1"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:src="@drawable/ic_baseline_delete_24"
+                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView32"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@color/yellow"
+            android:padding="5dp"
+            android:text="@string/kamera_tag"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/tag_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/kamera_tag_field_value"
+                android:layout_width="164dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:text="@string/empty" />
+
+            <Switch
+                android:id="@+id/kamera_switch_tag_onoff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:padding="10dp"
+                android:text="@string/kamera_tag_onoff" />
+
+            <ImageButton
+                android:id="@+id/kamera_reset_tag_button"
+                android:layout_width="@dimen/buttons_1"
+                android:layout_height="@dimen/buttons_1"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:src="@drawable/ic_baseline_cancel_24" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="horizontal">
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/imageButton11"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@color/purple_700"
+            android:padding="10dp"
+            android:src="@drawable/ic_baseline_add_a_photo_24"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+    </LinearLayout>
+</FrameLayout>

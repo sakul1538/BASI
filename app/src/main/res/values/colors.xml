@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#4CAF50</color>
+    <color name="purple_500">#000D8727</color>
+    <color name="purple_700">#F70D8727</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="hellgrün">#8BC34A</color>
+    <color name="camera_button">#E91E63</color>
+    <color name="yellow">#FFC107</color>
+    <color name="grey">#E4E4E4</color>
+    <color name="orange">#FF9800</color>
+    <color name="blue">#2196F3</color>
+    <color name="green">#FFC107</color>
+
+    <color name="Solemn_1">#599B7C</color>
+    <color name="Solemn_2">#52B16f</color>
+    <color name="Solemn_3">#4FC393</color>
+    <color name="Solemn_4">#2EF9C8</color>
+    <color name="Solemn_5">#2DEFF6</color>
+
+    <color name="Greenjungle_1">#FFF1BC</color>
+    <color name="Greenjungle_2">#7DC383</color>
+    <color name="Greenjungle_3">#51A375</color>
+    <color name="Greenjungle_4">#478E66</color>
+    <color name="Greenjungle_5">#446E5C</color>
+
+    <color name="Cornfield_1">#0D8727</color>
+    <color name="Cornfield_2">#8BC34A</color>
+    <color name="Cornfield_3">#FDF62C</color>
+    <color name="Cornfield_4">#64C5E7</color>
+    <color name="Cornfield_5">#134881</color>
+
+
+    <color name="primaryColor">#388e3c</color>
+    <color name="primaryLightColor">#6abf69</color>
+    <color name="primaryDarkColor">#00600f</color>
+    <color name="primaryTextColor">#000000</color>
+
+
+
+
+</resources>

@@ -1,0 +1,141 @@
+<resources>
+    <string name="app_name">BASI</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="kamera_dir">Speicherort: </string>
+    <string name="kamera_tag">Tag: </string>
+    <string name="kamera_tag_onoff">ON/OFF</string>
+    <string name="start">Speicherort: </string>
+    <string name="kamera_label_date">Datum:</string>
+
+    <string name="dialog_start_game">Starten</string>
+    <string name="cancel">BEENDEN</string>
+    <string name="abort">Abbrechen</string>
+    <string name="dir_name">Ortnername:</string>
+    <string name="add_title_dir_name">Neuer Ordner Anlegen</string>
+    <string name="modify_title_dir_name">Ordner Bearbeiten</string>
+    <string name="emtpy"></string>
+    <string name="ok">OK</string>
+    <string name="settings_Projekt_name">Prjektbezeichng:</string>
+    <string name="settings_Projekt_path">Stammordner:</string>
+    <string name="settings_Projekt_bilder_path">Stammorder Bider:</string>
+
+
+    <string name="date_label">"Datum/Uhrzeit: "</string>
+    <string name="note">"Notiz/Bemerkungen: "</string>
+    <string name="save">"Speichern"</string>
+    <string name="empty">""</string>
+    <string name="reset">Reset</string>
+    <string name="gps">"GPS"</string>
+    <string name="projekt_log">Log Anzeigen</string>
+    <string name="proj_name">"Name/Nr"</string>
+    <string name="proj_created">"Erstellt am:"</string>
+    <string name="proj_location">"Ort:"</string>
+
+    <string name="todo">TODO</string>
+    <string name="settings_title">Projekte</string>
+    <string name="settings_f1">Neues Projekt anlegen: </string>
+
+
+    <string-array name="m_categorys">
+        <item>None</item>
+        <item>Bagger</item>
+        <item>Dumper</item>
+        <item>Hukys</item>
+        <item>Verdichtungsgeräte</item>
+        <item>Kleinmaschinen</item>
+        <item>Autos</item>
+        <item>Anhänger</item>
+        <item>Mietmaschine</item>
+    </string-array>
+    <string name="title_activity_settings">Projekte</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="element_text">Test</string>
+    <string name="projekt_name">Projektname:</string>
+    <string name="title_activity_custom">Custom</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="log_kat">Kategorie</string>
+    <string name="reset_note">Notiz</string>
+    <string name="reset_kat">Kategorie</string>
+    <string name="reset_all">Alles</string>
+    <string name="fav_global">Global</string>
+
+    <string name="Maschinen_label">Maschine:</string>
+    <string name="Maschinen_label_stundne">Zählerstand:</string>
+
+
+    <string name="log_search_filter_dialog_title">Suchfilter:</string>
+    <string name="log_label_filter_date">Datum:</string>
+    <string name="log_label_filter_date_vonbis">bis</string>
+    <string name="log_label_filter_category">Kategorie:</string>
+    <string name="log_label_filter_checked">Erledigt:</string>
+    <string name="log_label_filter_true">erledigt</string>
+    <string name="log_label_filter_false">unerledigt</string>
+    <string name="log_label_filter_fav">Nur Favoriten</string>
+
+
+    <string name="log_add_kategorie_dialog_title">Neue Kategorie anlegen:</string>
+    <string name="log_actions_delet">Löschen</string>
+    <string name="log_actions_delet_all">Alle Einträge</string>
+    <string name="log_actions_delet_all_check_true">Erledigte</string>
+    <string name="log_actions_delet_all_search">Suchergebnisse</string>
+
+    <string name="log_actions_upload">Sync</string>
+    <string name="log_actions_upload_all">Alle Einträge des Projektes</string>
+    <string name="log_actions_upload_all_check_true">Erledigte</string>
+    <string name="log_actions_upload_all_check_false">Unerledigte</string>
+    <string name="log_actions_upload_all_fav_true">Markierte</string>
+    <string name="log_actionsupload_all_search">Suchergebnisse</string>
+
+
+    <string name="m_conf_masch_list_name">Name:</string>
+    <string name="m_conf_masch_list_nr">NR:</string>
+    <string name="m_conf_masch_list_category">Kategorie:</string>
+    <string name="m_conf_masch_list_h_curr">Zählerstand:</string>
+    <string name="m_conf_masch_list_note">Notiz/Bemerkung:</string>
+    <string name="m_conf_masch_list_swichonoff">ON/OFF:</string>
+    <string name="m_conf_masch_list_addbild">Bild:</string>
+
+    <string name="m_conf_masch_list_dummy_value">None</string>
+
+
+
+
+
+    <string name="summary_material_label">Material:</string>
+    <string name="summary_material_value_label">Wert:</string>
+    <string name="summary_material_comment_label">Bemerkung:</string>
+
+
+    <string name="title_activity_log_conf_fav">log_conf_fav</string>
+    <string name="log_fav_modify_title">Name ändern</string>
+    <string name="title_activity_log_data">Log_data</string>
+    <string name="date_sample">01.01.2022</string>
+    <string name="time_sample">13:00</string>
+    <string name="kategorie_sample">Tätikeit Gartenbau</string>
+    <string name="title_activity_mconf_maschine">m_conf_maschine</string>
+
+
+</resources>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="app/src/main/res/layout/activity_log_conf_fav.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/adddir.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/content_log_conf_fav.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/diradd.xml" value="0.9" />
+        <entry key="app/src/main/res/layout/fragment_first.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/fragment_kamera.xml" value="0.30720606826801516" />
+        <entry key="app/src/main/res/layout/fragment_log.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/fragment_maschinen.xml" value="0.26849080803762293" />
+        <entry key="app/src/main/res/layout/fragment_not.xml" value="0.35625" />
+        <entry key="app/src/main/res/layout/fragment_screens_slide_page.xml" value="0.2713841368584759" />
+        <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.37948717948717947" />
+        <entry key="app/src/main/res/layout/kamera_spinner_list.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/log_add_category_dialog.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/log_cat_rec_view.xml" value="0.67" />
+        <entry key="app/src/main/res/layout/log_categorys_modify_dialog.xml" value="0.3489583333333333" />
+        <entry key="app/src/main/res/layout/log_fav_modify_dialog.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/log_fav_rec_view.xml" value="0.5" />
+        <entry key="app/src/main/res/xml/file_paths.xml" value="0.18982471141513468" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.37510803802938636" />
+      </ProjectState>
+    </option>
+  </component>
+</project>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+        <item android:id="@+id/delet"
+            android:title="Löschen" >
+        <menu>
+            <item android:id="@+id/delet_all"
+                android:title="@string/log_actions_delet_all" > </item>
+            <item android:id="@+id/delet_check_true"
+                android:title="@string/log_actions_delet_all_check_true" > </item>
+</menu>
+
+        </item>
+    <item android:id="@+id/sync"
+        android:title="Synchronisieren" >
+        <menu>
+            <item android:id="@+id/sync_Update_form_server"
+                android:title="Alle Daten Aktualisieren vom Server" > </item>
+
+            <item android:id="@+id/sync_Update_to_server"
+                android:title="Alle Daten Aktualisieren zum Server " > </item>
+
+            <item android:id="@+id/sync_db_settings"
+                android:title="Sync Einstellungen" > </item>
+        </menu>
+        <!-- "file" submenu -->
+    </item>
+    </menu>
