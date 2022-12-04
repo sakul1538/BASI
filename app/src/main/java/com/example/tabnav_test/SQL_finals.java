@@ -7,8 +7,10 @@ public interface SQL_finals
     //Tabellennamen
     public static  final String TB_NAME_KAMERA_CONF ="camera_table_conf";
     public static  final String TB_NAME_LOG_CONF ="log_table_conf";
+    public static  final String TB_NAME_MASCHINEN_ITEMS ="maschinen_items";
+    public static  final String TB_NAME_LOG_MASCHINEN_DATA ="maschinen_data";
     public static  final String PROJ_LOG ="log_table";
-    public static final String TB_NAME_MASCHINEN_CONF ="maschinen_table_conf";
+
 
 
     //Spaltennamen TAbellen

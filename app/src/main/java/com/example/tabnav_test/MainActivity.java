@@ -43,6 +43,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Context context = getApplicationContext();
+
+
         // assigning ID of the toolbar to a variable
         // using toolbar as ActionBar
 

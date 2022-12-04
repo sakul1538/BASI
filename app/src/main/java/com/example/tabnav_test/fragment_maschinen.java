@@ -95,9 +95,11 @@ public class fragment_maschinen extends Fragment
                              Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.fragment_maschinen, container, false);
+        Context context = getContext();
+        m_database_ops mdo = new m_database_ops(context);
 
         Basic_funct bsf = new Basic_funct();
-        Context context = getContext();
+
         Calendar calendar = Calendar.getInstance();
 
 
@@ -110,8 +112,6 @@ public class fragment_maschinen extends Fragment
         //ImageButtons
         m_refresh_timedate_button =  (ImageButton) view.findViewById(R.id.m_refresh_datetime);
         m_settings_button = (ImageButton) view.findViewById(R.id.m_settings);
-
-
 
 
         m_date.setText(bsf.date_refresh());
@@ -177,9 +177,6 @@ public class fragment_maschinen extends Fragment
 
             }
         });
-
-
-
 
 
         return view;

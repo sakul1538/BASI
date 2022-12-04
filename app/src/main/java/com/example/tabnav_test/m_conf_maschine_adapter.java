@@ -1,11 +1,18 @@
 package com.example.tabnav_test;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -46,10 +53,69 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
     @Override
     public void onBindViewHolder(@NonNull m_conf_maschine_adapter.ViewHolder holder, int position)
     {
+        m_database_ops mdo =new m_database_ops(context);
+
+        int posi = position;
+        Uri img_uri=null;
+;
+        String[] datasplit = localDataSet[posi].split(",");
+        /*
+        Index:
+
+        ID=0
+        DATE=1
+        TIME=2
+        NR=3
+        NAME=4
+        CATEOGRY=5
+        COUNTER=6
+        NOTE=7
+        PIC_SRC=8
+        ONOFF_FLAG=9
 
 
-        holder.m_name.setText(localDataSet[position]);
-        holder.m_view_pic.setImageResource(R.drawable.bagger);
+        */
+
+        holder.m_name.setText("["+datasplit[3]+"] "+datasplit[4] );
+        holder.m_category.setText(datasplit[5]);
+        holder.m_counter.setText(datasplit[6]);
+
+        Uri u = Uri.parse(datasplit[8]);
+        Log.d("BASI USI",datasplit[8]);
+        holder.m_view_pic.setImageURI(u);
+
+
+        holder.delet_button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+                alertDialogBuilder.setTitle("Bestätige:");
+                alertDialogBuilder.setMessage("Element aus der Datenbank entfernen?");
+                alertDialogBuilder.setPositiveButton("Ja", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        int response =mdo.delet_id(datasplit[0]);
+                        Toast.makeText(context.getApplicationContext(),String.valueOf(response),Toast.LENGTH_SHORT).show();
+                        localDataSet = mdo.get_maschinen(RROJ_NR);
+                        notifyItemRemoved(posi);
+                        notifyItemRangeChanged(posi,localDataSet.length);
+                    }
+                });
+
+                alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Toast.makeText(context, "Aktion abgebrochen!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                alertDialogBuilder.show();
+            }});
     }
 
     @Override
@@ -63,14 +129,29 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
     {
 
         private final TextView m_name;
+        private final TextView m_category;
+        private final TextView m_counter;
+
+        private final ImageButton delet_button;
+
+        private final Switch switch_onoff;
+
         private final ImageView m_view_pic;
+
 
         public ViewHolder(@NonNull View itemView)
         {
             super(itemView);
 
             m_name = (TextView) itemView.findViewById(R.id.textView37);
+            m_category = (TextView) itemView.findViewById(R.id.textView27);
+            m_counter = (TextView) itemView.findViewById(R.id.textView35);
+
             m_view_pic = (ImageView) itemView.findViewById(R.id.m_imageView);
+
+            switch_onoff = (Switch) itemView.findViewById(R.id.switch1);
+
+            delet_button = (ImageButton) itemView.findViewById(R.id.imageButton5);
 
         }
     }

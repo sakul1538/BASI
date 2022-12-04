@@ -29,9 +29,9 @@ public class log_fav extends SQLiteOpenHelper implements SQL_finals
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase)
     {
-        sqLiteDatabase.execSQL("CREATE TABLE "+TB_NAME_KAMERA_CONF+" (ID TEXT,NAME TEXT,DIR TEXT)");
-        sqLiteDatabase.execSQL("CREATE TABLE "+TB_NAME_LOG_CONF+" (ID TEXT,NAME TEXT,VALUE TEXT)");
-        sqLiteDatabase.execSQL("CREATE TABLE "+PROJ_LOG+" (ID TEXT,PROJ_NR TEXT,DATE TEXT,TIME TEXT,CATEGORY TEXT,NOTE TEXT,FAV_FLAG TEXT,CHECK_FLAG TEXT,UPLOAD_FLAG)");
+
+
+
     }
 
     @Override
