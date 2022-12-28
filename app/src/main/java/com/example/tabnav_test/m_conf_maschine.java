@@ -1,12 +1,22 @@
 package com.example.tabnav_test;
 
+
+
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,20 +26,17 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 public class m_conf_maschine extends AppCompatActivity
 {
-
     static final String RROJ_NR = "0";
 
     Uri imgUri= null;
+
+
 
     ImageButton m_conf_add_maschine_button;
     ImageButton m_conf_find_maschine_button;
@@ -38,6 +45,11 @@ public class m_conf_maschine extends AppCompatActivity
     ImageView m_pic;
 
     RecyclerView m_rcv;
+
+    m_conf_maschine_adapter mcma;
+
+
+
 
 
     @Override
@@ -49,17 +61,34 @@ public class m_conf_maschine extends AppCompatActivity
         switch(requestCode)
         {
             case 1:
-                        imgUri = data.getData();
-                        Log.i("BASI", "Uri: " +  data.getData());
-                        m_pic.setImageURI(imgUri);
+
+
+                imgUri = data.getData();
+                Log.i("BASI 1", "Uri: " +  data.getData());
+
+                m_pic.setImageURI(imgUri);
+
 
                 break;
+
+            case 2:
+
+
+                imgUri = data.getData();
+                Log.i("BASI 1", "Uri: " +  data.getData().toString());
+
+                mcma.imw.setImageURI(imgUri);
+                mcma.imgUri= data.getData();
+                break;
+
             default:
                 throw new IllegalStateException("Unexpected value: " + requestCode);
         }
 
-    }
 
+
+
+    }
 
 
     @Override
@@ -80,10 +109,7 @@ public class m_conf_maschine extends AppCompatActivity
 
         String[] data = mdo.get_maschinen(RROJ_NR);
 
-
-
-
-        m_conf_maschine_adapter mcma = new m_conf_maschine_adapter(data);
+        mcma = new m_conf_maschine_adapter(data);
         m_rcv.setAdapter(mcma);
 
         m_rcv.setLayoutManager( new LinearLayoutManager(m_conf_maschine.this));
@@ -92,30 +118,51 @@ public class m_conf_maschine extends AppCompatActivity
         {
             @Override
             public void onClick(View view)
+
             {
 
+                manage_maschine("add_new","");
+            }
+        }
+        );
+
+    }
+
+
+    public void manage_maschine(String mode,String args)
+    {
+
+        switch (mode)
+        {
+
+            case "add_new":
 
                 View promptsView = getLayoutInflater().inflate(R.layout.m_add_maschine_dialog, null);
 
                 EditText name = promptsView.findViewById(R.id.m_name);
                 EditText nr = promptsView.findViewById(R.id.m_nr);
                 Spinner category = promptsView.findViewById(R.id.m_category);
-                EditText note  = promptsView.findViewById(R.id.m_note);
+                EditText note = promptsView.findViewById(R.id.m_note);
                 EditText counter = promptsView.findViewById(R.id.m_counter);
-                ImageButton add_image= promptsView.findViewById(R.id.imageButton13);
+                ImageButton add_image = promptsView.findViewById(R.id.imageButton13);
 
                 m_pic = promptsView.findViewById(R.id.imageView);
 
+                m_database_ops mdo = new m_database_ops(getApplicationContext());
+
+                imgUri = null;
 
 
-                add_image.setOnClickListener(new View.OnClickListener() {
+                add_image.setOnClickListener(new View.OnClickListener()
+                {
                     @Override
                     public void onClick(View view)
                     {
 
-                        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+
+                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                         intent.addCategory(Intent.CATEGORY_OPENABLE);
-                        intent.setType("*/*");
+                        intent.setType("image/*");
 
                         startActivityForResult(intent, 1);
 
@@ -128,8 +175,8 @@ public class m_conf_maschine extends AppCompatActivity
 
                 alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i)
-                    {
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
 
                         ContentValues data = new ContentValues();
                         data.put("PROJ_NR", RROJ_NR);
@@ -137,13 +184,19 @@ public class m_conf_maschine extends AppCompatActivity
                         data.put("NR", nr.getText().toString());
                         data.put("NAME", name.getText().toString());
                         data.put("CATEGORY", category.getSelectedItem().toString());
-                        data.put("COUNTER",counter.getText().toString());
-                        data.put("NOTE",note.getText().toString());
-                        data.put("PIC_SRC",imgUri.toString());
-                        data.put("ONOFF_FLAG","TRUE");
+                        data.put("COUNTER", counter.getText().toString());
+                        data.put("NOTE", note.getText().toString());
 
-                        Log.d("BASI",counter.getText().toString());
-                        Log.d("BASI",note.getText().toString());
+                        if (imgUri == null) {
+                            data.put("PIC_SRC", "NULL");
+                        } else {
+                            data.put("PIC_SRC", imgUri.getPath().toString());
+                        }
+
+                        data.put("ONOFF_FLAG", "TRUE");
+
+                        Log.d("BASI", counter.getText().toString());
+                        Log.d("BASI", note.getText().toString());
 
 
                         mdo.add_manschine(data);
@@ -151,17 +204,17 @@ public class m_conf_maschine extends AppCompatActivity
                         m_conf_maschine_adapter mcma = new m_conf_maschine_adapter(mdo.get_maschinen(RROJ_NR));
                         m_rcv.setAdapter(mcma);
 
+
                         //(ID TEXT,PROJ_NR TEXT,DATE TEXT,TIME TEXT,NR TEXT,NAME TEXT,CATEGORY TEXT,COUNTER TEXT,NOTE TEXT,PIC_SRC TEXT,ONOFF_FLAG TEXT)");
 
-                     dialogInterface.cancel();
+                        dialogInterface.cancel();
 
                     }
                 });
 
                 alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i)
-                    {
+                    public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.cancel();
                     }
                 });
@@ -171,17 +224,21 @@ public class m_conf_maschine extends AppCompatActivity
                 // show it
                 alertDialog.show();
 
-            }
-        });
+
+            break;
+
+            case "modify":
+
+                break;
 
 
 
+
+        }
 
 
 
     }
-
-
 
 
 }

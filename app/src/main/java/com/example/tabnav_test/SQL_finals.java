@@ -15,8 +15,4 @@ public interface SQL_finals
 
     //Spaltennamen TAbellen
 
-
-
-
-
 }

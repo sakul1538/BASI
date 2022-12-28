@@ -121,9 +121,6 @@
     <string name="m_conf_masch_list_dummy_value">None</string>
 
 
-
-
-
     <string name="summary_material_label">Material:</string>
     <string name="summary_material_value_label">Wert:</string>
     <string name="summary_material_comment_label">Bemerkung:</string>

@@ -4,7 +4,13 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,7 +21,9 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +42,7 @@ import android.widget.Toast;
 import org.w3c.dom.Text;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
@@ -49,7 +58,10 @@ public class Kamera<onActivityResult> extends Fragment
 
 
     String currentPhotoPath;
-    Uri currentPhotoPaht_uri;
+    Uri photoURI=null;
+
+    int onresumecode=0;
+
 
     static final int REQUEST_IMAGE_CAPTURE = 2;
     static final String RROJ_NR="0";
@@ -112,7 +124,6 @@ public class Kamera<onActivityResult> extends Fragment
     }
 
 
-
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -120,12 +131,12 @@ public class Kamera<onActivityResult> extends Fragment
 
     }
 
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
-
-
 
         View view = inflater.inflate(R.layout.fragment_kamera, container, false);
 
@@ -146,6 +157,8 @@ public class Kamera<onActivityResult> extends Fragment
         adddir = view.findViewById(R.id.imageButton7);
         adddir_delet = view.findViewById(R.id.imageButton10);
         adddir_modify = view.findViewById(R.id.imageButton9);
+        camera_photo = view.findViewById(R.id.imageView3);
+
 
 
 
@@ -189,28 +202,27 @@ public class Kamera<onActivityResult> extends Fragment
             }
         });
 
-        ImageView finalPreviewImageView = previewImageView;
 
         take_picture.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
+
+
             {
-                String[] responde = spinnerops.getOne(RROJ_NR,String.valueOf(spinner.getSelectedItem()));
 
-                String date = curr_date.getText().toString();
-                date = date.replace(".","");
-                if(kamera_switch_tag_onoff.isChecked() == true)
+               String[] responde = spinnerops.getOne(RROJ_NR, String.valueOf(spinner.getSelectedItem()));
+
+               String date = curr_date.getText().toString();
+                date = date.replace(".", "");
+                if (kamera_switch_tag_onoff.isChecked() == true)
                 {
-                    dispatchTakePictureIntent(responde[1],responde[0],true,kamera_tag_field_value.getText().toString(),date);
+                    dispatchTakePictureIntent(responde[1], responde[0], true, kamera_tag_field_value.getText().toString(), date);
 
-                }
-                else
-                {
-                    dispatchTakePictureIntent(responde[1],responde[0],false,"",date); //Path ,Name
-                }
-
+                } else
+                    dispatchTakePictureIntent(responde[1], responde[0], false, "", date); //Path
             }
+
         });
 
         kamera_switch_tag_onoff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -231,7 +243,6 @@ public class Kamera<onActivityResult> extends Fragment
                 }
             }
         });
-
 
 
         kamera_reset_tag.setOnClickListener(new View.OnClickListener() {
@@ -255,19 +266,6 @@ public class Kamera<onActivityResult> extends Fragment
                 curr_date.setText(date);
 
                 date_bg.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.hellgrün));
-
-              /*  String paht = String.valueOf(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)+"/Baustellen/Martinsheim, Visp/Lieferscheine/");
-
-
-                File f = new File(paht);
-                String[] fil =f.list();
-                for (String pathname : fil) {
-                    // Print the names of files and directories
-                    Log.d("BASI:",pathname);
-                }
-                */
-
-
 
 
             }
@@ -311,7 +309,6 @@ public class Kamera<onActivityResult> extends Fragment
         return view;
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
@@ -329,6 +326,137 @@ public class Kamera<onActivityResult> extends Fragment
                     String message=String.valueOf(data.getData().getLastPathSegment());
 
                     dir.setText(message);
+
+                break;
+
+            case 2:
+
+
+                final int m_scale = 300;
+
+                Basic_funct bsf  = new Basic_funct();
+
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inScaled = false;
+                options.inMutable = true;
+
+
+                String path = photoURI.getPath();
+                Log.d("BASI:",path);
+                path = path.replace("/primary/","");
+                Bitmap bMapScaled = null;
+                Bitmap bMap = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + "/" + path,options);
+
+                String[] a = path.split("/");
+                String fname = a[a.length-1];
+                Log.d("BASI:",fname);
+
+               // Test@26122022_ID_1919502944178257522.jpeg
+
+                String[] b  = fname.split("@");
+
+                String speicherort =b[0];
+                String[]c = b[1].split("_");
+                String datum =c[0];
+
+                String stamp = speicherort+"   "+datum.substring(0,2)+"."+datum.substring(2,4)+"."+datum.substring(4,8);
+
+                try {
+
+                    ExifInterface exif = new ExifInterface(Environment.getExternalStorageDirectory()+"/"+path);
+                    int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,0);
+
+
+                    Toast.makeText(getContext(),String.valueOf(rotation),Toast.LENGTH_LONG).show();
+
+                    int width= exif.getAttributeInt(ExifInterface.TAG_PIXEL_X_DIMENSION,0);
+                    int height= exif.getAttributeInt(ExifInterface.TAG_PIXEL_Y_DIMENSION,0);
+                    Matrix matrix = new Matrix();
+
+                    switch (rotation)
+                    {
+                        case 3:
+
+                            matrix.setRotate(180);
+                            bMapScaled = Bitmap.createBitmap(bMap, 0, 0,width, height, matrix, true);
+
+                        break;
+
+
+                        case 6:
+
+                            matrix.setRotate(90);
+                            bMapScaled = Bitmap.createBitmap(bMap, 0, 0,width, height, matrix, true);
+                            break;
+
+                        default:
+                            bMapScaled = Bitmap.createBitmap(bMap, 0, 0, width, height, matrix, true);
+
+                    }
+
+
+                    Paint paint = new Paint();
+
+                    paint.setStyle(Paint.Style.FILL);
+                    paint.setColor(Color.rgb(225, 20, 225));
+                    paint.setTextSize(100);
+
+
+                    Canvas canvas = new Canvas(bMapScaled);
+                    canvas.drawText(stamp, 20, bMapScaled.getHeight()-20, paint);
+                    //camera_photo.setImageBitmap(bMapScaled);
+
+
+                  String url =  bsf.saveImage(bMapScaled, Environment.getExternalStorageDirectory()+"/"+ path.replace(fname,""),fname);
+
+                    ExifInterface exif2 = new ExifInterface(url);
+                    int width2= exif.getAttributeInt(ExifInterface.TAG_PIXEL_X_DIMENSION,0);
+                    int height2= exif.getAttributeInt(ExifInterface.TAG_PIXEL_Y_DIMENSION,0);
+                    int rotation2 = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,0);
+
+                  Bitmap bMap2 = BitmapFactory.decodeFile(url);
+
+                    Bitmap bitmap3;
+                    int bitmap_dim = 900;
+
+                    switch (rotation2)
+                    {
+                        case 6:
+                            //Hochkant
+                            bitmap3= Bitmap.createScaledBitmap(bMap2, bitmap_dim/2,bitmap_dim, true);
+
+                            break;
+
+                        default:
+                            bitmap3= Bitmap.createScaledBitmap(bMap2, bitmap_dim,bitmap_dim/2, true);
+
+                    }
+
+
+
+
+
+
+                   camera_photo.setImageBitmap(bitmap3);
+
+                } catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+
+
+
+
+
+
+
+
+                //camera_photo.setImageBitmap(bMapScaled);
+
+
+
+
+
 
                 break;
             default:
@@ -483,6 +611,8 @@ public class Kamera<onActivityResult> extends Fragment
 
     private void dispatchTakePictureIntent(String path,String title,boolean tag_on,String tag,String date)
     {
+
+
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
 
@@ -500,20 +630,33 @@ public class Kamera<onActivityResult> extends Fragment
             // Continue only if the File was successfully created
             if (photoFile != null)
             {
-                Uri photoURI = FileProvider.getUriForFile(getContext(),"com.example.tabnav_test.fileprovider",photoFile);
+                photoURI = FileProvider.getUriForFile(getContext(),"com.example.tabnav_test.fileprovider",photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-
-                startActivity(takePictureIntent);
-                Log.d("Foto:",photoURI.toString());
-
+                startActivityForResult(takePictureIntent,2);
 
             }
         }
 
-    private void startActivityForResult()
 
+
+    private File createImageFile2() throws IOException
     {
+        String  abs_path = "/storage/emulated/0/DCIM/";
+        Basic_funct bsf = new Basic_funct();
+
+       File storageDir = new File(abs_path);
+       File image = File.createTempFile(
+               "BASI_temp",  /* prefix */
+               ".jpeg",         /* suffix */
+               storageDir      /* directory */
+       );
+
+      // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+
+        return image;
     }
+
 
     private File createImageFile(String path,String title,boolean tag_on,String tag,String date) throws IOException
     {
@@ -559,7 +702,6 @@ public class Kamera<onActivityResult> extends Fragment
 
         return image;
     }
-
 }
 
 

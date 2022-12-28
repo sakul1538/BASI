@@ -4,7 +4,15 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +21,8 @@ import android.widget.EditText;
 import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -137,6 +147,89 @@ public class Basic_funct
         }
         return v;
     }
+
+    public Bitmap getBitmap(String path,String text_stamp)
+    {
+
+
+        String[] parts = path.split(":");
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+        options.inMutable = true;
+
+        Bitmap bMap = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + "/"+parts[1],options);
+
+        Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, bMap.getWidth(), bMap.getHeight(), true);
+
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.rgb(225, 20, 225));
+        paint.setTextSize(50);
+
+
+        String timestamp = this.date_refresh()+ "  "+this.time_refresh() + " "+text_stamp;
+
+        Canvas canvas = new Canvas(bMapScaled);
+
+        canvas.drawText(timestamp, 20, bMapScaled.getHeight()-20, paint);
+
+
+        return bMapScaled;
+
+    }
+
+    public String saveImage(Bitmap finalBitmap,String dir,String fname)
+    {
+
+        File myDir = new File(dir);
+        myDir.mkdirs();
+
+
+        //Calendar calendar = Calendar.getInstance();
+      //  SimpleDateFormat zeitformat = new SimpleDateFormat("HHmmss");
+       // String time= zeitformat.format(calendar.getTime());
+        //String fname = this.gen_ID()+"_"+ time +".jpg";
+
+        File file = new File(myDir, fname);
+        if (file.exists())
+        {
+            file.delete ();
+        }
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+            log("Speichen erfolgreich!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return dir+fname;
+    }
+
+
+        /*Matrix matrix = new Matrix();
+        matrix.set
+
+        Bitmap rotatedBitmap = Bitmap.createBitmap(original, 0, 0, width, height, matrix, true);
+        Canvas canvas = new Canvas(rotatedBitmap);
+        canvas.drawBitmap(original, 5.0f, 0.0f, null);*/
+
+
+
+
+
+    public void log(String msg)
+    {
+
+        Log.d("BASI",msg);
+
+
+    }
+
+
+
 
 }
 

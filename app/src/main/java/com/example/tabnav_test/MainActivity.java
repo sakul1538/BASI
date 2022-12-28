@@ -22,6 +22,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.google.android.material.tabs.TabLayout;
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity
     ViewPager2 viewPager2;
 
     ScreenSlidePagerAdapter adapter;
+    ScrollView scroll_main;
 
 
 
@@ -50,6 +52,9 @@ public class MainActivity extends AppCompatActivity
         // using toolbar as ActionBar
 
         viewPager2 =(ViewPager2) findViewById(R.id.viewPager1);
+        scroll_main =(ScrollView) findViewById(R.id.scroll_view_main);
+
+
 
         CoordinatorLayout clay = (CoordinatorLayout) findViewById(R.id.colay_main);
         tabLayout = (TabLayout) findViewById((R.id.tabLayout3));
@@ -66,12 +71,15 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+
+
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener()
         {
             @Override
             public void onTabSelected(TabLayout.Tab tab)
             {
                 viewPager2.setCurrentItem(tab.getPosition());
+               scroll_main.scrollTo(0,0);
 
 
                 Log.d("POSI", String.valueOf(tab.getPosition()));
