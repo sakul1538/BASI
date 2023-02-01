@@ -421,7 +421,6 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
             default:
                 break;
 
-
         }
 
 

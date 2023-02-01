@@ -35,7 +35,6 @@ public class ScreenSlidePagerAdapter  extends FragmentStateAdapter
                 fragment = new summary_main();
                 break;
 
-
             case 4:
                 fragment = new settings();
                 break;

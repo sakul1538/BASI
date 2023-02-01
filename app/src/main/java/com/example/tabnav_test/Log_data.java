@@ -1,6 +1,5 @@
 package com.example.tabnav_test;
 
-import static com.example.tabnav_test.R.id.categorys_view;
 import static com.example.tabnav_test.R.id.check_fav_state;
 import static com.example.tabnav_test.R.id.delet_check_true;
 import static com.example.tabnav_test.R.id.erledigt_false;
@@ -12,9 +11,6 @@ import static com.example.tabnav_test.R.id.log_search_button;
 import static com.example.tabnav_test.R.id.log_search_field;
 import static com.example.tabnav_test.R.id.log_search_filter_dialog_button;
 import static com.example.tabnav_test.R.id.log_show_reset_button;
-import static com.example.tabnav_test.R.id.rec_view_background;
-
-import static java.security.AccessController.getContext;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -23,20 +19,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -49,11 +37,8 @@ import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 public class Log_data extends AppCompatActivity {
     RecyclerView rcv1;
@@ -414,6 +399,7 @@ public class Log_data extends AppCompatActivity {
         MenuInflater inflater = popup.getMenuInflater();
         inflater.inflate(R.menu.actions, popup.getMenu());
         popup.show();
+
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem)
@@ -423,7 +409,7 @@ public class Log_data extends AppCompatActivity {
 
                 switch (menuItem.getItemId())
                 {
-                    case R.id.delet_all:
+                    case R.id.delet_all_entrys:
 
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(v.getContext());
                         alertDialogBuilder.setTitle("Bestätige:");

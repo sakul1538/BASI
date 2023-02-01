@@ -5,136 +5,104 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/hellgrün"
-    tools:context=".m_conf_maschine">
+    tools:context=".m_log_main">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="5dp"
-        android:baselineAligned="false"
-        android:gravity="center_horizontal"
         android:orientation="vertical"
-        tools:layout_editor_absoluteX="5dp"
-        tools:layout_editor_absoluteY="5dp">
+        tools:layout_editor_absoluteX="1dp"
+        tools:layout_editor_absoluteY="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="5dp"
             android:orientation="horizontal">
 
             <ImageButton
-                android:id="@+id/m_conf_add_maschine_button"
+                android:id="@+id/imageButton22"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:background="@color/purple_500"
+                android:background="@color/hellgrün"
                 android:padding="5dp"
-                app:srcCompat="@drawable/ic_baseline_add_box_24" />
+                app:srcCompat="@drawable/ic_baseline_table_rows_24" />
 
             <ImageButton
-                android:id="@+id/m_conf_find_maschine_button"
+                android:id="@+id/imageButton26"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:background="@color/purple_500"
+                android:background="@color/hellgrün"
                 android:padding="5dp"
-                app:srcCompat="@drawable/ic_baseline_search_24" />
+                app:srcCompat="@drawable/ic_baseline_cloud_upload_24" />
 
             <ImageButton
-                android:id="@+id/m_conf_filter_maschine_button"
+                android:id="@+id/imageButton27"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:background="@color/purple_500"
-                android:padding="5dp"
-                app:srcCompat="@drawable/ic_baseline_filter_alt_24" />
-
-            <ImageButton
-                android:id="@+id/m_conf_date_maschine_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:layout_weight="1"
-                android:background="@color/purple_500"
+                android:background="@color/hellgrün"
                 android:padding="5dp"
                 app:srcCompat="@drawable/ic_baseline_calendar_month_24" />
 
             <ImageButton
-                android:id="@+id/m_conf_reset_search_maschine"
+                android:id="@+id/imageButton28"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:background="@color/purple_500"
+                android:background="@color/hellgrün"
                 android:padding="5dp"
                 app:srcCompat="@drawable/ic_baseline_cancel_24" />
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/m_conf_date_maschine_dialog"
+            android:id="@+id/layout_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center|center_horizontal"
+            android:layout_margin="5dp"
+            android:gravity="center|center_vertical"
             android:orientation="horizontal"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <ImageButton
-                android:id="@+id/imageButton12"
+                android:id="@+id/imageButton29"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:layout_weight="1"
-                android:background="@color/purple_500"
-                app:srcCompat="@drawable/ic_baseline_keyboard_double_arrow_left_24" />
-
-            <ImageButton
-                android:id="@+id/m_conf_date_maschine_curr_date_backward"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
+                android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:background="@color/purple_500"
                 app:srcCompat="@drawable/ic_baseline_keyboard_arrow_left_24" />
 
             <TextView
-                android:id="@+id/m_conf_date_maschine_curr_date"
+                android:id="@+id/textView15"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text="TextView"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:gravity="center"
+                android:text="TextView" />
 
             <ImageButton
-                android:id="@+id/m_conf_date_maschine_curr_date_forward"
+                android:id="@+id/imageButton30"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
+                android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:background="@color/purple_500"
                 app:srcCompat="@drawable/ic_baseline_keyboard_arrow_right_24" />
-
-            <ImageButton
-                android:id="@+id/imageButton21"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:layout_weight="1"
-                android:background="@color/purple_500"
-                app:srcCompat="@drawable/ic_baseline_keyboard_double_arrow_right_24" />
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/m_rcv"
+            android:id="@+id/rcv"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="5dp" />
+            android:layout_height="match_parent" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

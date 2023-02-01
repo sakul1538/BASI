@@ -7,13 +7,17 @@
     android:layout_margin="5dp">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/linearLayout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
         android:background="@color/grey"
         android:orientation="vertical"
-        tools:layout_editor_absoluteX="1dp"
-        tools:layout_editor_absoluteY="1dp">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <TextView
             android:id="@+id/textView37"
@@ -137,6 +141,24 @@
                 android:background="@color/blue"
                 android:padding="10dp"
                 app:srcCompat="@drawable/ic_baseline_info_24" />
+
+            <ImageButton
+                android:id="@+id/imageButton19"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/hellgrün"
+                android:padding="10dp"
+                app:srcCompat="@drawable/ic_baseline_list_alt_24" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:orientation="horizontal">
 
             <Switch
                 android:id="@+id/switch1"

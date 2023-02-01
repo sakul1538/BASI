@@ -39,7 +39,8 @@ public class Second2Fragment extends Fragment {
     }
 
     @Override
-    public void onDestroyView() {
+    public void onDestroyView()
+    {
         super.onDestroyView();
         binding = null;
     }

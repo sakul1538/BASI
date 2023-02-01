@@ -1,0 +1,174 @@
+
+ //Dialogfelder
+ View promptsView = getLayoutInflater().inflate(R.layout.m_add_maschine_dialog, null);
+
+ AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(m_conf_maschine.this);
+ alertDialogBuilder.setView(promptsView);
+ alertDialogBuilder.setTitle("Maschine hinzufügen");
+ alertDialogBuilder.setPositiveButton
+ alertDialogBuilder.setNegativeButton
+ AlertDialog alertDialog = alertDialogBuilder.create();
+ alertDialog.show();
+
+
+View promptsView = getLayoutInflater().inflate(R.layout.m_add_maschine_dialog, null);
+
+m_rcv = (RecyclerView) findViewById(R.id.m_rcv);
+String[] data = mdo.get_maschinen(RROJ_NR);
+mcma = new m_conf_maschine_adapter(data);
+m_rcv.setAdapter(mcma);
+m_rcv.setLayoutManager( new LinearLayoutManager(m_conf_maschine.this));
+
+
+Environment.getExternalStorageDirectory(); ///storage/emulated/0
+
+
+Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+intent.addCategory(Intent.CATEGORY_OPENABLE);
+intent.setType("image/*");
+startActivityForResult(intent, 1);
+
+
+ContentValues data = new ContentValues();
+data.put("PROJ_NR", RROJ_NR);
+
+
+imageview.setImageResource(R.drawable.ic_baseline_error_outline_24); //Setze icon
+TextView.setTextColor(context.getResources().getColor(R.color.rot)); //In Adapter
+TextView.setTextColor(getResources().getColor(R.color.rot)); //In Adapter
+
+
+//TextView
+TextView.setVisibility(View.GONE);
+TextView.setVisibility(View.VISIBLE);
+TextView.setVisibility(View.INVISIBLE);
+
+//Toast
+Toast.makeText(context,"Machine wurde NICHT Registriert! \n Fehlende Angaben!",Toast.LENGTH_SHORT).show();
+
+
+//Logcat
+
+package:mine
+
+//Untermenu bei z.B. Imagebuttons (als Funktion implementiert )
+//actions.mxl beinhaltet das Desing
+
+    public void log_show_action_data_popup(View v) {
+        PopupMenu popup = new PopupMenu(this, v);
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.actions, popup.getMenu());
+        popup.show();
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem)
+            {
+                // Handle item selection
+                log_fav log = new log_fav(getApplicationContext());
+
+                switch (menuItem.getItemId())
+                {
+                    case R.id.delet_all:
+
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(v.getContext());
+                        alertDialogBuilder.setTitle("Bestätige:");
+                        alertDialogBuilder.setMessage("Alle Angezeigte Elemente aus der Datenbank entfernen?");
+
+                        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+
+                                for (int n = 0; n < recv_daten.length; n++)
+                                {
+                                    String[] recv_daten_parts = recv_daten[n].split(",");
+
+                                    int response =log.delet_log_entry(recv_daten_parts[0],RROJ_NR);
+
+                                    if(response == 1)
+                                    {
+                                        Log.d("BASI:DELET ENTRY ID;",recv_daten_parts[0]);
+                                    }
+                                    else
+                                    {
+                                        Log.d("BASI:ERROR ENTRY ID;",recv_daten_parts[0]);
+
+                                    }
+
+                                }
+                                recv_daten = log.getalllogdata(RROJ_NR);
+
+                                log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
+                                rcv1.setAdapter(lca);
+                            }
+
+                        });
+
+                        alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                                Toast.makeText(v.getContext(), "Aktion abgebrochen!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                        alertDialogBuilder.show();
+
+
+                       break;
+
+
+                    case delet_check_true:
+
+
+                        for (int i = 0; i < recv_daten.length; i++)
+                        {
+                            String[] recv_daten_parts = recv_daten[i].split(",");
+
+                            int response =log.delet_log_entry_if_check_true(recv_daten_parts[0],RROJ_NR);
+
+                        }
+
+                        recv_daten = log.log_search_data(RROJ_NR, pack_search_values());
+
+                        log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
+                        rcv1.setAdapter(lca);
+
+                        break;
+                }
+                return false;
+            }
+        });
+    }
+
+//actions.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+        <item android:id="@+id/delet"
+            android:title="Löschen" >
+        <menu>
+            <item android:id="@+id/delet_all"
+                android:title="@string/log_actions_delet_all" > </item>
+            <item android:id="@+id/delet_check_true"
+                android:title="@string/log_actions_delet_all_check_true" > </item>
+</menu>
+
+        </item>
+    <item android:id="@+id/sync"
+        android:title="Synchronisieren" >
+        <menu>
+            <item android:id="@+id/sync_Update_form_server"
+                android:title="Alle Daten Aktualisieren vom Server" > </item>
+
+            <item android:id="@+id/sync_Update_to_server"
+                android:title="Alle Daten Aktualisieren zum Server " > </item>
+
+            <item android:id="@+id/sync_db_settings"
+                android:title="Sync Einstellungen" > </item>
+        </menu>
+        <!-- "file" submenu -->
+    </item>
+    </menu>

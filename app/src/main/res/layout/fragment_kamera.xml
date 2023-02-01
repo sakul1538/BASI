@@ -147,19 +147,17 @@
             <LinearLayout
                 android:id="@+id/tag_background"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="5dp"
                 android:orientation="horizontal">
 
-                <EditText
+                <AutoCompleteTextView
                     android:id="@+id/kamera_tag_field_value"
-                    android:layout_width="164dp"
+                    android:layout_width="180dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
                     android:layout_weight="1"
-                    android:ems="10"
-                    android:inputType="textPersonName"
-                    android:text="@string/empty" />
+                    android:text="@string/empty"
+                    tools:text="@string/empty" />
 
                 <Switch
                     android:id="@+id/kamera_switch_tag_onoff"
@@ -169,6 +167,16 @@
                     android:layout_weight="1"
                     android:padding="10dp"
                     android:text="@string/kamera_tag_onoff" />
+
+                <ImageButton
+                    android:id="@+id/tag_add_to_fav"
+                    android:layout_width="@dimen/buttons_1"
+                    android:layout_height="@dimen/buttons_1"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:background="@color/purple_500"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_baseline_star_24" />
 
                 <ImageButton
                     android:id="@+id/kamera_reset_tag_button"

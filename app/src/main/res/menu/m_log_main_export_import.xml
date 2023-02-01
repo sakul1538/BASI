@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="@string/ex_port" >
+        <menu >
+            <item
+                android:id="@+id/export_backup"
+                android:icon="@drawable/database"
+                android:title="@string/share_backup" />
+            <item
+                android:id="@+id/export_csv"
+                android:icon="@drawable/file_excel"
+                android:title="@string/share_csv" />
+            <item
+                android:id="@+id/export_txt"
+                android:icon="@drawable/file_text"
+                android:title="@string/share_txt" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/import_data"
+        android:title="@string/im_port"></item>
+    <item
+        android:id="@+id/delet_all_entrys"
+        android:title="@string/delet_all_entrys" />
+</menu>

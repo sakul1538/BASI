@@ -48,6 +48,7 @@
         <item>Autos</item>
         <item>Anhänger</item>
         <item>Mietmaschine</item>
+
     </string-array>
     <string name="title_activity_settings">Projekte</string>
 
@@ -117,6 +118,19 @@
     <string name="m_conf_masch_list_note">Notiz/Bemerkung:</string>
     <string name="m_conf_masch_list_swichonoff">ON/OFF:</string>
     <string name="m_conf_masch_list_addbild">Bild:</string>
+    <string name="m_conf_masch_countertyp_1">Zählerstand</string>
+    <string name="m_conf_masch_countertyp_2">Addition</string>
+    <string name="m_info_name">Name:</string>
+    <string name="m_info_nr">Nr:</string>
+    <string name="m_info_created">Erstellt:</string>
+    <string name="m_info_category">Kategorie:</string>
+    <string name="m_info_note">Notiz:</string>
+    <string name="m_info_counter">Zählerstand:</string>
+    <string name="m_info_entry_counter">Anzahl Einträge:</string>
+    <string name="m_info_entry_last">Letzter Eintrag:</string>
+    <string name="m_database_layout1_date">Datum:</string>
+    <string name="m_database_layout1_time">Uhrzeit:</string>
+
 
     <string name="m_conf_masch_list_dummy_value">None</string>
 
@@ -133,6 +147,18 @@
     <string name="time_sample">13:00</string>
     <string name="kategorie_sample">Tätikeit Gartenbau</string>
     <string name="title_activity_mconf_maschine">m_conf_maschine</string>
+
+    <string name="share_pdf">.PDF</string>
+    <string name="share_backup">Backup</string>
+    <string name="share_csv">.CSV</string>
+    <string name="share_txt">.TXT</string>
+
+
+    <string name="im_port">Import</string>
+    <string name="ex_port">Export</string>
+    <string name="delet_all_entrys">Alle Einträge löschen </string>
+
+
 
 
 </resources>
