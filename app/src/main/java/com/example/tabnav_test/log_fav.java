@@ -180,11 +180,15 @@ public class log_fav extends SQLiteOpenHelper implements SQL_finals
 // Insert the new row, returning the primary key value of the new row
                 newRowId = db.insert(TB_NAME_LOG_CONF,null,values);
             }
+            else
+            {
+                Toast.makeText(context, "Eintrag existiert schon", Toast.LENGTH_SHORT).show();
+            }
             cursor.close();
 
         }catch (Exception e)
         {
-            Toast.makeText(context,e.getMessage().toString(),Toast.LENGTH_LONG).show();
+            exmsg("0502020231144",e);
         }
 
 
@@ -302,18 +306,51 @@ public class log_fav extends SQLiteOpenHelper implements SQL_finals
 
     public int modifylogfav(String proj_id, String name, String new_name)
     {
-            SQLiteDatabase db = this.getWritableDatabase();
-            String[] selectionArgs = {proj_id,"ITHEM_FAV","ITHEM_FAV_GLOBAL",name};
-            where = "ID=? AND (NAME=? OR NAME=?) AND VALUE=? ";
-            int i=0;
+        try {
+            SQLiteDatabase rdb = this.getReadableDatabase();
+            String[] selectionArgs = {proj_id,"ITHEM_FAV","ITHEM_FAV_GLOBAL",new_name};
+            String where = "ID=? AND   (NAME=? OR NAME=?) AND VALUE=? ";
 
-            ContentValues values = new ContentValues();
+            Cursor  cursor = rdb.query(TB_NAME_LOG_CONF,null,where,selectionArgs,null,null,null,null);
+            Log.d("CURSOR",String.valueOf(cursor.getCount()));
 
-            values.put("VALUE", new_name);
+            if(cursor.getCount() == 0)
+            {
+                rdb.close();
+                cursor.close();
 
-            int response = db.update(TB_NAME_LOG_CONF,values,where,selectionArgs);
+                ContentValues values = new ContentValues();
+                values.put("VALUE", new_name);
 
-            return response;
+                try
+                {
+
+                    SQLiteDatabase wdb = this.getWritableDatabase();
+                    String [] selectionArgs_update = {proj_id,"ITHEM_FAV","ITHEM_FAV_GLOBAL",name};
+                    String where_update = "ID=? AND   (NAME=? OR NAME=?) AND VALUE=? ";
+                    int response = wdb.update(TB_NAME_LOG_CONF,values,where_update,selectionArgs_update); //wdb.update return: the number of rows affected
+                    wdb.close();
+
+                    return response; //Rückbgabe wert wenn geupdatet 0>
+
+                } catch (Exception e)
+                {
+                    exmsg("050220231237",e);
+                    return 0;
+                }
+            }
+            else
+            {
+                rdb.close();
+                cursor.close();
+
+                return 0;
+            }
+        } catch (Exception e)
+        {
+            exmsg("050220231236",e);
+            return 0;
+        }
 
     }
 
@@ -323,8 +360,8 @@ public class log_fav extends SQLiteOpenHelper implements SQL_finals
         String[] selectionArgs = {proj_id,"ITHEM_FAV","ITHEM_FAV_GLOBAL",name};
         where = "ID=? AND (NAME=? OR NAME=?) AND VALUE=? ";
 
-
         int response = db.delete(TB_NAME_LOG_CONF,where,selectionArgs);
+        // response=  the number of rows affected if a whereClause is passed in, 0 otherwise. To remove all rows and get a count pass "1" as the whereClause.
 
         return response;
     }
@@ -393,10 +430,7 @@ public class log_fav extends SQLiteOpenHelper implements SQL_finals
         return global_status;
     }
 
-
-    public int modifylogcategory(String proj_id, String name, String toName)
-    {
-
+/*
             SQLiteDatabase db = this.getWritableDatabase();
             String[] selectionArgs = {proj_id,"ITHEM_CATEGORY","ITHEM_CATEGORY_GLOBAL",name};
             where = "ID=? AND (NAME=? OR NAME=?) AND VALUE=? ";
@@ -409,8 +443,89 @@ public class log_fav extends SQLiteOpenHelper implements SQL_finals
             int response = db.update(TB_NAME_LOG_CONF,values,where,selectionArgs);
 
             return response;
+*/
+
+    public int modifylogcategory(String proj_id, String name, String new_name)
+    {
+        try {
+            SQLiteDatabase rdb = this.getReadableDatabase();
+            String[] selectionArgs = {proj_id,"ITHEM_CATEGORY","ITHEM_CATEGORY_GLOBAL",new_name};
+            String where = "ID=? AND   (NAME=? OR NAME=?) AND VALUE=? ";
+
+            Cursor  cursor = rdb.query(TB_NAME_LOG_CONF,null,where,selectionArgs,null,null,null,null);
+            Log.d("CURSOR",String.valueOf(cursor.getCount()));
+
+            if(cursor.getCount() == 0)
+            {
+                rdb.close();
+                cursor.close();
+
+                ContentValues values = new ContentValues();
+                values.put("VALUE", new_name);
+
+                try
+                {
+
+                    SQLiteDatabase wdb = this.getWritableDatabase();
+                    String [] selectionArgs_update = {proj_id,"ITHEM_CATEGORY","ITHEM_CATEGORY_GLOBAL",name};
+                    String where_update = "ID=? AND   (NAME=? OR NAME=?) AND VALUE=? ";
+                    int response = wdb.update(TB_NAME_LOG_CONF,values,where_update,selectionArgs_update); //wdb.update return: the number of rows affected
+                    wdb.close();
+
+                    return response; //Rückbgabe wert wenn geupdatet 0>
+
+                } catch (Exception e)
+                {
+                    exmsg("050220231911",e);
+                    return 0;
+                }
+            }
+            else
+            {
+                rdb.close();
+                cursor.close();
+
+                return 0;
+            }
+        } catch (Exception e)
+        {
+            exmsg("050220231912",e);
+            return 0;
+        }
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public int deletlogcategory(String proj_id, String name)
     {
@@ -540,4 +655,12 @@ public class log_fav extends SQLiteOpenHelper implements SQL_finals
         }
 
     }
+
+
+    private void exmsg(String msg,Exception e)
+    {
+        Log.e("Exception: lov_fav ->","ID: "+msg+" Message:" +e.getMessage().toString());
+        e.printStackTrace();
+    }
+
 }

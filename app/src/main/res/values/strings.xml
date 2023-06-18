@@ -4,6 +4,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="kamera_dir">Speicherort: </string>
+    <string name="kamera_dir_group">Mit Subordner </string>
     <string name="kamera_tag">Tag: </string>
     <string name="kamera_tag_onoff">ON/OFF</string>
     <string name="start">Speicherort: </string>
@@ -37,19 +38,6 @@
     <string name="settings_title">Projekte</string>
     <string name="settings_f1">Neues Projekt anlegen: </string>
 
-
-    <string-array name="m_categorys">
-        <item>None</item>
-        <item>Bagger</item>
-        <item>Dumper</item>
-        <item>Hukys</item>
-        <item>Verdichtungsgeräte</item>
-        <item>Kleinmaschinen</item>
-        <item>Autos</item>
-        <item>Anhänger</item>
-        <item>Mietmaschine</item>
-
-    </string-array>
     <string name="title_activity_settings">Projekte</string>
 
     <!-- Preference Titles -->
@@ -152,12 +140,73 @@
     <string name="share_backup">Backup</string>
     <string name="share_csv">.CSV</string>
     <string name="share_txt">.TXT</string>
+    <string name="share_cloud">Sync</string>
 
 
     <string name="im_port">Import</string>
     <string name="ex_port">Export</string>
     <string name="delet_all_entrys">Alle Einträge löschen </string>
+    <string name="Dummydata">Generiere Dummy Daten</string>
 
+
+    <string name="menu_new_maschine">Neue Maschine</string>
+    <string name="menu_maschine_export">Exportieren</string>
+    <string name="menu_maschine_import">Import</string>
+
+    <string name="material_projekt_banner">Projekt</string>
+    <string name="material_datum_ls_banner">Datum/LS Nr</string>
+    <string name="material_zulieferer_banner">Zulieferer</string>
+    <string name="material_wievie_was_lbanner">Artikel/Menge/Einheit</string>
+    <string name="material_medien_banner">Medien</string>
+    <string name="LSnr_label">LS-Nr</string>
+    <string name="Proj_label_sample">Ceppi Areal Lonza</string>
+    <string name="Artikel_label">Artikel</string>
+    <string name="Menge_label">Menge</string>
+    <string name="Medien_switch_label">Speichern ON/OFF</string>
+    <string name="Projektname_add_dialog_label">Projektname: </string>
+    <string name="Projektdir_add__dialog_label">Projektverzeichniss: </string>
+    <string name="Proj_nr_banner">Projekt ID:</string>
+    <string name="matieral_zulieferen_banner">Lieferanten Name:</string>
+
+
+
+
+    <string-array name="planets_array">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+    </string-array>
+
+    <string-array name="m_categorys">
+        <item>None</item>
+        <item>Bagger</item>
+        <item>Dumper</item>
+        <item>Hukys</item>
+        <item>Verdichtungsgeräte</item>
+        <item>Kleinmaschinen</item>
+        <item>Autos</item>
+        <item>Anhänger</item>
+        <item>Mietmaschine</item>
+    </string-array>
+
+
+        <string-array name="einheiten_array">
+            <item>m3</item>
+            <item>m2</item>
+            <item>t</item>
+            <item>kg</item>
+            <item>g</item>
+            <item>Liter</item>
+            <item>ml</item>
+            <item>m</item>
+            <item>Stück</item>   $
+            <item>Pack</item>
+            <item>Bund</item>
+            <item>km</item>
+            <item>cm</item>
+            <item>mm</item>
+        </string-array>
 
 
 

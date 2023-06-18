@@ -5,8 +5,10 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.transition.TransitionValues;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,10 +67,26 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
         String note_encoded = null;
         dataset = localDataSet[position].split(",");
 
-        viewHolder.datum.setText(dataset[2]);
+        try {
+            viewHolder.datum.setText(bsf.convert_date(dataset[2],"format_database_to_readable"));
+        } catch (Exception e)
+        {
+            viewHolder.datum.setText(dataset[2]);
+            exmsg("050220231110",e);
+            e.printStackTrace();
+        }
+
         viewHolder.zeit.setText(dataset[3]);
         viewHolder.kategorie.setText(dataset[4]);
-        viewHolder.notiz.setText(bsf.URLdecode(dataset[5]));
+
+        try {
+            viewHolder.notiz.setText(bsf.URLdecode(dataset[5]));
+        } catch (Exception e)
+        {
+            viewHolder.notiz.setText("");
+            exmsg("050220231111",e);
+            e.printStackTrace();
+        }
 
         flag_state = spinnerops.log_get_flag_value(dataset[0],dataset[1],"FAV_FLAG");
         //Hin und herschalten (Toogeln)
@@ -77,11 +95,12 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
 
             case "TRUE":
 
-                viewHolder.log_set_unset_star.setBackgroundColor(Color.rgb(255,235,59));
+                viewHolder.log_set_unset_star.setBackgroundColor(ContextCompat.getColor(context,R.color.yellow));
+
                 break;
 
             case "FALSE":
-                viewHolder.log_set_unset_star.setBackgroundColor(Color.rgb(228,228,228));
+                viewHolder.log_set_unset_star.setBackgroundColor(ContextCompat.getColor(context,R.color.purple_200));
 
                 break;
             default:
@@ -95,11 +114,11 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
 
             case "TRUE":
 
-                viewHolder.log_set_unset_check.setBackgroundColor( ContextCompat.getColor(context, R.color.green));
+                viewHolder.log_set_unset_check.setBackgroundColor( ContextCompat.getColor(context, R.color.hellgrün));
                 break;
 
             case "FALSE":
-                viewHolder.log_set_unset_check.setBackgroundColor(ContextCompat.getColor(context, R.color.orange));
+                viewHolder.log_set_unset_check.setBackgroundColor(ContextCompat.getColor(context, R.color.purple_200));
 
                 break;
             default:
@@ -161,11 +180,10 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                         {
 
                             case "TRUE":
-
-                                view.setBackgroundColor(Color.rgb(255,235,59));
+                                view.setBackgroundColor(ContextCompat.getColor(context,R.color.yellow));
                                 break;
                             case "FALSE":
-                                view.setBackgroundColor(Color.rgb(228,228,228));
+                                view.setBackgroundColor(ContextCompat.getColor(context,R.color.purple_200));
 
                                 break;
                             default:
@@ -221,10 +239,10 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                         switch(flag_state)
                         {
                             case "TRUE":
-                                view.setBackgroundColor(ContextCompat.getColor(context, R.color.green));
+                                view.setBackgroundColor(ContextCompat.getColor(context, R.color.hellgrün));
                                 break;
                             case "FALSE":
-                                view.setBackgroundColor(ContextCompat.getColor(context, R.color.orange));
+                                view.setBackgroundColor(ContextCompat.getColor(context, R.color.purple_200));
 
                                 break;
                             default:
@@ -304,6 +322,15 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
         }
 
     }
+
+    private void exmsg(String msg,Exception e)
+    {
+        Log.e("Exception: log_show_data_adapter ->","ID: "+msg+" Message:" +e.getMessage().toString());
+        e.printStackTrace();
+    }
+
+
+
 
 
 }

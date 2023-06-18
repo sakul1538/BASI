@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:backgroundTintMode="add"
     android:hapticFeedbackEnabled="false"
+    android:padding="10dp"
     tools:context=".Kamera">
 
     <ScrollView
@@ -89,11 +90,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
+                android:gravity="center"
                 android:orientation="horizontal">
 
                 <Spinner
                     android:id="@+id/spinner4"
-                    android:layout_width="230dp"
+                    android:layout_width="250dp"
                     android:layout_height="match_parent"
                     android:dropDownWidth="wrap_content"
                     android:spinnerMode="dialog"
@@ -135,10 +137,10 @@
             <TextView
                 android:id="@+id/textView32"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@color/yellow"
+                android:gravity="top"
                 android:padding="5dp"
                 android:text="@string/kamera_tag"
                 android:textSize="16sp"
@@ -158,15 +160,6 @@
                     android:layout_weight="1"
                     android:text="@string/empty"
                     tools:text="@string/empty" />
-
-                <Switch
-                    android:id="@+id/kamera_switch_tag_onoff"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:layout_weight="1"
-                    android:padding="10dp"
-                    android:text="@string/kamera_tag_onoff" />
 
                 <ImageButton
                     android:id="@+id/tag_add_to_fav"
@@ -188,19 +181,53 @@
                     android:padding="5dp"
                     android:src="@drawable/ic_baseline_cancel_24" />
 
+                <Switch
+                    android:id="@+id/kamera_switch_tag_onoff"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center|top"
+                    android:text="@string/kamera_tag_onoff" />
+
             </LinearLayout>
 
-            <ImageButton
-                android:id="@+id/imageButton11"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:layout_weight="1"
-                android:background="@color/purple_700"
-                android:baselineAlignBottom="false"
-                android:padding="10dp"
-                android:src="@drawable/ic_baseline_add_a_photo_24"
-                tools:ignore="SpeakableTextPresentCheck" />
+                android:layout_height="match_parent"
+                android:orientation="horizontal" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/imageButton11"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:background="@color/purple_200"
+                    android:baselineAlignBottom="false"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_baseline_add_a_photo_24"
+                    tools:ignore="SpeakableTextPresentCheck" />
+
+                <ImageButton
+                    android:id="@+id/imageButton32"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:background="@color/purple_200"
+                    android:baselineAlignBottom="false"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_baseline_cached_24"
+                    tools:ignore="SpeakableTextPresentCheck" />
+
+            </LinearLayout>
 
             <ImageView
                 android:id="@+id/imageView3"

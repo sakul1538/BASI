@@ -30,7 +30,7 @@
                 android:layout_weight="1"
                 android:background="@color/purple_500"
                 android:padding="5dp"
-                app:srcCompat="@drawable/ic_baseline_add_box_24" />
+                app:srcCompat="@drawable/ic_baseline_table_rows_24" />
 
             <ImageButton
                 android:id="@+id/m_conf_find_maschine_button"
@@ -78,7 +78,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:visibility="visible">
+            android:visibility="invisible">
 
             <ImageButton
                 android:id="@+id/imageButton12"
@@ -88,6 +88,7 @@
                 android:layout_marginRight="5dp"
                 android:layout_weight="1"
                 android:background="@color/purple_500"
+                android:visibility="invisible"
                 app:srcCompat="@drawable/ic_baseline_keyboard_double_arrow_left_24" />
 
             <ImageButton
@@ -128,6 +129,7 @@
                 android:layout_marginRight="5dp"
                 android:layout_weight="1"
                 android:background="@color/purple_500"
+                android:visibility="invisible"
                 app:srcCompat="@drawable/ic_baseline_keyboard_double_arrow_right_24" />
         </LinearLayout>
 

@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity
         // using toolbar as ActionBar
 
         viewPager2 =(ViewPager2) findViewById(R.id.viewPager1);
-        scroll_main =(ScrollView) findViewById(R.id.scroll_view_main);
+        //scroll_main =(ScrollView) findViewById(R.id.scroll_view_main);
 
 
 
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity
             public void onTabSelected(TabLayout.Tab tab)
             {
                 viewPager2.setCurrentItem(tab.getPosition());
-               scroll_main.scrollTo(0,0);
+               //scroll_main.scrollTo(0,0);
 
 
                 Log.d("POSI", String.valueOf(tab.getPosition()));

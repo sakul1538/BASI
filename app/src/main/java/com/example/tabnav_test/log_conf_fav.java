@@ -14,13 +14,13 @@ public class log_conf_fav extends AppCompatActivity
 {
 
     private AppBarConfiguration appBarConfiguration;
-    private ActivityLogConfFavBinding binding;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
+        this.setTitle("Kategorien");
         setContentView(R.layout.activity_log_conf_fav);
 
         RecyclerView rcv1= findViewById(R.id.fav_view);

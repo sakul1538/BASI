@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_new_maschine"
+        android:title="@string/menu_new_maschine" />
+    <item
+        android:id="@+id/menu_maschine_export"
+        android:title="@string/menu_maschine_export" >
+        <menu >
+            <item
+                android:id="@+id/menu_maschine_export_backup"
+                android:title="@string/share_backup" />
+            <item
+                android:id="@+id/menu_maschine_export_csv"
+                android:title="@string/share_csv" />
+            <item
+                android:id="@+id/menu_maschine_export_txt"
+                android:title="@string/share_txt" />
+            <item
+                android:id="@+id/menu_maschine_export_cloud"
+                android:title="@string/share_cloud" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/menu_maschine_import"
+        android:title="@string/menu_maschine_import" >
+        <menu >
+            <item
+                android:id="@+id/menu_maschine_import_backup"
+                android:title="@string/share_backup" />
+            <item
+                android:id="@+id/menu_maschine_import_sync"
+                android:title="@string/share_cloud" />
+        </menu>
+    </item>
+</menu>

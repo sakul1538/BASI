@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -14,26 +13,24 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.media.ExifInterface;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.appcompat.widget.Toolbar$InspectionCompanion;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -45,12 +42,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -87,6 +80,8 @@ public class Kamera<onActivityResult> extends Fragment
     ImageButton adddir = null;
     ImageButton kamera_tag_add_fav = null;
     ImageView camera_photo  = null;
+    ImageButton camera_reset_form  = null;
+
 
     EditText name= null;
     EditText dir = null;
@@ -172,8 +167,7 @@ public class Kamera<onActivityResult> extends Fragment
         adddir_delet = view.findViewById(R.id.imageButton10);
         adddir_modify = view.findViewById(R.id.imageButton9);
         camera_photo = view.findViewById(R.id.imageView3);
-
-
+        camera_reset_form = view.findViewById(R.id.imageButton32);
 
 
         spinner = view.findViewById(R.id.spinner4);
@@ -196,23 +190,19 @@ public class Kamera<onActivityResult> extends Fragment
             @Override
             public void onClick(View view)
             {
-
                 int responde =spinnerops.deletOne(RROJ_NR,String.valueOf(spinner.getSelectedItem()));
                 String message ="Es wurden "+String.valueOf(responde)+" Einträge gelöscht!";
 
                 Toast.makeText(getContext(),message,Toast.LENGTH_SHORT).show();
-
                 refresh_spinner();
             }
         });
 
         adddir.setOnClickListener(new View.OnClickListener()
         {
-
             @Override
             public void onClick(View view)
             {
-
                 dir_dialog("add",null,container);
             }
         });
@@ -223,10 +213,10 @@ public class Kamera<onActivityResult> extends Fragment
             @Override
             public void onClick(View view)
 
-
             {
 
                String[] responde = spinnerops.getOne(RROJ_NR, String.valueOf(spinner.getSelectedItem()));
+
 
                String date = curr_date.getText().toString();
                 date = date.replace(".", "");
@@ -239,6 +229,33 @@ public class Kamera<onActivityResult> extends Fragment
             }
 
         });
+
+        camera_reset_form.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+
+                try {
+                    Basic_funct bsf = new Basic_funct();
+
+                    curr_date.setText(bsf.date_refresh_rev2());
+                    date_bg.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.hellgrün));
+
+                    spinner.setSelection(0);
+                    kamera_tag_field_value.setText("");
+                    tag_bg.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.hellgrün));
+                    camera_photo.setImageResource(0);
+                    kamera_switch_tag_onoff.setChecked(false);
+
+                } catch (Exception e)
+                {
+                    exmsg("120220231059",e);
+                }
+            }
+        });
+
+
 
         kamera_switch_tag_onoff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -305,8 +322,6 @@ public class Kamera<onActivityResult> extends Fragment
                 curr_date.setText(date);
 
                 date_bg.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.hellgrün));
-
-
             }
         });
 
@@ -363,13 +378,11 @@ public class Kamera<onActivityResult> extends Fragment
 
                     Toast.makeText(getContext(),String.valueOf(requestCode),Toast.LENGTH_LONG).show();
                     String message=String.valueOf(data.getData().getLastPathSegment());
-
                     dir.setText(message);
 
                 break;
 
             case 2:
-
 
                 Basic_funct bsf  = new Basic_funct();
 
@@ -385,210 +398,218 @@ public class Kamera<onActivityResult> extends Fragment
                 String[] t_array2 =null;
 
                 path = photoURI.getPath();  //path:  /primary/DCIM/Test/Test@28122022_ID_566429213554924951.jpeg
-
-                path = path.replace("/primary/",""); //primary entfernen
-
-                //Dateinamen extrahieren.
-                t_array= path.split("/");  // DCIM/Test/Test@28122022_ID_566429213554924951.jpeg
-                filename = t_array[t_array.length-1];           //Test@28122022_ID_566429213554924951.jpeg
-
-
-                //Absoluten Pfad der datei in Path speichern.
-                path = path.replace(filename,""); //Test@28122022_ID_566429213554924951.jpeg entfernen aus den Path
-                path = Environment.getExternalStorageDirectory()+"/"+path;
-
-                //Photostamp erstellen : Test@28122022_ID_566429213554924951.jpeg
-
-                t_array = filename.split("@");
-
-                //Tag
-                if(t_array[0].contains("#") == true)
-                {
-                    t_array2 = t_array[0].split("#");
-                    save_dir=t_array2[0]; //Test
-                    tags= t_array2[1]; // #Test
-
-                }
-                else
-                {
-                    save_dir = t_array[0];
-                    tags = "";
-
-                }
-
-                //Datum extrahieren  28122022_ID_566429213554924951.jpeg
-
-                //datum.substring(0,2)+"."+datum.substring(2,4)+"."+datum.substring(4,8);
-
-                String tag =t_array[1].substring(0,2);
-                String monat =t_array[1].substring(2,4);
-                String jahr =t_array[1].substring(4,8);
-
-                Calendar calendar = Calendar.getInstance();
-                SimpleDateFormat datumformat = new SimpleDateFormat("dd.MM.yyyy");
-                String date = datumformat.format(calendar.getTime());
-
-
-                datum = tag+"."+monat+"."+jahr;
-
-                if(datum.contains(date) == true)
-                {
-                    datum += " "+bsf.time_refresh();
-                }
-
-                Log.d("BASI_PATH:",path);
-                Log.d("BASI_FILENAME:",filename);
-                Log.d("BASI_SAVE_DIR:",save_dir);
-                Log.d("BASI_TAG:",tags);
-                Log.d("BASI_DATUM:",datum);
-                Log.d("BASI_DATUM_curr:",date);
-
-
-
-                //Fotostamp zusammenführen
-
-                if(tags =="")
-                {
-
-
-                    photostamp = save_dir+ "  "+datum;
-                }
-                else
-                {
-                       photostamp = save_dir+ "  "+tags+"    "+datum;
-                }
-
-
-                //Bitmap erstellen
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inScaled = false;
-                options.inMutable = true;
-
-
-                Bitmap bMapScaled = null;
-
-                Bitmap bMap = BitmapFactory.decodeFile(path + filename,options);
+                Log.d("URL",path);
 
                 try {
+                    path = photoURI.getPath();  //path:  /primary/DCIM/Test/Test@28122022_ID_566429213554924951.jpeg
 
-                    ExifInterface exif = new ExifInterface(path+filename);
-                    int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,0);
+                    path = path.replace("/primary/",""); //primary entfernen
 
-                    int width= exif.getAttributeInt(ExifInterface.TAG_PIXEL_X_DIMENSION,0);
-                    int height= exif.getAttributeInt(ExifInterface.TAG_PIXEL_Y_DIMENSION,0);
-                    Matrix matrix = new Matrix();
+                    //Dateinamen extrahieren.
+                    t_array= path.split("/");  // DCIM/Test/Test@28122022_ID_566429213554924951.jpeg
+                    filename = t_array[t_array.length-1];           //Test@28122022_ID_566429213554924951.jpeg
 
-                    switch (rotation)
+
+                    //Absoluten Pfad der datei in Path speichern.
+                    path = path.replace(filename,""); //Test@28122022_ID_566429213554924951.jpeg entfernen aus den Path
+                    path = Environment.getExternalStorageDirectory()+"/"+path;
+
+                    //Photostamp erstellen : Test@28122022_ID_566429213554924951.jpeg
+
+                    t_array = filename.split("@");
+
+                    //Tag
+                    if(t_array[0].contains("#") == true)
                     {
-                        case 3:
+                        t_array2 = t_array[0].split("#");
+                        save_dir=t_array2[0]; //Test
+                        tags= t_array2[1]; // #Test
 
-                            matrix.setRotate(180);
-                            bMapScaled = Bitmap.createBitmap(bMap, 0, 0,width, height, matrix, true);
-
-                        break;
-
-                        case 6:
-
-                            matrix.setRotate(90);
-                            bMapScaled = Bitmap.createBitmap(bMap, 0, 0,width, height, matrix, true);
-                            break;
-
-                        default:
-                            bMapScaled = Bitmap.createBitmap(bMap, 0, 0, width, height, matrix, true);
                     }
-
-                    Rect rc = new Rect(0, bMapScaled.getHeight()-100, bMapScaled.getWidth(), bMapScaled.getHeight());
-
-                    Paint paintrect = new Paint();
-                    paintrect.setStyle(Paint.Style.FILL);
-                    paintrect.setColor(Color.rgb(255, 255, 255));
-
-                    Paint paint = new Paint();
-                    paint.setStyle(Paint.Style.FILL);
-                    paint.setColor(Color.rgb(225, 20, 225));
-                    paint.setTextSize(50);
-
-                    Canvas canvas = new Canvas(bMapScaled);
-                    canvas.drawRect(rc,paintrect);
-                    canvas.drawText(photostamp, 30, bMapScaled.getHeight()-30, paint);
-
-
-                    //Speichern des Bildes
-                    String url =  bsf.saveImage(bMapScaled, path,filename, getContext());
-
-                    //Neues Bild Anzeigen im imageView
-                    Bitmap bMap2 = BitmapFactory.decodeFile(url);
-                    Bitmap bitmap3;
-
-                    //Maximalgrösse der Ansicht(maximal)  je nach Orientierung
-                    int bitmap_dim = 900;
-
-                    switch (rotation)
+                    else
                     {
-                        case 6:
-                            //hochkannt
-                            bitmap3= Bitmap.createScaledBitmap(bMap2, bitmap_dim/2,bitmap_dim, true);
-
-                            break;
-
-                        default:
-                            bitmap3= Bitmap.createScaledBitmap(bMap2, bitmap_dim,bitmap_dim/2, true);
+                        save_dir = t_array[0];
+                        tags = "";
 
                     }
 
-                   camera_photo.setImageBitmap(bitmap3); // Im imageView Anzeigen
+                    //Datum extrahieren  28122022_ID_566429213554924951.jpeg
 
-                    camera_photo.setOnClickListener(new View.OnClickListener()
+                    //datum.substring(0,2)+"."+datum.substring(2,4)+"."+datum.substring(4,8);
+
+                    String tag =t_array[1].substring(0,2);
+                    String monat =t_array[1].substring(2,4);
+                    String jahr =t_array[1].substring(4,8);
+
+                    Calendar calendar = Calendar.getInstance();
+                    SimpleDateFormat datumformat = new SimpleDateFormat("dd.MM.yyyy");
+                    String date = datumformat.format(calendar.getTime());
+
+                    int kw = calendar.get(Calendar.WEEK_OF_YEAR);
+
+                    datum = tag+"."+monat+"."+jahr;
+
+                    if(datum.contains(date) == true)
                     {
-                        @Override
-                        public void onClick(View view)
+                        datum += " "+bsf.time_refresh();
+                    }
+                    /*
+                    Log.d("BASI_PATH:",path);
+                    Log.d("BASI_FILENAME:",filename);
+                    Log.d("BASI_SAVE_DIR:",save_dir);
+                    Log.d("BASI_TAG:",tags);
+                    Log.d("BASI_DATUM:",datum);
+                    Log.d("BASI_DATUM_curr:",date);
+
+                     */
+
+
+                    //Fotostamp zusammenführen
+
+                    if(tags =="")
+                    {
+
+                        photostamp = save_dir+ "  "+datum+" [KW"+String.valueOf(kw)+"]";
+                    }
+                    else
+                    {
+                           photostamp = save_dir+ "  "+tags+"    "+datum+" [KW"+String.valueOf(kw)+"]";
+                    }
+
+
+                    //Bitmap erstellen
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inScaled = false;
+                    options.inMutable = true;
+
+                    Bitmap bMapScaled = null;
+
+                    Bitmap bMap = BitmapFactory.decodeFile(path + filename,options);
+
+                    try {
+
+                        ExifInterface exif = new ExifInterface(path+filename);
+                        int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,0);
+
+                        int width= exif.getAttributeInt(ExifInterface.TAG_PIXEL_X_DIMENSION,0);
+                        int height= exif.getAttributeInt(ExifInterface.TAG_PIXEL_Y_DIMENSION,0);
+                        Matrix matrix = new Matrix();
+
+                        switch (rotation)
                         {
+                            case 3:
 
-                            View pic_view_UI = getLayoutInflater().inflate(R.layout.show_picture, null);
+                                matrix.setRotate(180);
+                                bMapScaled = Bitmap.createBitmap(bMap, 0, 0,width, height, matrix, true);
 
-                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                            break;
 
-                            ImageView photo = (ImageView) pic_view_UI.findViewById(R.id.imageView4);
-                            photo.setImageBitmap(BitmapFactory.decodeFile(url));
+                            case 6:
 
-                            // set prompts.xml to alertdialog builder
-                            alertDialogBuilder.setView(pic_view_UI);
+                                matrix.setRotate(90);
+                                bMapScaled = Bitmap.createBitmap(bMap, 0, 0,width, height, matrix, true);
+                                break;
 
-                            alertDialogBuilder.setTitle("Viewer");
+                            default:
+                                bMapScaled = Bitmap.createBitmap(bMap, 0, 0, width, height, matrix, true);
+                        }
+
+                        Rect rc = new Rect(0, bMapScaled.getHeight()-100, bMapScaled.getWidth(), bMapScaled.getHeight());
+
+                        Paint paintrect = new Paint();
+                        paintrect.setStyle(Paint.Style.FILL);
+                        paintrect.setColor(Color.rgb(255, 255, 255));
+
+                        Paint paint = new Paint();
+                        paint.setStyle(Paint.Style.FILL);
+                        paint.setColor(Color.rgb(225, 20, 225));
+                        paint.setTextSize(50);
+
+                        Canvas canvas = new Canvas(bMapScaled);
+                        canvas.drawRect(rc,paintrect);
+                        canvas.drawText(photostamp, 30, bMapScaled.getHeight()-30, paint);
 
 
-                            alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i)
-                                {
-                                    dialogInterface.cancel();
-                                }
-                            });
+                        //Speichern des Bildes
+                        String url =  bsf.saveImage(bMapScaled, path,filename, getContext());
 
-                            AlertDialog alertDialog = alertDialogBuilder.create();
-                            alertDialog.show();
+                        //Neues Bild Anzeigen im imageView
+                        Bitmap bMap2 = BitmapFactory.decodeFile(url);
+                        Bitmap bitmap3;
 
+                        //Maximalgrösse der Ansicht(maximal)  je nach Orientierung
+                        int bitmap_dim = 900;
+
+                        switch (rotation)
+                        {
+                            case 6:
+                                //hochkannt
+                                bitmap3= Bitmap.createScaledBitmap(bMap2, bitmap_dim/2,bitmap_dim, true);
+
+                                break;
+
+                            default:
+                                bitmap3= Bitmap.createScaledBitmap(bMap2, bitmap_dim,bitmap_dim/2, true);
 
                         }
-                    });
 
-                } catch (IOException e)
+                       camera_photo.setImageBitmap(bitmap3); // Im imageView Anzeigen
+
+                        camera_photo.setOnClickListener(new View.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(View view)
+                            {
+
+                                View pic_view_UI = getLayoutInflater().inflate(R.layout.show_picture, null);
+
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+
+                                ImageView photo = (ImageView) pic_view_UI.findViewById(R.id.imageView4);
+                                photo.setImageBitmap(BitmapFactory.decodeFile(url));
+
+                                // set prompts.xml to alertdialog builder
+                                alertDialogBuilder.setView(pic_view_UI);
+
+                                alertDialogBuilder.setTitle("Viewer");
+
+
+                                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i)
+                                    {
+                                        dialogInterface.cancel();
+                                    }
+                                });
+
+                                AlertDialog alertDialog = alertDialogBuilder.create();
+                                alertDialog.show();
+
+
+                            }
+                        });
+
+                    } catch (IOException e)
+                    {
+                        exmsg("120220231030",e);
+                    }
+                } catch (Exception e)
                 {
-                    e.printStackTrace();
+                    exmsg("120220231031A",e);
+                    bsf.error_msg("Bild wurde verworfen",getContext());
+                    camera_photo.setImageResource(0);
+                    try
+                    {
+                        File f= new File(path+filename);
+                        f.delete();
+
+                    } catch (Exception ex)
+                    {
+                        exmsg("120220231031B",e);
+                        ex.printStackTrace();
+                    }
+
                 }
-
-
-
-
-
-
-
-
-                //camera_photo.setImageBitmap(bMapScaled);
-
-
-
-
 
 
                 break;
@@ -621,6 +642,11 @@ public class Kamera<onActivityResult> extends Fragment
         name = (EditText) promptsView.findViewById(R.id.editTextTextPersonName10);
         dir = (EditText) promptsView.findViewById(R.id.editTextTextPersonName11);
         final ImageButton paht = (ImageButton) promptsView.findViewById(R.id.imageButton2);
+        CheckBox sub_folder = (CheckBox) promptsView.findViewById(R.id.enable_subfolder);
+
+
+
+
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
 
@@ -643,25 +669,43 @@ public class Kamera<onActivityResult> extends Fragment
                     }
                 });
 
+
                 alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener()
                 {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
                         try {
-                                long resonse =  spinnerops.addOne(RROJ_NR,name.getText().toString(),dir.getText().toString());
 
-                                if(resonse == -1)
+                                String foldername = name.getText().toString();
+
+                                long resonse =  spinnerops.addOne(RROJ_NR,foldername,dir.getText().toString());
+
+                                if(sub_folder.isChecked() ==true)
                                 {
+                                    String  abs_path = dir.getText().toString().replace("primary:","/storage/emulated/0/");
+                                    File storageDir = new File(abs_path);
 
-                                    Toast.makeText(getContext(),"Eintrag konnte nicht erstellt werden!",Toast.LENGTH_LONG).show();
-                                }
-                                else
-                                {
-                                    Toast.makeText(getContext(),"Neuer Eintrag wurde erstellt!"+resonse,Toast.LENGTH_LONG).show();
-                                    refresh_spinner();
-                                }
+                                    File[] folders= storageDir.listFiles();
+                                    for(File is :folders)
+                                    {
+                                        if(is.isDirectory() == true)
+                                        {
+                                            String[] parts =is.toString().split("/");
 
+                                            String name =foldername+" -->"+ parts[parts.length-1];
+
+                                            String  sub_abs_path = is.toString().replace("/storage/emulated/0/","primary:");
+                                            long resonse2 =  spinnerops.addOne(RROJ_NR,name,sub_abs_path);
+                                         //   Log.d(name,is.toString());
+                                          //  Log.d(name,sub_abs_path);
+
+                                        }
+
+                                    }
+
+                                }
+                                refresh_spinner();
                         }
                         catch (Exception e)
                         {
@@ -741,6 +785,20 @@ public class Kamera<onActivityResult> extends Fragment
 
     }
 
+
+    private void select_path(ViewGroup container)
+    {
+        LayoutInflater li = LayoutInflater.from(getActivity());
+        View promptsView_group = li.inflate(R.layout.kamera_select_dialog, container,false);
+        AlertDialog.Builder alertDialogBuilder_group = new AlertDialog.Builder(getContext());
+        alertDialogBuilder_group.setView(promptsView_group);
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder_group.create();
+        // show it
+        alertDialog.show();
+    }
+
     private void dispatchTakePictureIntent(String path,String title,boolean tag_on,String tag,String date)
     {
 
@@ -762,9 +820,15 @@ public class Kamera<onActivityResult> extends Fragment
             // Continue only if the File was successfully created
             if (photoFile != null)
             {
-                photoURI = FileProvider.getUriForFile(getContext(),"com.example.tabnav_test.fileprovider",photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent,2);
+
+                try {
+                    photoURI = FileProvider.getUriForFile(getContext(),"com.example.tabnav_test.fileprovider",photoFile);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                    startActivityForResult(takePictureIntent,2);
+                } catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
 
             }
         }
@@ -773,6 +837,7 @@ public class Kamera<onActivityResult> extends Fragment
 
     private File createImageFile2() throws IOException
     {
+
         String  abs_path = "/storage/emulated/0/DCIM/";
         Basic_funct bsf = new Basic_funct();
 
@@ -844,6 +909,12 @@ public class Kamera<onActivityResult> extends Fragment
 
         return  favArrayAdapter;
 
+    }
+
+    private void exmsg(String msg,Exception e)
+    {
+        Log.e("Exception: Kamera ->","ID: "+msg+" Message:" +e.getMessage().toString());
+        e.printStackTrace();
     }
 }
 

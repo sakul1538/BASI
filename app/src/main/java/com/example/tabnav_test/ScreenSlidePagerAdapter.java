@@ -32,13 +32,8 @@ public class ScreenSlidePagerAdapter  extends FragmentStateAdapter
                 break;
 
             case 3:
-                fragment = new summary_main();
+                fragment = new Material();
                 break;
-
-            case 4:
-                fragment = new settings();
-                break;
-
 
 
             default:
@@ -50,6 +45,6 @@ public class ScreenSlidePagerAdapter  extends FragmentStateAdapter
 
     @Override
     public int getItemCount() {
-        return   5;
+        return   4;
     }
 }

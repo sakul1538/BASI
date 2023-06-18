@@ -16,18 +16,16 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -58,26 +56,33 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
 
 
     Spinner kategory;
+
     TextView date;
     TextView time;
     EditText note;
 
     ImageButton reset_note;
-    Button reset_main;
-    Button save_log;
-    Button show_log;
+    ImageButton reset_main;
+    ImageButton save_log;
+    ImageButton show_log;
 
     ImageButton add_kat;
     ImageButton fav_button;
     ImageButton fav_button_settings;
     ImageButton category_settings_button;
+    ImageButton date_refresh = null;
+    ImageButton date_forward;
+    ImageButton date_backward;
 
+
+
+    LinearLayout date_time_bg;
 
 
     AutoCompleteTextView acTextView;
 
 
-    ImageButton date_refresh = null;
+
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -147,8 +152,6 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
 
 
 
-
-
         //TextExit
         date = (TextView) view.findViewById(R.id.log_date);
 
@@ -157,10 +160,12 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
         //Image Buttons
         date_refresh = (ImageButton) view.findViewById(R.id.imageButton8);
 
-        //Button
-        reset_note = (ImageButton) view.findViewById(R.id.note_reset);
-        reset_main = (Button) view.findViewById(R.id.reset_all);
-        save_log = (Button) view.findViewById(R.id.save_entry);
+        //ImageButtons
+        reset_note = (ImageButton) view.findViewById(R.id.ls_note_reset);
+        reset_main = (ImageButton) view.findViewById(R.id.reset_all);
+        save_log = (ImageButton) view.findViewById(R.id.save_entry);
+        date_forward = (ImageButton) view.findViewById(R.id.imageButton26);
+        date_backward = (ImageButton) view.findViewById(R.id.imageButton25);
 
 
         add_kat = (ImageButton) view.findViewById(R.id.add_category);
@@ -172,9 +177,13 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
 
 
         //Date&Time Refresh
-        date.setText(bsf.date_refresh());
+        date.setText(bsf.date_refresh_rev2());
         time.setText(bsf.time_refresh());
-        show_log = (Button) view.findViewById(R.id.show_log);
+        show_log = (ImageButton) view.findViewById(R.id.show_log);
+
+        //Layouts
+
+        date_time_bg = (LinearLayout) view.findViewById(R.id.log_date_time_background);
 
         refresh_fav();
         refresh_spinner();
@@ -188,9 +197,12 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
                 TimePickerDialog tpd = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int i, int i1) {
+
                         String hour = String.valueOf(i);
                         String min = String.valueOf(i1);
                         time.setText(hour + ":" + min);
+
+                        date_time_bg.setBackgroundColor(getResources().getColor(R.color.orange));
 
                     }
                 }, calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE), true);
@@ -209,47 +221,94 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
                     public void onDateSet(DatePicker datePicker, int i, int i1, int i2)
                     {
 
-                        date.setText(bsf.convert_time_for_database(i,i1,i2));
+                         Calendar calendar = Calendar.getInstance();
+                         calendar.set(i,i1 , i2);
+
+                         SimpleDateFormat   dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+                         String date_value = dateFormat.format(calendar.getTime());
+
+                         date.setText(date_value);
+                        date_time_bg.setBackgroundColor(getResources().getColor(R.color.orange));
                     }
                 }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-                dpd.show();
 
+                dpd.show();
+            }
+        });
+
+        date_forward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                date.setText(bsf.time_day_shift(date.getText().toString(),"",1));
+                date_time_bg.setBackgroundColor(getResources().getColor(R.color.orange));
+            }
+        });
+        date_backward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                date.setText(bsf.time_day_shift(date.getText().toString(),"",-1));
+                date_time_bg.setBackgroundColor(getResources().getColor(R.color.orange));
             }
         });
 
         fav_button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                int resonse = (int) spinnerops.addOne(RROJ_NR, ITHEM_FAV, acTextView.getText().toString());
+            public void onClick(View view)
+            {
+                if(acTextView.getText().toString().equals("") == false)
+                {
+                    try {
 
-                if (resonse == -1) {
+                        int resonse = (int) spinnerops.addOne(RROJ_NR, ITHEM_FAV, acTextView.getText().toString());
 
-                    Toast.makeText(getContext(), "Eintrag konnte nicht erstellt werden!", Toast.LENGTH_LONG).show();
+                        if (resonse == -1)
+                        {
+                            bsf.error_msg("Eintrag konnte nicht erstellt werden!\n-> Interner Fehler oder schon vorhanden",context);
+                        } else
+                        {
+                            bsf.succes_msg("Neuer Eintrag \""+acTextView.getText().toString()+"\" wurde erstellt!",context);
+                            refresh_fav();
+                        }
+                    } catch (Exception e)
+                    {
+                        exmsg("050220231117",e);
+                        bsf.error_msg("Fehler:"+e.getMessage().toString(),context);
 
-                } else {
-                    Toast.makeText(getContext(), "Neuer Eintrag wurde erstellt!" + resonse, Toast.LENGTH_LONG).show();
-
-                    refresh_fav();
-
+                    }
+                }
+                else
+                {
+                    bsf.error_msg("Notiz ist leer!",context);
                 }
             }
         });
 
         save_log.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                String d = date.getText().toString();
+            public void onClick(View view)
+            {
+                try {
+                    String d = bsf.convert_date(date.getText().toString(),"format_database");
 
-                String t = time.getText().toString(); 
-                String c = kategory.getSelectedItem().toString(); 
-                String n = acTextView.getText().toString();
-                n = bsf.URLencode(n);
+                    String t = time.getText().toString();
+                    String c = kategory.getSelectedItem().toString();
+                    String n = acTextView.getText().toString();
+                    n = bsf.URLencode(n);
 
-                int response= (int) spinnerops.log_add_entry(RROJ_NR,d,t,c,n);
+                    int response= (int) spinnerops.log_add_entry(RROJ_NR,d,t,c,n);
 
-                Toast.makeText(getContext(),"Antwort_"+response,Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(),"Antwort_"+response,Toast.LENGTH_LONG).show();
 
-                hideKeyboard(context,view);
+                    hideKeyboard(context,view);
+
+
+                } catch (Exception e)
+                {
+                    exmsg("050220231057",e);
+                    bsf.error_msg("Es konnte kein Eintrag erstellt werden",context);
+                }
 
             }
         });
@@ -271,32 +330,67 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
         //Date&Time Refresh Button manuell
         date_refresh.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                date.setText(bsf.date_refresh());
-                time.setText(bsf.time_refresh());
+            public void onClick(View view)
+            {
+
+                try {
+                    date.setText(bsf.date_refresh_rev2());
+                    time.setText(bsf.time_refresh());
+                    date_time_bg.setBackgroundColor(getResources().getColor(R.color.hellgrün));
+                } catch (Exception e)
+                {
+                    exmsg("050220231059",e);
+                    bsf.error_msg("Datum aktuallisierung fehlgeschlagen",context);
+                    e.printStackTrace();
+                }
             }
         });
 
-        fav_button_settings.setOnClickListener(new View.OnClickListener() {
+        fav_button_settings.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View view) {
-                Intent fav_settings = new Intent(getContext(), log_conf_fav.class);
-                startActivity(fav_settings);
+            public void onClick(View view)
+            {
+                try {
+                    Intent fav_settings = new Intent(getContext(), log_conf_fav.class);
+                    startActivity(fav_settings);
+                } catch (Exception e)
+                {
+                    exmsg("050220231101",e);
+                    bsf.error_msg("Fehler:"+e.getMessage().toString(),context);
+                }
             }
         });
 
         show_log.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Intent fav_settings = new Intent(getContext(), Log_data.class);
-                startActivity(fav_settings);
+            public void onClick(View view)
+            {
+                try
+                {
+                    Intent fav_settings = new Intent(getContext(), Log_data.class);
+                    startActivity(fav_settings);
+
+                } catch (Exception e)
+                {
+                    exmsg("050220231102",e);
+                    bsf.error_msg("Fehler:"+e.getMessage().toString(),context);
+                }
             }
         });
         category_settings_button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Intent fav_settings = new Intent(getContext(), log_conf_categorys.class);
-                startActivity(fav_settings);
+            public void onClick(View view)
+            {
+                try {
+                    Intent fav_settings = new Intent(getContext(), log_conf_categorys.class);
+                    startActivity(fav_settings);
+                } catch (Exception e)
+                {
+                    exmsg("050220231103",e);
+                    bsf.error_msg("Fehler:"+e.getMessage().toString(),context);
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -338,22 +432,22 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
 
                             if(resonse == -1)
                             {
-
-                                Toast.makeText(getContext(),"Eintrag konnte nicht erstellt werden!",Toast.LENGTH_LONG).show();
+                                bsf.error_msg("Eintrag konnte nicht erstellt werden!" ,context);
                             }
                             else
                             {
-                                Toast.makeText(getContext(),"Neuer Eintrag wurde erstellt!"+resonse,Toast.LENGTH_LONG).show();
+                                bsf.succes_msg("Neuer Eintrag wurder erstellt!",context);
                                 refresh_spinner();
                             }
 
                         }
                         catch (Exception e)
                         {
-                            Toast.makeText(getContext(),e.getMessage().toString(),Toast.LENGTH_LONG).show();
+                            exmsg("050220231105",e);
+                            bsf.error_msg("Fehler:"+e.getMessage().toString(),context);
+                            e.printStackTrace();
                         }
                     }
-
                 });
 
                 alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener()
@@ -389,17 +483,25 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
         return null;
     }
 
-    private void refresh_spinner() {
-        String[] kat_nativ = spinnerops.getallcategorys(RROJ_NR);
+    private void refresh_spinner()
+    {
 
-        // Log.d("Adresse",kat_nativ[0]);
+        try {
+            String[] kat_nativ = spinnerops.getallcategorys(RROJ_NR);
 
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, kat_nativ);
+            // Log.d("Adresse",kat_nativ[0]);
 
-        //   ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item,items);
-        //spinnerArrayAdapter.setDropDownViewResource(R.layout.kamera_spinner_list);
+            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, kat_nativ);
 
-        kategory.setAdapter(spinnerArrayAdapter);
+            //   ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item,items);
+            //spinnerArrayAdapter.setDropDownViewResource(R.layout.kamera_spinner_list);
+
+            kategory.setAdapter(spinnerArrayAdapter);
+        } catch (Exception e)
+        {
+            exmsg("050220231133",e);
+            Toast.makeText(getContext(), "050220231133 -> Aktuallisierung fehlgeschlagen", Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -422,8 +524,6 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
                 break;
 
         }
-
-
     }
 
     @Override
@@ -432,12 +532,20 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
     }
 
 
-    private void refresh_fav() {
+    private void refresh_fav()
+    {
 
-        String[] favs = spinnerops.getalllogfav(RROJ_NR);
-        ArrayAdapter<String> favArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, favs);
-        acTextView.setThreshold(1);
-        acTextView.setAdapter(favArrayAdapter);
+        try {
+            String[] favs = spinnerops.getalllogfav(RROJ_NR);
+            ArrayAdapter<String> favArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, favs);
+            acTextView.setThreshold(1);
+            acTextView.setAdapter(favArrayAdapter);
+        } catch (Exception e)
+        {
+            exmsg("050220231135",e);
+            Toast.makeText(getContext(), "050220231135 -> Aktuallisierung fehlgeschlagen", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
     }
 
     public void hideKeyboard(Context context, View view) {
@@ -445,6 +553,13 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
                 (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
+
+    private void exmsg(String msg,Exception e)
+    {
+        Log.e("Exception: Log_main ->","ID: "+msg+" Message:" +e.getMessage().toString());
+        e.printStackTrace();
+    }
+
 
 
 

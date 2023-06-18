@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.Environment;
 
 import android.provider.MediaStore;
+import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
@@ -81,17 +82,20 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
     log_fav spinnerops;
     static final String RROJ_NR = "0";
     Basic_funct bsf =new Basic_funct();
+
+    m_database_ops mdo;
     String currentPhotoPath = null;
 
 
     public m_conf_maschine_adapter(String[] localDataSet)
     {
+
         // .. Attach the interface
         this.localDataSet = localDataSet;
         bsf =new Basic_funct();
+
         imgUri=null;
     }
-
 
     @Override
     public m_conf_maschine_adapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
@@ -110,9 +114,9 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
     @Override
     public void onBindViewHolder(@NonNull m_conf_maschine_adapter.ViewHolder holder, int position)
     {
-  
-        
-        m_database_ops mdo = new m_database_ops(context);
+
+
+        mdo = new m_database_ops(context);
 
         int posi = position;
         Uri img_uri = null;
@@ -618,6 +622,7 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
         this.localDataSet = localDataSet;
         notifyDataSetChanged();
     }
+
     public void refresh_dataset()
     {
         notifyDataSetChanged();
@@ -679,6 +684,8 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
         // Continue only if the File was successfully created
 
     }
+
+
 
 
 

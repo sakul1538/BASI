@@ -44,9 +44,7 @@ public class Basic_funct
         Log.d("BASIgetabsPath",path);
 
         return path;
-
     }
-
 
     public void error_msg(String msg,Context context)
     {
@@ -148,7 +146,7 @@ public class Basic_funct
         return time;
     }
 
-    public String time_day_shift(String date,String mode,int shift_value )
+    public String time_day_shift(String date,String mode,int shift_value ) //Format 01.01.2023
     {
         String[] s=null;
         int day=0;
@@ -435,7 +433,6 @@ public class Basic_funct
         File myDir = new File(dir);
         myDir.mkdirs();
 
-
         //Calendar calendar = Calendar.getInstance();
       //  SimpleDateFormat zeitformat = new SimpleDateFormat("HHmmss");
        // String time= zeitformat.format(calendar.getTime());
@@ -472,7 +469,6 @@ public class Basic_funct
     {
 
         Log.d("BASI",msg);
-
 
     }
     public void log_div()
@@ -521,6 +517,8 @@ public class Basic_funct
           Log.d("ARRAYLIST:",arraylist.get(c).toString());
         }
     }
+
+
 
 }
 

@@ -172,3 +172,9 @@ package:mine
         <!-- "file" submenu -->
     </item>
     </menu>
+
+//Array von Ressourcen an Spinner anbinden   (strings.xml)
+
+           ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(view.getContext(),R.array.einheiten_array, android.R.layout.simple_spinner_item);
+           int index =adapter.getPosition(einheit);
+           spinner_einheit.setSelection(index);

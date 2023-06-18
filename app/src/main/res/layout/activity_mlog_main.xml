@@ -32,16 +32,6 @@
                 app:srcCompat="@drawable/ic_baseline_table_rows_24" />
 
             <ImageButton
-                android:id="@+id/imageButton26"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:layout_weight="1"
-                android:background="@color/hellgrün"
-                android:padding="5dp"
-                app:srcCompat="@drawable/ic_baseline_cloud_upload_24" />
-
-            <ImageButton
                 android:id="@+id/imageButton27"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

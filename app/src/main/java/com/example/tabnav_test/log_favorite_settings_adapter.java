@@ -2,6 +2,10 @@ package com.example.tabnav_test;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
+import android.media.Image;
+import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,9 +62,22 @@ public class log_favorite_settings_adapter extends Adapter<log_favorite_settings
                     LayoutInflater li = LayoutInflater.from(context);
                     View promptsView = li.inflate(R.layout.log_fav_modify_dialog, par,false);
 
+                    //EditText
                     EditText fav_mame =(EditText) promptsView.findViewById(R.id.log_fav_modify_edit);
+
+                    //ImageButton
+                    ImageButton log_modify_fav_reset = (ImageButton) promptsView.findViewById(R.id.log_modify_fav_reset);
+
                     fav_mame.setText(localDataSet[posi]);
 
+
+                log_modify_fav_reset.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        fav_mame.setText("");
+                    }
+                });
 
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
 
@@ -69,18 +86,30 @@ public class log_favorite_settings_adapter extends Adapter<log_favorite_settings
 
                     alertDialogBuilder.setTitle(R.string.log_fav_modify_title);
 
-
                     alertDialogBuilder.setPositiveButton("Ändern", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
-                        int response =spinnerops.modifylogfav(RROJ_NR,localDataSet[posi],fav_mame.getText().toString());
-                        localDataSet[posi] =fav_mame.getText().toString();
-                        notifyItemChanged(posi);
-
-
-                        Toast.makeText(view.getContext(),String.valueOf(response),Toast.LENGTH_SHORT).show();
-
+                        try
+                        {
+                           int response = spinnerops.modifylogfav(RROJ_NR,localDataSet[posi],fav_mame.getText().toString());
+                           if(response >0)
+                           {
+                               localDataSet[posi] =fav_mame.getText().toString();
+                               notifyItemChanged(posi);
+                               bsf.succes_msg("Eintrag wurde geändert!",context);
+                           }
+                           else
+                           {
+                               bsf.error_msg("Eintrag wurde nicht geändert! \nInterner Fehler oder existiert schon",context);
+                           }
+                        }
+                        catch (Exception e)
+                        {
+                            exmsg("050220231230",e);
+                            bsf.error_msg("Eintrag wurde nicht geändert! \nInterner Fehler oder existiert schon",context);
+                            e.printStackTrace();
+                        }
                     }
                 });
 
@@ -105,23 +134,56 @@ public class log_favorite_settings_adapter extends Adapter<log_favorite_settings
             }
         });
 
-
         viewHolder.delet_button().setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
-
-                int response =spinnerops.deletlogfav(RROJ_NR,localDataSet[posi]);
-                Toast.makeText(view.getContext(), "delet :"+localDataSet[posi]+" ["+response+"]",Toast.LENGTH_SHORT).show();
-                localDataSet = spinnerops.getalllogfav(RROJ_NR); //Array Aktualisieren
-                notifyItemRemoved(posi);
-                notifyItemRangeChanged(posi,localDataSet.length);
+                String item_name= localDataSet[posi];
+;
 
 
+                AlertDialog.Builder alertDialogBuilder  = new AlertDialog.Builder(context);
+                alertDialogBuilder.setTitle("Eintrag Löschen?");
+
+                alertDialogBuilder.setMessage("\""+item_name+"\" aus der Datenbank entfernen?");
+
+                alertDialogBuilder.setPositiveButton("Löschen", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        try {
+                            int response =spinnerops.deletlogfav(RROJ_NR,localDataSet[posi]);
+                            if(response > 0)
+                            {
+
+                                localDataSet = spinnerops.getalllogfav(RROJ_NR); //Array Aktualisieren
+                                notifyItemRemoved(posi);
+                                notifyItemRangeChanged(posi,localDataSet.length);
+                                bsf.succes_msg("Eintrag \""+item_name+"\" wurde gelöscht!",context);
+                            }
+                            else
+                            {
+                                bsf.error_msg("Eintrag \""+item_name+"\" wurde nicht geändert!\n\nAus folgenden möglichen Gründen: \n\n+Existiert nicht mehr\n+Doppelt vorhanden \n+Interner Fehler ",context);
+                            }
+
+                        } catch (Exception e) {
+                            exmsg("050220231329",e);
+                            bsf.error_msg("Eintrag  \""+item_name+"\" wurde nicht Gelöscht! \n Interner Fehler: \n"+e.getMessage().toString(),context);
+                        }
+                    }
+                });
+
+                alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        dialogInterface.cancel();
+                    }
+                });
+                alertDialogBuilder.show();
             }
         });
-
         viewHolder.get_fav_global_switch().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
             @Override
@@ -132,7 +194,7 @@ public class log_favorite_settings_adapter extends Adapter<log_favorite_settings
             }
         });
 
-       viewHolder.get_fav_global_switch().setChecked(spinnerops.favgetglobal(RROJ_NR, localDataSet[posi]));
+      // viewHolder.get_fav_global_switch().setChecked(spinnerops.favgetglobal(RROJ_NR, localDataSet[posi]));
     }
 
     @Override
@@ -155,7 +217,7 @@ public class log_favorite_settings_adapter extends Adapter<log_favorite_settings
             super(itemView);
             fav_name = (TextView) itemView.findViewById(R.id.cat_name);
             modify = (ImageButton) itemView.findViewById(R.id.log_modify_cat);
-            delet = (ImageButton) itemView.findViewById(R.id.log_delet_cat);
+            delet = (ImageButton) itemView.findViewById(R.id.log_modify_fav_reset);
             set_fav_global =(Switch) itemView.findViewById(R.id.set_cat_global);
 
 
@@ -179,6 +241,12 @@ public class log_favorite_settings_adapter extends Adapter<log_favorite_settings
         {
             return set_fav_global;
         }
+    }
+
+    private void exmsg(String msg,Exception e)
+    {
+        Log.e("Exception: log_favorite_settings_adapter ->","ID: "+msg+" Message:" +e.getMessage().toString());
+        e.printStackTrace();
     }
 
 

@@ -6,15 +6,16 @@
     android:layout_height="wrap_content">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:layout_marginStart="2dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="5dp"
-        android:background="@color/grey"
+        android:background="@color/purple_200"
         android:baselineAligned="true"
         android:orientation="horizontal"
+        android:padding="5dp"
         android:paddingHorizontal="5dp"
         android:textAlignment="viewStart"
         app:flow_verticalAlign="center"
@@ -28,21 +29,26 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="TextView"
+            android:textColor="@color/white"
             android:textStyle="bold" />
 
         <ImageButton
             android:id="@+id/log_modify_cat"
             android:layout_width="@dimen/buttons_1"
             android:layout_height="@dimen/buttons_1"
+            android:layout_margin="5dp"
             android:layout_weight="1"
+            android:background="@color/yellow"
             app:srcCompat="@drawable/ic_baseline_mode_24"
             tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck" />
 
         <ImageButton
-            android:id="@+id/log_delet_cat"
+            android:id="@+id/log_modify_fav_reset"
             android:layout_width="@dimen/buttons_1"
             android:layout_height="@dimen/buttons_1"
+            android:layout_margin="5dp"
             android:layout_weight="1"
+            android:background="@color/rot"
             app:srcCompat="@drawable/ic_baseline_delete_24"
             tools:ignore="SpeakableTextPresentCheck" />
 
@@ -52,6 +58,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="@string/fav_global"
+            android:visibility="gone"
             tools:ignore="TouchTargetSizeCheck" />
 
     </LinearLayout>

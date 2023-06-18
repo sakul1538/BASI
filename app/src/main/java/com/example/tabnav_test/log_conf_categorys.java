@@ -18,6 +18,8 @@ public class log_conf_categorys extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_conf_categorys);
 
+        this.setTitle("Kategorien");
+
         RecyclerView rcv1= findViewById(categorys_view);
 
         log_fav log_categorys = new log_fav(log_conf_categorys.this);

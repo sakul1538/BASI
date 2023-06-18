@@ -58,7 +58,6 @@ import java.util.Calendar;
 // TODO: 17.01.23 datum mit forwar/backwart funkton ausstatten
 public class fragment_maschinen extends Fragment
 {
-
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";

@@ -18,12 +18,15 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.NotificationCompatSideChannelService;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Random;
 
 public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
 {
@@ -138,12 +141,20 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
         return  strings;
     }
 
+
+
+
+
+
+
+
+
     public String[] get_list_for_autocomplete(String proj_id,String type)
     {
 
         SQLiteDatabase db = this.getReadableDatabase();
-        String[] selectionArgs = {proj_id,"true"};
-        String where = "PROJ_NR=? AND ONOFF_FLAG=?";
+        String[] selectionArgs = {proj_id,};
+        String where = "PROJ_NR=?";
         int i=0;
 
         Cursor cursor = db.query(TB_NAME_MASCHINEN_ITEMS,null,where,selectionArgs,null,null,null);
@@ -216,7 +227,6 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
         data.put("NOTE",cursor.getString(cursor.getColumnIndexOrThrow("NOTE")));
         data.put("PIC_SRC",cursor.getString(cursor.getColumnIndexOrThrow("PIC_SRC")));
         data.put("ONOFF_FLAG",cursor.getString(cursor.getColumnIndexOrThrow("ONOFF_FLAG")));
-
 
         cursor.close();
 
@@ -733,10 +743,221 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
 
     }
 
+    public String[] filter_maschine_category(ArrayList filter_arg)
+    {
+
+        //Testen auf eingabe > 0
+        if(filter_arg.size()>0)
+        {
+            String[] selectionArgs = new String[0];
+            String where = null;
+            try {
+                selectionArgs = new String[filter_arg.size()];
+                where = "";
+
+                //Schleife für Where und selectionArgs
+                for(int cpos=0;cpos<filter_arg.size();cpos++)
+                {
+                    selectionArgs[cpos] = filter_arg.get(cpos).toString();
+                    if (cpos == 0)
+                    {
+                        where += "CATEGORY=?";
+
+                    } else
+                    {
+                        where += " OR CATEGORY=?";
+                    }
+                }
+            } catch (Exception e)
+            {
+              exmsg("020220231028",e);
+            }
+
+            //Datenbankabfagen
+            SQLiteDatabase db = null;
+            Cursor cursor = null;
+            try
+            {
+                db = this.getReadableDatabase();
+                cursor = db.query(TB_NAME_MASCHINEN_ITEMS,null,where,selectionArgs,null,null,null);
+
+            } catch (Exception e)
+            {
+                exmsg("0202020231026",e);
+            }
+
+            //Test auf 0 der sql Abfrage
+            if(cursor.getCount() >0)
+            {
+                int  apos=0;
+                String[] strings = new String[cursor.getCount()];
+
+                try
+                {
+                    while (cursor.moveToNext())
+                    {
+                        String value = cursor.getString(cursor.getColumnIndexOrThrow("ID"));
+                        value +=","+cursor.getString(cursor.getColumnIndexOrThrow("DATE"));
+                        value +=","+cursor.getString(cursor.getColumnIndexOrThrow("TIME"));
+                        value +=","+cursor.getString(cursor.getColumnIndexOrThrow("NR"));
+                        value +=","+cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
+                        value +=","+cursor.getString(cursor.getColumnIndexOrThrow("CATEGORY"));
+                        value +=","+cursor.getString(cursor.getColumnIndexOrThrow("COUNTER"));
+                        value +=","+cursor.getString(cursor.getColumnIndexOrThrow("NOTE"));
+                        value +=","+cursor.getString(cursor.getColumnIndexOrThrow("PIC_SRC"));
+                        value +=","+cursor.getString(cursor.getColumnIndexOrThrow("ONOFF_FLAG"));
+
+                        strings[apos]=value;
+                        apos++;
+                    }
+                } catch (IllegalArgumentException e)
+                {
+                   exmsg("020220231029",e);
+                }
+                cursor.close();
+                db.close();
+                //Daten rückgabe
+                return strings;
+            }
+            else
+            {
+                //Alternative Ausgabe cursor =0 (sql Abfrage)=
+                cursor.close();
+                db.close();
+                String[] string = {"null"};
+                return string;
+            }
+        }
+        else
+        {
+            //Alternative Ausgabe filter_args=0
+            String[] string = {"null"};
+            return string;
+        }
+    }
+
+    public String[] filter_maschine_date(String date) //Im Datum in Dantenbankformat
+    {
+        SQLiteDatabase rdb  = null;
+        Cursor cursor = null;
+
+        try {
+                //Suche nach einträgen in der Datenbankt mit dem Angegebenen Datum "date"
+                rdb = getReadableDatabase();
+                String[] selection_args ={date};
+                String where = "DATE=?";
+
+                cursor = rdb.query(TB_NAME_MASCHINEN_ENTRYS,null,where,selection_args,"MASCH_ID",null,null);
+
+            } catch (Exception e)
+            {
+                exmsg("030220231639",e);
+            }
+        //Falls Einträge gefunden wurden...
+        if(cursor.getCount() >0)
+        {
+            int  apos=0;
+            String[] strings = new String[cursor.getCount()];
+
+            try
+            {
+                while (cursor.moveToNext())
+                {
+                        //Hole daten der Maschine aus der Datenbank per get_maschine
+                        ContentValues cv = get_maschine( cursor.getString(cursor.getColumnIndexOrThrow("MASCH_ID")));
+
+                        String item = cv.get("ID").toString();
+                        item+= ","+cv.get("DATE").toString();
+                        item+= ","+cv.get("TIME").toString();
+                        item+= ","+cv.get("NR").toString();
+                        item+= ","+cv.get("NAME").toString();
+                        item+= ","+cv.get("CATEGORY").toString();
+                        item+= ","+cv.get("COUNTER").toString();
+                        item+= ","+cv.get("NOTE").toString();
+                        item+= ","+cv.get("PIC_SRC").toString();
+                        item+= ","+cv.get("ONOFF_FLAG").toString();
+
+                        strings[apos]=item;
+                        apos++;
+                    }
+
+            } catch (IllegalArgumentException e)
+            {
+                exmsg("020220232008",e);
+            }
+            cursor.close();
+            rdb.close();
+            //Daten rückgabe
+            return strings;
+        }
+        else
+        {
+            //Alternative Ausgabe falls cursor =0 (sql Abfrage)=
+            cursor.close();
+            rdb.close();
+            String[] string = {"null"};
+            return string;
+        }
+    }
+
+    public void log_entrys_gendummy(String masch_id,int quantity)
+    {
+        Basic_funct bsf = new Basic_funct();
+        ContentValues data = new ContentValues();
+        ContentValues cv = get_maschine(masch_id);
+
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2023,0,0);
+
+        Random rm = new Random();
+
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        Double counter = 10.0;
+
+       while(quantity >0)
+       {
+           data.put("ID", bsf.gen_ID());
+           data.put("PROJ_NR", bsf.PROJ_NR);
+           data.put("MASCH_ID", masch_id);
+
+           String r = String.valueOf(rm.nextInt());
+           r = r.substring(r.length()-1);
+
+           calendar.add(Calendar.DAY_OF_MONTH, Integer.parseInt(r));
+           data.put("DATE", dateFormat.format(calendar.getTime()).toString());
+           data.put("TIME", bsf.time_refresh());
+           data.put("NR", cv.get("NR").toString());
+           data.put("NAME", cv.get("NAME").toString());
+           data.put("COUNTER", counter);
+
+           try {
+
+               Log.d("Dummy:",data.toString());
+
+
+               SQLiteDatabase db = this.getWritableDatabase();
+               long newRowId = db.insert(TB_NAME_MASCHINEN_ENTRYS, null, data);
+
+           } catch (Exception e) {
+               Log.d("BASI", "add_log_entry:" + e.toString());
+
+           }
+           counter = counter + Double.parseDouble(r);
+           quantity--;
+       }
+       refresh_counter(masch_id);
+    }
+
+
+
 
     private void exmsg(String msg,Exception e)
     {
         Log.e("Exception: m_database_ops ->","ID: "+msg+" Message:" +e.getMessage().toString());
+        e.printStackTrace();
     }
 }
 

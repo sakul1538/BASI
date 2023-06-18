@@ -230,8 +230,6 @@ public class m_log_main extends AppCompatActivity
                    Log.e("m_log_main : selectet_date.setText ->",e.getMessage().toString());
         }
 
-
-
         selectet_date.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -458,6 +456,15 @@ public class m_log_main extends AppCompatActivity
 
                                     // Toast.makeText(m_log_main.this,"Import",Toast.LENGTH_LONG).show();
                                 break;
+
+                            case R.id.dummydata:
+
+                                mdo.log_entrys_gendummy(masch_id,10);
+                                reload_datalist();
+                                break;
+
+
+
                         }
                         return false;
                     }

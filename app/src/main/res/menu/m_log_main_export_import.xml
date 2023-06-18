@@ -23,4 +23,7 @@
     <item
         android:id="@+id/delet_all_entrys"
         android:title="@string/delet_all_entrys" />
+    <item
+        android:id="@+id/dummydata"
+        android:title="@string/Dummydata" />
 </menu>

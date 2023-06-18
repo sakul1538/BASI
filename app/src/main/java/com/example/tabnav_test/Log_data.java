@@ -40,7 +40,9 @@ import android.widget.Toast;
 
 import java.util.Calendar;
 
-public class Log_data extends AppCompatActivity {
+public class Log_data extends AppCompatActivity
+{
+
     RecyclerView rcv1;
     ImageButton log_search;
     ImageButton log_filter_reset;
@@ -89,11 +91,7 @@ public class Log_data extends AppCompatActivity {
         log_search_filter_dialog = (ImageButton) findViewById(log_search_filter_dialog_button);
 
 
-
-
         log_action_data_button = (ImageButton) findViewById(log_actions_data);
-
-
 
         log_action_data_button.setOnClickListener(new View.OnClickListener() {
             @Override
