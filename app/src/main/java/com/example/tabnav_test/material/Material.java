@@ -348,7 +348,9 @@ public class Material extends Fragment {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        clean_temp_dir(); //temp verzeichnis löschen
+        clean_temp_dir(); 
+        clean_temp_dir();//temp verzeichnis löschen
+        //gittest
     }
 
     @Override
