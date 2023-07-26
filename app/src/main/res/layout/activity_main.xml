@@ -7,7 +7,7 @@
     android:id="@+id/colay_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/purple_500">
+    android:background="@color/primaryColor">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -26,14 +26,16 @@
                 android:layout_height="wrap_content"
                 android:background="@color/Cornfield_1"
                 app:tabIconTint="@color/black"
-                app:tabIndicatorColor="@color/yellow"
+                app:tabIndicatorColor="@color/hellgrün"
+                app:tabIndicatorFullWidth="true"
                 app:tabIndicatorGravity="bottom"
+                app:tabIndicatorHeight="50dp"
                 app:tabMode="fixed">
 
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/Cornfield_5"
+                    android:background="@color/Cornfield_4"
                     android:backgroundTintMode="add"
                     android:icon="@drawable/ic_baseline_photo_camera_24"
                     tools:layout_editor_absoluteX="9dp"
@@ -42,7 +44,7 @@
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/Cornfield_3"
+                    android:background="@color/Cornfield_2"
                     android:icon="@drawable/ic_baseline_list_alt_24" />
 
                 <com.google.android.material.tabs.TabItem
@@ -58,20 +60,20 @@
 
             </com.google.android.material.tabs.TabLayout>
 
-                <LinearLayout
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/viewPager1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <androidx.viewpager2.widget.ViewPager2
-                        android:id="@+id/viewPager1"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="5dp"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginEnd="5dp"
-                        android:background="@color/hellgrün" />
-                </LinearLayout>
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:background="@color/hellgrün" />
+            </LinearLayout>
 
         </LinearLayout>
 

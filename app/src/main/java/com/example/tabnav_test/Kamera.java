@@ -376,7 +376,6 @@ public class Kamera<onActivityResult> extends Fragment
         {
             case 1:
 
-                    Toast.makeText(getContext(),String.valueOf(requestCode),Toast.LENGTH_LONG).show();
                     String message=String.valueOf(data.getData().getLastPathSegment());
                     dir.setText(message);
 
@@ -643,8 +642,6 @@ public class Kamera<onActivityResult> extends Fragment
         dir = (EditText) promptsView.findViewById(R.id.editTextTextPersonName11);
         final ImageButton paht = (ImageButton) promptsView.findViewById(R.id.imageButton2);
         CheckBox sub_folder = (CheckBox) promptsView.findViewById(R.id.enable_subfolder);
-
-
 
 
 

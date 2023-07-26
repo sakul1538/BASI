@@ -13,7 +13,11 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -23,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Random;
+import java.util.UUID;
 
 public class Basic_funct
 {
@@ -287,58 +292,53 @@ public class Basic_funct
         return dateString;
     }
 
-    public String gen_ID() {
-        String[] alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"};
-
-        int max_lenght= 5;
-
-        Random rm = new Random();
+    public String gen_ID()
+    {
+        String[] alphabet =  "ABCDEFGHIJKLMNOPQRTSUVWXYZ".split("");
         String key="";
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat addTimestamp = new SimpleDateFormat("HH:mm:s");
+        Random rm = new Random();
+        String[] randomcain = new String[10]; //Länge der ID
+
+
+        //Generiere Zufallsarray
+        for(int c = 0;c < randomcain.length;c++)
+        {
+            randomcain[c] = String.valueOf(rm.nextInt(9)).replace("-",""); //Zahlen 0-10
+        }
 
         try {
-            String random = String.valueOf(rm.nextInt());
 
-            random = random.replace("-", "");
-
-            String[] randomcain = random.split("");
-
-            for(int i =0;i<max_lenght;i++)
+            for (String e: randomcain)
             {
-                key +=alphabet[Integer.valueOf(randomcain[i])];
+                int v = Integer.parseInt(e);
+                if(v <=3 )
+                {
+                    key +=alphabet[rm.nextInt(alphabet.length-1)];
+                }
+                if(v >= 4 && v <=7 )
+                {
+                    key +=alphabet[rm.nextInt(alphabet.length-1)].toLowerCase();
+                }
+                if(v >= 8 )
+                {
+                    key += rm.nextInt(9);
+                }
 
             }
-
-            //and Integer string
-            random = String.valueOf(rm.nextInt());
-
-            random = random.replace("-", "");
-
-            randomcain = random.split("");
-
-            for(int i =0;i<max_lenght;i++)
-            {
-                key +=randomcain[i];
-            }
-
-            //and Lowercase string
-            random = String.valueOf(rm.nextInt());
-
-            random = random.replace("-", "");
-
-           randomcain = random.split("");
-
-            for(int i =0;i<max_lenght;i++)
-            {
-                key +=alphabet[Integer.valueOf(randomcain[i])].toLowerCase();
-
-            }
-
-
-        } catch (Exception e) {
-
+        } catch (Exception e)
+        {
+           //TODO exmsg einbinden
         }
+
+        return key;
+    }
+
+
+    public String gen_UUID()
+    {
+        String key = UUID.randomUUID().toString();
+
+        key = key.replace("-","");
         return key;
 
     }
@@ -456,14 +456,46 @@ public class Basic_funct
         }
         return dir+fname;
     }
+    public static void copyFileUsingStream(File source, File dest) throws IOException
+    {
+        //<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        //Permission all files
+
+        InputStream is = null;
+        OutputStream os = null;
+
+        try {
+            is = new FileInputStream(source);
+            os = new FileOutputStream(dest);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            if (is != null){
+                is.close();
+            }
+            if (os != null){
+                os.close();
+            }
+        }
+    }
+
+    public String detect_extension(String path)
+    {
+        String extension;
+        try {
+            extension= path.substring(path.lastIndexOf("."),path.length());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return extension;
+    }
 
 
-        /*Matrix matrix = new Matrix();
-        matrix.set
-
-        Bitmap rotatedBitmap = Bitmap.createBitmap(original, 0, 0, width, height, matrix, true);
-        Canvas canvas = new Canvas(rotatedBitmap);
-        canvas.drawBitmap(original, 5.0f, 0.0f, null);*/
 
     public void log(String msg)
     {

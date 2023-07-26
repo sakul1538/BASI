@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="5dp"
-    tools:context=".Material">
+    tools:context=".material.Material">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -348,7 +348,17 @@
                     android:src="@drawable/ic_baseline_folder_open_24" />
 
                 <ImageButton
-                    android:id="@+id/imageButton36"
+                    android:id="@+id/imageButton67"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:layout_weight="0"
+                    android:background="#00FFFFFF"
+                    android:padding="5dp"
+                    android:src="@drawable/baseline_picture_as_pdf_24" />
+
+                <ImageButton
+                    android:id="@+id/ls_delet_foto"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
@@ -357,28 +367,54 @@
                     android:padding="5dp"
                     android:src="@drawable/ic_baseline_delete_24" />
 
-                <ImageButton
-                    android:id="@+id/imageButton38"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:layout_margin="5dp"
-                    android:layout_weight="0"
-                    android:background="#00FFFFFF"
-                    android:padding="5dp"
-                    android:src="@drawable/ic_baseline_cancel_24" />
-
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/imageView2"
-                android:layout_width="400px"
-                android:layout_height="400px"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/imageButton57"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:background="#00FFFFFF"
+                    android:src="@drawable/ic_baseline_keyboard_arrow_left_24"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/imageView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="#00FFFFFF"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/cam"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/cam"
+                    tools:srcCompat="@drawable/cam" />
+
+                <ImageButton
+                    android:id="@+id/imageButton64"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:background="#00FFFFFF"
+                    android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView73"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:scaleType="fitCenter"
-                android:src="@drawable/cam"
-                app:srcCompat="@drawable/cam"
-                tools:srcCompat="@drawable/cam" />
+                android:layout_weight="1"
+                android:text="TextView"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -395,7 +431,7 @@
                     android:src="@drawable/ic_baseline_cached_24" />
 
                 <ImageButton
-                    android:id="@+id/imageButton41"
+                    android:id="@+id/imageButton41_save_entry"
                     android:layout_width="100dp"
                     android:layout_height="@dimen/buttons_1"
                     android:layout_gravity="center|center_horizontal"
@@ -403,7 +439,7 @@
                     android:src="@drawable/ic_baseline_save_24" />
 
                 <ImageButton
-                    android:id="@+id/imageButton42"
+                    android:id="@+id/material_log_show"
                     android:layout_width="100dp"
                     android:layout_height="@dimen/buttons_1"
                     android:layout_weight="0"

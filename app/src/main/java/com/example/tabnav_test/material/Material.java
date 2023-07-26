@@ -1,4 +1,4 @@
-package com.example.tabnav_test;
+package com.example.tabnav_test.material;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -8,8 +8,10 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
@@ -17,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Environment;
+import android.os.FileUtils;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,10 +37,28 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tabnav_test.Basic_func_img;
+import com.example.tabnav_test.Basic_funct;
+import com.example.tabnav_test.R;
+import com.example.tabnav_test.material_artikel_adapter;
+import com.example.tabnav_test.material_log_activity;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -46,19 +67,25 @@ import java.util.Calendar;
  */
 public class Material extends Fragment {
 
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+    private static final int foto_preview_w = 800; //breite
+    private static final int foto_preview_h = 800; // höhe
+    private static final String ls_media_directory_name = "/Lieferscheine"; // höhe
+    private static final String ls_media_directory_name_temp = "/Lieferscheine/temp"; // höhe
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
-    String currentPhotoPath;
+    String currentPhotoPath ="null";
     Uri photoURI=null;
-
     String photo_path ="null";
+    String in_directory ="/";
 
     //ImageButton
     ImageButton settings_projekt_button;
@@ -68,11 +95,19 @@ public class Material extends Fragment {
     ImageButton reset_artikel;
     ImageButton ls_note_reset;
     ImageButton ls_take_photo;
+    ImageButton ls_delet_foto;
     ImageButton reset_form;
+    ImageButton save_ls_entry;
+    ImageButton start_material_log_activity;
 
+    ImageButton open_pdf;
+    ImageButton open_filesystem;
 
     ImageButton reset_LS;
     ImageButton refresh_date;
+
+    ImageButton ls_img_collection_forward;
+    ImageButton ls_img_collection_backward;
 
     // EditText
     EditText dirname;
@@ -94,19 +129,27 @@ public class Material extends Fragment {
 
     Spinner spinner_einheiten;
 
-
     //Globale Instanzen
     Basic_funct bsf = new Basic_funct();
+    material_database_ops mdo;
 
     //TextView
     TextView projekt_label;
     TextView date_label;
+    TextView imagecounter;
 
     ImageView  ls_photo_view;
 
    LinearLayout date_background;
 
-    public Material() {
+   String []imageset;
+   Integer imageset_array_pointer=0;
+
+
+
+    public Material()
+    {
+
         // Required empty public constructor
     }
 
@@ -131,69 +174,53 @@ public class Material extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData)
     {
+        Uri uri = null;
         switch (requestCode)
         {
             case 0:
                 dirname.setText(resultData.getData().getLastPathSegment());
                 break;
-            case 1:
 
-                String filename ="";
-                String path="";
-                String photostamp ="";
-                String tags = "";
-                String save_dir="";
-                String datum="";
-
-                path = photoURI.getPath(); //path:  /primary/DCIM/Test/Test@28122022_ID_566429213554924951.jpeg
-
-                Log.d("URL:",path);
+            case 1://Foto mit Kamera
 
                 try {
-                    path = path.replace("/primary/",""); //primary entfernen
+                    String  path = photoURI.getPath()
+                            .replace("/primary/",
+                            Environment.getExternalStorageDirectory()+"/"); //primary entfernen; //path:  /primary/DCIM/Test/Test@28122022_ID_566429213554924951.jpeg
 
-
-                    path = Environment.getExternalStorageDirectory()+"/"+path;
                     set_foto_path(path);
-                    Log.d("URL_2: ",path);
 
                     Bitmap ls_picture= BitmapFactory.decodeFile(path);
-                    Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,400,400,true);
+                    Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(
+                            ls_picture,
+                            foto_preview_w,
+                            foto_preview_h,
+                            true);
 
-                    ls_photo_view.setImageBitmap(ls_picture_scaled);
+                    create_imageset(); //liest alle Dateien im Verzeichniss "in_directory" ein und Speichert sie im Array "imageset"
 
-                    ls_photo_view.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view)
 
+                    if(imageset.length>0) // Wenn das imageset einträge enthält...
+                    {
+                        media_visibilitiy("visible");
+
+                        media_shift("v");
+
+
+                        ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView
+                        ls_photo_view.setOnClickListener(new View.OnClickListener()
                         {
-                            View pic_view_UI = getLayoutInflater().inflate(R.layout.show_picture, null);
+                            @Override
+                            public void onClick(View view)
 
-                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-
-                            ImageView photo = (ImageView) pic_view_UI.findViewById(R.id.imageView4);
-                            photo.setImageBitmap(BitmapFactory.decodeFile(get_foto_path()));
-
-                            // set prompts.xml to alertdialog builder
-                            alertDialogBuilder.setView(pic_view_UI);
-                            alertDialogBuilder.setTitle("Viewer");
-
-                            alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i)
-                                {
-                                    dialogInterface.cancel();
-                                }
-                            });
-
-                            AlertDialog alertDialog = alertDialogBuilder.create();
-                            alertDialog.show();
-
-                        }
-                    });
-
-
-
+                            {
+                             /*  Basic_func_img bsfi = new Basic_func_img();
+                                String filename_contains = foto_path.substring(foto_path.lastIndexOf("/")+1,foto_path.lastIndexOf("ID")-1);
+                                String in_directory = foto_path.substring(0,foto_path.lastIndexOf("/")+1);
+                                bsfi.ls_image_viewer(in_directory,filename_contains,getContext());*/
+                            }
+                        });
+                    }
 
                 }catch (Exception e)
                 {
@@ -201,24 +228,106 @@ public class Material extends Fragment {
                 }
 
 
-                Toast.makeText(getContext(),path, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(),path, Toast.LENGTH_SHORT).show();
+                break;
+
+            case 3: //PDF öffnen
+
+                    if (resultData != null)
+                    {
+
+                        uri = resultData.getData(); //Url von der Datei, die Kopiert werden soll
+                        String source_uri = uri.getPath();
+                        source_uri = source_uri.replace("/document/primary:",Environment.getExternalStorageDirectory().getAbsolutePath()+"/");
+
+                        String destinationPath ="";
+                        try {
+
+                            String lieferant = Zulieferer_liste_main.getSelectedItem().toString();
+                            String ls_nr = String.valueOf(lsnr_field.getText());
+                            String date  = (String) date_label.getText();
+                            date = date.replace(".","");
+
+                            long time= System.currentTimeMillis(); //"Zufallszahl" generieren, damit dateien Verschiedene Namen haben.
+
+                            String filename= lieferant+"_NR_"+ls_nr+"@"+date+"_ID_"+String.valueOf(time)+".pdf"; //Name der Kopierten Datei
+                            destinationPath = in_directory+"/"+filename; //Verzeichniss und Dateiname verbinden
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                        File source = new File(source_uri);
+                        File destination = new File(destinationPath);
+
+                      try {
+                          bsf.copyFileUsingStream(source,destination); //Kopieren von-zu
+
+                          media_visibilitiy("visible");
+                          create_imageset();
+
+                          Bitmap default_pdf_logo = BitmapFactory.decodeResource(getResources(), R.drawable.pdflogo);
+                          Bitmap default_pdf_logo_scaled =  Bitmap.createScaledBitmap(default_pdf_logo,foto_preview_w,foto_preview_h,true);
+                          ls_photo_view.setImageBitmap(default_pdf_logo_scaled);
+
+                        } catch (IOException e)
+                      {
+                            exmsg("250720231849",e);
+                        }
+
+                    }
+                break;
+
+            case 4: //bild von dateien öffnen
+
+                if (resultData != null)
+                {
+                    uri = resultData.getData();
+                    String source_path = uri.getPath();///document/primary:DCIM/Baustellen /testprojekt/Lieferscheine/Volken_NR_1223@25072023_ID_6547592956172734206.jpeg
+                    source_path = source_path.replace("/document/primary:",Environment.getExternalStorageDirectory().getAbsolutePath()+"/");
+                    String file_extension = bsf.detect_extension(source_path); //Gibt den Dateityp (.jpeg .png ect) zurück in file_extension
+                    String destinationPath =null;
+                    try {
+                        String lieferant = Zulieferer_liste_main.getSelectedItem().toString();
+                        String ls_nr = String.valueOf(lsnr_field.getText());
+                        String date  = (String) date_label.getText();
+                        date = date.replace(".","");
+
+                        long time= System.currentTimeMillis(); //"Zufallszahl" generieren, damit dateien Verschiedene Namen haben.
+
+                        String filename= lieferant+"_NR_"+ls_nr+"@"+date+"_ID_"+String.valueOf(time)+file_extension; //Name der Kopierten Datei
+                        destinationPath= in_directory+"/"+filename; //Verzeichniss und Dateiname verbinden
+                    } catch (Exception e)
+                    {
+                        throw new RuntimeException(e);
+                    }
+                    File source = new File(source_path);
+                    File destination = new File(destinationPath);
+
+                    try {
+                        bsf.copyFileUsingStream(source,destination); //Kopieren von-zu
+                        media_visibilitiy("visible");
+                        create_imageset();
+
+
+                        Bitmap ls_picture= BitmapFactory.decodeFile(destinationPath);
+                        Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(
+                                ls_picture,
+                                foto_preview_w,
+                                foto_preview_h,
+                                true);
+
+                        ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView
+
+                    } catch (IOException e)
+                    {
+                        exmsg("250720231849",e);
+                    }
+                }
                 break;
         }
-
     }
 
-    @Override
-    public void onResume()
-    {
-        super.onResume();
-        try {
-            refresh_artikel_autocomplete();
-            refresh_spinner_zulieferer();
-        }catch (Exception e)
-        {
-            exmsg("110620231104",e);
-        }
-    }
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -227,6 +336,31 @@ public class Material extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+    }
+
+    @Override
+    public void onDestroyView()
+    {
+        super.onDestroyView();
+        try {
+            set_media_directory(ls_media_directory_name_temp);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        clean_temp_dir(); //temp verzeichnis löschen
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        try {
+            set_media_directory(ls_media_directory_name_temp);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        clean_temp_dir(); //temp Verzeichnis löschen
     }
 
     @Override
@@ -235,10 +369,17 @@ public class Material extends Fragment {
     {
         View view = inflater.inflate(R.layout.fragment_material, container, false);
 
+        //Instanzen
+
+        mdo = new material_database_ops(getContext());
+
+
+
 
         //TextView
         projekt_label = view.findViewById(R.id.textView58);
         date_label = view.findViewById(R.id.textView59_date);
+        imagecounter = view.findViewById(R.id.textView73);
 
         //ImageView
         ls_photo_view = view.findViewById(R.id.imageView2);
@@ -261,6 +402,15 @@ public class Material extends Fragment {
         ls_take_photo = view.findViewById(R.id.ls_shot_foto);
         refresh_date = view.findViewById(R.id.imageButton35_refresh_date);
         reset_form = view.findViewById(R.id.imageButton44_reset_form);
+        save_ls_entry = view.findViewById(R.id.imageButton41_save_entry);
+        ls_delet_foto = view.findViewById(R.id.ls_delet_foto);
+        start_material_log_activity = view.findViewById(R.id.material_log_show);
+        ls_img_collection_forward = view.findViewById(R.id.imageButton57);
+        ls_img_collection_backward = view.findViewById(R.id.imageButton64);
+        open_pdf = view.findViewById(R.id.imageButton67);
+        open_filesystem = view.findViewById(R.id.imageButton43);
+
+
 
         //EditText
         lsnr_field =view.findViewById(R.id.edittext_LS_ID);
@@ -272,23 +422,271 @@ public class Material extends Fragment {
         date_background = view.findViewById(R.id.date_background);
 
 
-        material_database_ops mdo = new material_database_ops(getContext());
+        try {
+            refresh_artikel_autocomplete();
+            refresh_projekt_label();
+            refresh_spinner_zulieferer();
+            set_media_directory(ls_media_directory_name_temp);
+            clean_temp_dir();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-        refresh_artikel_autocomplete();
-        refresh_projekt_label();
-        refresh_spinner_zulieferer();
         //Liferschein Nr.
+
+        ls_img_collection_forward.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+
+
+                media_shift("f");
+                String path = in_directory+"/"+imageset[imageset_array_pointer];
+
+
+                Bitmap ls_picture=null;
+                Bitmap ls_picture_scaled =null;
+
+
+                switch(bsf.detect_extension(path))  // fixme try block?
+                {
+                    case ".jpeg":
+                        ls_picture= BitmapFactory.decodeFile(path);
+                        ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+                        ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
+                        break;
+
+                    case ".jpg":
+                        ls_picture= BitmapFactory.decodeFile(path);
+                        ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+                        ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
+                        break;
+
+                    case ".png":
+
+                        ls_picture= BitmapFactory.decodeFile(path);
+                        ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+                        ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
+                        break;
+
+                    case ".pdf":
+                        Bitmap pdf_logo = BitmapFactory.decodeResource(getResources(), R.drawable.pdflogo);
+                        Bitmap pdf_logo_scaled =  Bitmap.createScaledBitmap(pdf_logo,foto_preview_w,foto_preview_h,true);
+                        ls_photo_view.setImageBitmap(pdf_logo_scaled);
+                        break;
+
+                    default:
+                        Bitmap sometype = BitmapFactory.decodeResource(getResources(), R.drawable.some_file);
+                        Bitmap sometype_scaled =  Bitmap.createScaledBitmap(sometype,foto_preview_w,foto_preview_h,true);
+                        ls_photo_view.setImageBitmap(sometype_scaled);
+                }
+            }
+        });
+
+
+        ls_img_collection_backward.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+
+                media_shift("b");
+                String path = in_directory+"/"+imageset[imageset_array_pointer];
+
+                Bitmap ls_picture=null;
+                Bitmap ls_picture_scaled =null;
+
+
+                switch(bsf.detect_extension(path))  // fixme try block?
+                {
+                    case ".jpeg":
+                        ls_picture= BitmapFactory.decodeFile(path);
+                        ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+                        ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
+                        break;
+
+                    case ".jpg":
+                        ls_picture= BitmapFactory.decodeFile(path);
+                        ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+                        ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
+                        break;
+
+                    case ".png":
+
+                        ls_picture= BitmapFactory.decodeFile(path);
+                        ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+                        ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
+                        break;
+
+                    case ".pdf":
+                        Bitmap pdf_logo = BitmapFactory.decodeResource(getResources(), R.drawable.pdflogo);
+                        Bitmap pdf_logo_scaled =  Bitmap.createScaledBitmap(pdf_logo,foto_preview_w,foto_preview_h,true);
+                        ls_photo_view.setImageBitmap(pdf_logo_scaled);
+                        break;
+
+                    default:
+                        Bitmap sometype = BitmapFactory.decodeResource(getResources(), R.drawable.some_file);
+                        Bitmap sometype_scaled =  Bitmap.createScaledBitmap(sometype,foto_preview_w,foto_preview_h,true);
+                        ls_photo_view.setImageBitmap(sometype_scaled);
+                }
+
+            }
+        });
+
+        open_pdf.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+
+               Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("application/pdf");
+                startActivityForResult(intent, 3);
+            }
+        });
+        open_filesystem.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("image/*");
+                startActivityForResult(intent, 4);
+            }
+        });
+
+                start_material_log_activity.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                try {
+                    Intent log_activity = new Intent(getContext(), material_log_activity.class);
+                    startActivity(log_activity);
+                }catch (Exception e)
+                {
+                    exmsg("250620231224",e);
+                }
+
+            }
+        });
+
+        ls_delet_foto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+
+            }
+        });
+
+        save_ls_entry.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                material_database_ops mdo = new material_database_ops(getContext());
+
+                String proj= String.valueOf(projekt_label.getText());
+                int spos= proj.lastIndexOf("[");
+                int epos= proj.lastIndexOf("]");
+
+                ContentValues data = new ContentValues();
+
+                try {
+                    data.put("ID",bsf.gen_UUID());
+                    data.put("PROJEKT_ID",proj.substring(spos+1,epos));
+                    data.put("DATUM", String.valueOf(date_label.getText()));
+                    data.put("LSNR", String.valueOf(lsnr_field.getText()));
+                    //String id_zulieferer =  mdo.get_id_zulieferer(Zulieferer_liste_main.getSelectedItem().toString());
+                    String id_zulieferer =  mdo.get_zulieferer_param(
+                            new String[]{Zulieferer_liste_main.getSelectedItem().toString()},
+                            "NAME =?",
+                            new String[]{"ID"});
+
+                    data.put("LIEFERANT_ID", String.valueOf(id_zulieferer));
+
+                    data.put("MENGE", String.valueOf(menge.getText()).trim());
+
+                    data.put("EINHEIT_ID",spinner_einheiten.getSelectedItem().toString());
+
+                    String notiz= note_field.getText().toString();
+                    if(notiz == "" || notiz.isEmpty())
+                    {
+                        data.put("NOTIZ","null");
+                    }
+                    else
+                    {
+                        data.put("NOTIZ",notiz);
+                    }
+
+                    data.put("SRC","null"); //Fixme anpassen !!!
+
+                    String artikel_value =String.valueOf(edit_artikel_name.getText()).trim();
+
+                    String id_artikel =  mdo.get_artikel_param(new String[]{artikel_value},"NAME    =?",new String[]{"ID"});
+
+                    if(id_artikel == "null")
+                    {
+                        mdo.add_artikel_to_list(artikel_value, String.valueOf(data.get("EINHEIT_ID"))); //Erstellt Speichert den Artikel in Datenbank, da er nicht existert
+                        data.put("MATERIAL_ID", mdo.get_artikel_param(new String[]{artikel_value},"NAME=?",new String[]{"ID"}));
+                    }
+                    else
+                    {
+                        data.put("MATERIAL_ID",id_artikel);
+                    }
+                }catch (Exception e)
+                {
+                     exmsg("200720232123",e);
+                }
+
+                try
+                {
+                    long response=   mdo.add_material_log_entry(data);
+                    if(response >0)
+                    {
+                        String copy_temp_msg  = "";
+                        if( copy_media_files_from_temp()== true)
+                        {
+                            copy_temp_msg="+ Medien wurden ins Verzeichniss übernommen!";
+
+
+                        }else
+                        {
+                            copy_temp_msg ="+ Medien wurden NICHT ins Verzeichnis übernommen!";
+
+                        }
+
+                        Toast.makeText(getContext(), "+Es  wurde  eine Eintrag erstellt!\n"+copy_temp_msg, Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                        Toast.makeText(getContext(), "+ Es konnte KEIN Eintrag erstellt werden!" , Toast.LENGTH_SHORT).show();
+
+                    }
+
+                    clean_temp_dir();
+                    reset_complete();
+                }
+                catch (Exception e)
+                {
+                    exmsg("200620232152",e);
+                    Toast.makeText(getContext(), "Kein Eintrag erstellt, interner Feher \n "+e.getMessage().toString() , Toast.LENGTH_SHORT).show();
+                    clean_temp_dir();
+                    reset_complete();
+                }
+            }
+        });
 
         reset_form.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)
             {
-                reset_date();
-                reset_ls_nr();
-                reset_artikel();
-                reset_menge();
-                reset_notiz();
-                reset_camera();
+
+                reset_complete();
+
             }
         });
 
@@ -333,17 +731,19 @@ public class Material extends Fragment {
             @Override
             public void onClick(View view)
             {
-
-                //Todo Ordner automisch erstellen 14.06.2023
-
                 material_database_ops mdo = new material_database_ops(getContext());
-                String data= mdo.get_selectet_projekt_root();
-                String []p = data.split(",");
+
+
                 String zulieferer = Zulieferer_liste_main.getSelectedItem().toString();
+
+
 
                 String date = String.valueOf(date_label.getText());
                 date = date.replace(".","");
-               dispatchTakePictureIntent(p[2]+"/Lieferscheine/"+zulieferer.trim(),p[0]+"#"+zulieferer.trim(),false,"", date);
+
+
+                dispatchTakePictureIntent(in_directory,zulieferer.trim()+"_NR_"+lsnr_field.getText().toString(),false,"", date);
+                //dispatchTakePictureIntent(p[2]+"/Lieferscheine/"+zulieferer.trim(),p[0]+"#"+zulieferer.trim(),false,"", date);
             }
         });
         ls_note_reset.setOnClickListener(new View.OnClickListener() {
@@ -369,7 +769,6 @@ public class Material extends Fragment {
             {
                 reset_artikel();
                 reset_menge();
-
             }
         });
 
@@ -435,7 +834,7 @@ public class Material extends Fragment {
                 material_database_ops mdo = new material_database_ops(getContext());
 
                 String[] material_artikel_adapter = mdo.artikel_list_all();
-                material_artikel_adapter lcar = new material_artikel_adapter(material_artikel_adapter);
+                com.example.tabnav_test.material_artikel_adapter lcar = new material_artikel_adapter(material_artikel_adapter);
                 matieral_artikel.setAdapter(lcar);
                 matieral_artikel.setLayoutManager( new LinearLayoutManager(getContext()));
 
@@ -459,7 +858,8 @@ public class Material extends Fragment {
         });
 
         //Zulieferer
-        settings_zulieferer.setOnClickListener(new View.OnClickListener() {
+        settings_zulieferer.setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View view)
             {
@@ -497,6 +897,7 @@ public class Material extends Fragment {
                                 material_database_ops mdo = new material_database_ops(getContext());
                                 mdo.add_zulieferer(name_zulieferer.getText().toString());
                                 refresh_spinner_zulieferer_settings();
+
 
                                 dialogInterface.cancel();
                             }
@@ -548,7 +949,8 @@ public class Material extends Fragment {
                     }
                 });
 
-                del_zuliefere.setOnClickListener(new View.OnClickListener() {
+                del_zuliefere.setOnClickListener(new View.OnClickListener()
+                {
                     @Override
                     public void onClick(View view)
 
@@ -595,7 +997,7 @@ public class Material extends Fragment {
                 alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-
+                        refresh_spinner_zulieferer();
                         dialogInterface.cancel();
                     }
                 });
@@ -695,6 +1097,11 @@ public class Material extends Fragment {
                         mdo.select_projekt(item_part[1]);
                         refresh_projekt_label();
                         dialogInterface.cancel();
+                        try {
+                            set_media_directory(ls_media_directory_name_temp);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 });
                 alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
@@ -708,6 +1115,19 @@ public class Material extends Fragment {
             }
         });
         return view;
+    }
+
+    private void reset_complete()
+    {
+        reset_date();
+        reset_ls_nr();
+        reset_artikel();
+        reset_menge();
+        reset_notiz();
+        reset_camera();
+        media_visibilitiy("gone");
+        clean_temp_dir();
+        create_imageset();
     }
 
     void refresh_artikel_autocomplete()
@@ -893,7 +1313,6 @@ public class Material extends Fragment {
     {
         material_database_ops mdo = new material_database_ops(getContext());
         projekt_label.setText(mdo.get_selectet_projekt());
-
     }
 
     //Bild aufnehmen
@@ -907,12 +1326,51 @@ public class Material extends Fragment {
         File photoFile = null;
         try {
 
-            photoFile= createImageFile(path,title,tag_on,tag,date);
-        } catch (IOException ex)
-        {
-            // Error occurred while creating the File
+            String addings= date+"_ID_";
+            String imageFileName = title+"@" + addings;
 
+            File storageDir = new File(path);
+            storageDir.mkdirs();  //erstellt fehlende Ordner...
+            File image = File.createTempFile(
+                    imageFileName,  /* prefix */
+                    ".jpeg",         /* suffix */
+                    storageDir      /* directory */
+            );
+
+            // Save a file: path for use with ACTION_VIEW intents
+            currentPhotoPath = image.getAbsolutePath();
+            photoFile = image;
+            //photoFile= createImageFile(path,title,tag_on,tag,date);
+        } catch (IOException e)
+        {
+            exmsg("250720231154",e);
+            // Error occurred while creating the File
         }
+        // Continue only if the File was successfully created
+        if (photoFile != null)
+        {
+            try {
+                photoURI = FileProvider.getUriForFile(getContext(),"com.example.tabnav_test.fileprovider",photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent,1);
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    public void refrehshPicture(String path)
+    {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+
+        // Create the File where the photo should go
+        File photoFile  = new File(path);
+
+
+
         // Continue only if the File was successfully created
         if (photoFile != null)
         {
@@ -929,39 +1387,16 @@ public class Material extends Fragment {
     }
 
 
+
     private File createImageFile(String path,String title,boolean tag_on,String tag,String date) throws IOException
     {
-
-        String[] part = path.split(":");
-        String abs_path="";
-
-        switch(part[0])
-        {
-            case "primary":
-                abs_path = "/storage/emulated/0/"+part[1]+"/";
-                break;
-
-            default:
-                abs_path = "/storage/"+part[0]+"/"+part[1]+"/";
-
-        }
-
-
-
-        Basic_funct bsf = new Basic_funct();
-
 
         String addings= date+"_ID_";
         String imageFileName = title+"@" + addings;
 
-        if(tag_on==true)
-        {
-            imageFileName = title+"#"+tag+"@" + addings;
-
-        }
 
 
-        File storageDir = new File(abs_path);
+        File storageDir = new File(path);
         storageDir.mkdirs();  //erstellt fehlende Ordner...
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
@@ -971,7 +1406,6 @@ public class Material extends Fragment {
 
         // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath = image.getAbsolutePath();
-
 
         return image;
     }
@@ -1014,10 +1448,169 @@ public class Material extends Fragment {
         ls_photo_view.setImageResource(R.drawable.cam);
     }
 
+    private void media_shift(String direction)
+    {
+        int max = imageset.length;
 
 
+        if (max > 0) {
+            switch (direction) {
+                case "f": //Vorwärts
+                    if (imageset_array_pointer <= max - 2)
+                    {
+                        imageset_array_pointer++;
+                    }
 
+                    break;
+                case "b": //Rückwärts
+                    if (imageset_array_pointer >= 1)
+                    {
+                        imageset_array_pointer--;
+                    }
 
+                    break;
+                case "v": //aktuallisiert ohne zählerveränderung
+                    String arraypos = "  (" + imageset_array_pointer + ")";
+                    imagecounter.setText("Bild " + String.valueOf(imageset_array_pointer+1) + " von " + max + arraypos);
+                    break;
+                default:
+                    Toast.makeText(getContext(), "Fehler: Keine gültiger Parameter", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(getContext(), "Keine Bilder ", Toast.LENGTH_SHORT).show();
+        }
+        String arraypos = "  (" + imageset_array_pointer + ")";
+        imagecounter.setText("Bild "+String.valueOf(imageset_array_pointer+1)+ " von "+max+arraypos);
+
+    }
+
+    private void set_media_directory(String sub_dir) throws Exception
+    {
+        material_database_ops mdo = new material_database_ops(getContext());
+
+        try {
+            String  r = mdo.get_selectet_projekt_root().split(",")[2]; //Martinheim Süd,23110022,primary:DCIM/Baustellen /Martinsheim Süd;
+            r = r.replace("primary:",Environment.getExternalStorageDirectory().getAbsolutePath()+"/");
+            r +=sub_dir;
+            in_directory = r;
+            Log.d("in_directory",r);
+            File f = new File(r);
+            f.mkdirs(); //erstellt die fehlenden verzeichnisse.
+        } catch (Exception e)
+        {
+            exmsg("250720231142",e);
+        }
+
+    }
+
+    private void media_visibilitiy(String visible)
+    {
+        try {
+            switch(visible)
+            {
+
+                case "visible":
+                    ls_photo_view.setVisibility(View.VISIBLE);
+                    ls_img_collection_backward.setVisibility(View.VISIBLE);
+                    ls_img_collection_forward.setVisibility(View.VISIBLE);
+                    imagecounter.setVisibility(View.VISIBLE);
+                    break;
+
+                case "invisible":
+                    ls_photo_view.setVisibility(View.VISIBLE);
+                    ls_img_collection_backward.setVisibility(View.INVISIBLE);
+                    ls_img_collection_forward.setVisibility(View.INVISIBLE);
+                    imagecounter.setVisibility(View.INVISIBLE);
+
+                    break;
+
+                case "gone":
+                    ls_photo_view.setVisibility(View.GONE);
+                    ls_img_collection_backward.setVisibility(View.GONE);
+                    ls_img_collection_forward.setVisibility(View.GONE);
+                    imagecounter.setVisibility(View.GONE);
+
+                    break;
+
+            }
+        } catch (Exception e)
+        {
+           exmsg("250720231006",e);
+        }
+    }
+
+    private void  create_imageset()
+    {
+        File f = new File(in_directory);
+        imageset =f.list();
+        if(imageset.length >0)
+        {
+            imageset_array_pointer=0;
+        }
+
+    }
+
+    private boolean copy_media_files_from_temp()
+    {
+        String source_dir ="";
+        String destination_dir ="";
+        Boolean check = false;
+        try {
+            set_media_directory(ls_media_directory_name);
+            destination_dir = in_directory;
+            set_media_directory(ls_media_directory_name_temp);
+            source_dir = in_directory;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        File f = new File (in_directory);
+        if(f.exists())
+
+        {
+            String[] files = f.list();
+
+            for(String d: files)
+            {
+                String source = source_dir+"/"+d;
+                String destination =destination_dir+"/"+d;
+                check = true;
+
+                try {
+                    File source_file = new File(source);
+                    bsf.copyFileUsingStream(source_file,new File(destination)); //Kopieren von-zu
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+        }
+
+        return  check;
+    }
+
+    public void clean_temp_dir()
+    {
+        String in_directory_backup = in_directory; //Sichern
+        try
+            {
+            set_media_directory(ls_media_directory_name_temp);
+            File f= new File(in_directory);
+
+            String [] files =f.list();
+            for (String d: files)
+            {
+                File t = new File(in_directory+"/"+d);
+                t.delete();
+            }
+                bsf.log("Verzeichnis 'temp' bereinigt!");
+
+        } catch (Exception e)
+        {
+            bsf.error_msg("Verzeichnis 'temp' bereinigung Fehlgeschlagen!\n"+e,getContext());
+        }
+            in_directory = in_directory_backup; //Wiederherstellen
+    }
 
     void exmsg(String msg, Exception e)
     {

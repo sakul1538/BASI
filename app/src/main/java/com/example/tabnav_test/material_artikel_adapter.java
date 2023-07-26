@@ -17,10 +17,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-    public class material_artikel_adapter extends RecyclerView.Adapter<material_artikel_adapter.ViewHolder>
+import com.example.tabnav_test.material.material_database_ops;
+
+public class material_artikel_adapter extends RecyclerView.Adapter<material_artikel_adapter.ViewHolder>
 {
 
     String[] localDataSet ;
@@ -164,7 +165,7 @@ import androidx.recyclerview.widget.RecyclerView;
             notifyDataSetChanged();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder
+    public static class ViewHolder extends RecyclerView.ViewHolder
     {
         private final TextView artikel_name;
         private final  ImageButton del_button;

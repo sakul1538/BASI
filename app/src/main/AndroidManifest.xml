@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.tabnav_test">
+    package="com.example.tabnav_test" >
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage"/>
     <uses-permission android:name="android.permission.CAMERA" />
+
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -20,17 +23,22 @@
         android:roundIcon="@mipmap/bauassist_logo2"
         android:supportsRtl="true"
         android:theme="@style/Theme.TABNAV_TEST"
-        tools:targetApi="31">
+        tools:targetApi="31" >
+        <activity
+            android:name=".material_log_activity"
+            android:exported="false"
+            android:label="@string/title_activity_material_log"
+            android:theme="@style/Theme.TABNAV_TEST" />
         <activity
             android:name=".m_log_main"
-            android:exported="false">
+            android:exported="false" >
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
             android:name=".Camera_modul"
-            android:exported="false">
+            android:exported="false" >
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -40,21 +48,21 @@
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="false"
             android:label="@string/title_activity_mconf_maschine"
-            android:theme="@style/Theme.TABNAV_TEST.NoActionBar">
+            android:theme="@style/Theme.TABNAV_TEST.NoActionBar" >
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
             android:name=".Log_data"
-            android:exported="false">
+            android:exported="false" >
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
             android:name=".log_conf_categorys"
-            android:exported="false">
+            android:exported="false" >
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -67,7 +75,7 @@
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -79,7 +87,7 @@
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.tabnav_test.fileprovider"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true" >
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />

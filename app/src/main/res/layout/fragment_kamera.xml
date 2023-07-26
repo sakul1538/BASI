@@ -28,6 +28,7 @@
                 android:layout_margin="5dp"
                 android:background="@color/yellow"
                 android:padding="5dp"
+                android:shadowColor="@color/Cornfield_3"
                 android:text="@string/kamera_label_date"
                 android:textSize="16sp"
                 android:textStyle="bold" />

@@ -74,7 +74,8 @@ public class Log_data extends AppCompatActivity
 
     @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_data);
 
