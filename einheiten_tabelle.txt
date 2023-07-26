@@ -1,0 +1,8 @@
+String[] einheiten = {"g", "kg", "t", "l", "ml", "m³", "m²", "m", "cm", "mm", "km"};
+
+// Zugriff auf die Elemente des Arrays
+System.out.println("Die gängigsten Gewichts-, Volumen-, Flächen- und Längenmasseeinheiten in der Schweiz (Abkürzungen):");
+for (String einheit : einheiten) {
+    System.out.println(einheit);
+}
+
