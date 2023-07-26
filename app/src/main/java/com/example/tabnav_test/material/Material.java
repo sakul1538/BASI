@@ -373,9 +373,6 @@ public class Material extends Fragment {
 
         mdo = new material_database_ops(getContext());
 
-
-
-
         //TextView
         projekt_label = view.findViewById(R.id.textView58);
         date_label = view.findViewById(R.id.textView59_date);
@@ -428,6 +425,7 @@ public class Material extends Fragment {
             refresh_spinner_zulieferer();
             set_media_directory(ls_media_directory_name_temp);
             clean_temp_dir();
+            create_imageset();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -578,6 +576,43 @@ public class Material extends Fragment {
             @Override
             public void onClick(View view)
             {
+                if(imageset.length >0)
+                {
+
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                    // set prompts.xml to alertdialog builder
+
+                    alertDialogBuilder.setTitle("Artikelverwaltung");
+                    alertDialogBuilder.setMessage("Bild löschen?\n"+in_directory+"/"+imageset[imageset_array_pointer]);
+
+                    alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i)
+                        {
+                            File f = new File(in_directory+"/"+imageset[imageset_array_pointer]);
+                            f.delete();
+                            create_imageset();
+                            dialogInterface.cancel();
+                        }
+                    });
+
+                    alertDialogBuilder.setNegativeButton("Abbrecen", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i)
+                        {
+                            dialogInterface.cancel();
+                        }
+                    });
+
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
+
+
+
+
+
+
+                }
 
             }
         });
