@@ -335,7 +335,8 @@ public class Material extends Fragment {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        clean_temp_dir(); //temp verzeichnis löschen
+        clean_temp_dir(); 
+      
     }
 
     @Override
@@ -347,7 +348,7 @@ public class Material extends Fragment {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        clean_temp_dir(); //temp Verzeichnis löschen
+        clean_temp_dir(); //temp Verzeichnis löschen 23423442
     }
 
     @Override
@@ -403,6 +404,7 @@ public class Material extends Fragment {
         spinner_einheiten = view.findViewById(R.id.spinner6_einheiten);
 
         //Layouts
+        date_background = view.findViewById(R.id.date_background);
         date_background = view.findViewById(R.id.date_background);
 
 
