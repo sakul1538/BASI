@@ -183,50 +183,36 @@ public class Material extends Fragment {
 
             case 1://Foto mit Kamera
 
-                try {
-                    String  path = photoURI.getPath()
-                            .replace("/primary/",
-                            Environment.getExternalStorageDirectory()+"/"); //primary entfernen; //path:  /primary/DCIM/Test/Test@28122022_ID_566429213554924951.jpeg
+                if (resultData != null)
+                {
+                    try {
 
-                    set_foto_path(path);
+                        create_imageset(); //liest alle Dateien im Verzeichniss "in_directory" ein und Speichert sie im Array "imageset"
 
-                    Bitmap ls_picture= BitmapFactory.decodeFile(path);
-                    Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(
-                            ls_picture,
-                            foto_preview_w,
-                            foto_preview_h,
-                            true);
-
-                    create_imageset(); //liest alle Dateien im Verzeichniss "in_directory" ein und Speichert sie im Array "imageset"
-
-
-                    if(imageset.length>0) // Wenn das imageset einträge enthält...
-                    {
-                        media_visibilitiy("visible");
-
-                        media_shift("v");
-
-
-                        ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView
-                        ls_photo_view.setOnClickListener(new View.OnClickListener()
+                        if(imageset.length>0) // Wenn das imageset einträge enthält...
                         {
-                            @Override
-                            public void onClick(View view)
+                            media_visibilitiy(View.VISIBLE);
+                            media_shift("r");
 
+                            ls_photo_view.setOnClickListener(new View.OnClickListener()
                             {
+                                @Override
+                                public void onClick(View view)
+
+                                {
                              /*  Basic_func_img bsfi = new Basic_func_img();
                                 String filename_contains = foto_path.substring(foto_path.lastIndexOf("/")+1,foto_path.lastIndexOf("ID")-1);
                                 String in_directory = foto_path.substring(0,foto_path.lastIndexOf("/")+1);
                                 bsfi.ls_image_viewer(in_directory,filename_contains,getContext());*/
-                            }
-                        });
+                                }
+                            });
+                        }
+
+                    }catch (Exception e)
+                    {
+                        exmsg("18062023110",e);
                     }
-
-                }catch (Exception e)
-                {
-                    exmsg("18062023110",e);
                 }
-
 
                 //Toast.makeText(getContext(),path, Toast.LENGTH_SHORT).show();
                 break;
@@ -261,8 +247,9 @@ public class Material extends Fragment {
                       try {
                           bsf.copyFileUsingStream(source,destination); //Kopieren von-zu
 
-                          media_visibilitiy("visible");
                           create_imageset();
+                          media_visibilitiy(View.VISIBLE);
+                          media_shift("r");
 
                           Bitmap default_pdf_logo = BitmapFactory.decodeResource(getResources(), R.drawable.pdflogo);
                           Bitmap default_pdf_logo_scaled =  Bitmap.createScaledBitmap(default_pdf_logo,foto_preview_w,foto_preview_h,true);
@@ -304,9 +291,9 @@ public class Material extends Fragment {
 
                     try {
                         bsf.copyFileUsingStream(source,destination); //Kopieren von-zu
-                        media_visibilitiy("visible");
+                        media_visibilitiy(View.VISIBLE);
                         create_imageset();
-
+                        media_shift("r");
 
                         Bitmap ls_picture= BitmapFactory.decodeFile(destinationPath);
                         Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(
@@ -437,48 +424,7 @@ public class Material extends Fragment {
             @Override
             public void onClick(View view)
             {
-
-
                 media_shift("f");
-                String path = in_directory+"/"+imageset[imageset_array_pointer];
-
-
-                Bitmap ls_picture=null;
-                Bitmap ls_picture_scaled =null;
-
-
-                switch(bsf.detect_extension(path))  // fixme try block?
-                {
-                    case ".jpeg":
-                        ls_picture= BitmapFactory.decodeFile(path);
-                        ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
-                        ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
-                        break;
-
-                    case ".jpg":
-                        ls_picture= BitmapFactory.decodeFile(path);
-                        ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
-                        ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
-                        break;
-
-                    case ".png":
-
-                        ls_picture= BitmapFactory.decodeFile(path);
-                        ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
-                        ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
-                        break;
-
-                    case ".pdf":
-                        Bitmap pdf_logo = BitmapFactory.decodeResource(getResources(), R.drawable.pdflogo);
-                        Bitmap pdf_logo_scaled =  Bitmap.createScaledBitmap(pdf_logo,foto_preview_w,foto_preview_h,true);
-                        ls_photo_view.setImageBitmap(pdf_logo_scaled);
-                        break;
-
-                    default:
-                        Bitmap sometype = BitmapFactory.decodeResource(getResources(), R.drawable.some_file);
-                        Bitmap sometype_scaled =  Bitmap.createScaledBitmap(sometype,foto_preview_w,foto_preview_h,true);
-                        ls_photo_view.setImageBitmap(sometype_scaled);
-                }
             }
         });
 
@@ -488,47 +434,7 @@ public class Material extends Fragment {
             @Override
             public void onClick(View view)
             {
-
                 media_shift("b");
-                String path = in_directory+"/"+imageset[imageset_array_pointer];
-
-                Bitmap ls_picture=null;
-                Bitmap ls_picture_scaled =null;
-
-
-                switch(bsf.detect_extension(path))  // fixme try block?
-                {
-                    case ".jpeg":
-                        ls_picture= BitmapFactory.decodeFile(path);
-                        ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
-                        ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
-                        break;
-
-                    case ".jpg":
-                        ls_picture= BitmapFactory.decodeFile(path);
-                        ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
-                        ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
-                        break;
-
-                    case ".png":
-
-                        ls_picture= BitmapFactory.decodeFile(path);
-                        ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
-                        ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
-                        break;
-
-                    case ".pdf":
-                        Bitmap pdf_logo = BitmapFactory.decodeResource(getResources(), R.drawable.pdflogo);
-                        Bitmap pdf_logo_scaled =  Bitmap.createScaledBitmap(pdf_logo,foto_preview_w,foto_preview_h,true);
-                        ls_photo_view.setImageBitmap(pdf_logo_scaled);
-                        break;
-
-                    default:
-                        Bitmap sometype = BitmapFactory.decodeResource(getResources(), R.drawable.some_file);
-                        Bitmap sometype_scaled =  Bitmap.createScaledBitmap(sometype,foto_preview_w,foto_preview_h,true);
-                        ls_photo_view.setImageBitmap(sometype_scaled);
-                }
-
             }
         });
 
@@ -592,6 +498,7 @@ public class Material extends Fragment {
                             File f = new File(in_directory+"/"+imageset[imageset_array_pointer]);
                             f.delete();
                             create_imageset();
+                            media_shift("r");
                             dialogInterface.cancel();
                         }
                     });
@@ -606,10 +513,6 @@ public class Material extends Fragment {
 
                     AlertDialog alertDialog = alertDialogBuilder.create();
                     alertDialog.show();
-
-
-
-
 
 
                 }
@@ -1160,7 +1063,7 @@ public class Material extends Fragment {
         reset_menge();
         reset_notiz();
         reset_camera();
-        media_visibilitiy("gone");
+        media_visibilitiy(View.GONE);
         clean_temp_dir();
         create_imageset();
     }
@@ -1486,15 +1389,18 @@ public class Material extends Fragment {
     private void media_shift(String direction)
     {
         int max = imageset.length;
+        String arraypos = "";
 
-
-        if (max > 0) {
-            switch (direction) {
+        if (max > 0)
+        {
+            switch (direction)
+            {
                 case "f": //Vorwärts
                     if (imageset_array_pointer <= max - 2)
                     {
                         imageset_array_pointer++;
                     }
+                    update_photo_view();
 
                     break;
                 case "b": //Rückwärts
@@ -1502,21 +1408,25 @@ public class Material extends Fragment {
                     {
                         imageset_array_pointer--;
                     }
+                    update_photo_view();
 
                     break;
-                case "v": //aktuallisiert ohne zählerveränderung
-                    String arraypos = "  (" + imageset_array_pointer + ")";
-                    imagecounter.setText("Bild " + String.valueOf(imageset_array_pointer+1) + " von " + max + arraypos);
+
+                case "r"://aktuallisieren "relaod"
+                     update_photo_view();
                     break;
                 default:
                     Toast.makeText(getContext(), "Fehler: Keine gültiger Parameter", Toast.LENGTH_SHORT).show();
             }
-        } else {
+
+            arraypos = "  (" + imageset_array_pointer + ")";
+            imagecounter.setText("Bild "+String.valueOf(imageset_array_pointer+1)+ " von "+max+arraypos);
+
+        } else
+        {
+            media_visibilitiy(View.GONE);
             Toast.makeText(getContext(), "Keine Bilder ", Toast.LENGTH_SHORT).show();
         }
-        String arraypos = "  (" + imageset_array_pointer + ")";
-        imagecounter.setText("Bild "+String.valueOf(imageset_array_pointer+1)+ " von "+max+arraypos);
-
     }
 
     private void set_media_directory(String sub_dir) throws Exception
@@ -1538,36 +1448,13 @@ public class Material extends Fragment {
 
     }
 
-    private void media_visibilitiy(String visible)
+    private void media_visibilitiy(int visible_mode)
     {
         try {
-            switch(visible)
-            {
-
-                case "visible":
-                    ls_photo_view.setVisibility(View.VISIBLE);
-                    ls_img_collection_backward.setVisibility(View.VISIBLE);
-                    ls_img_collection_forward.setVisibility(View.VISIBLE);
-                    imagecounter.setVisibility(View.VISIBLE);
-                    break;
-
-                case "invisible":
-                    ls_photo_view.setVisibility(View.VISIBLE);
-                    ls_img_collection_backward.setVisibility(View.INVISIBLE);
-                    ls_img_collection_forward.setVisibility(View.INVISIBLE);
-                    imagecounter.setVisibility(View.INVISIBLE);
-
-                    break;
-
-                case "gone":
-                    ls_photo_view.setVisibility(View.GONE);
-                    ls_img_collection_backward.setVisibility(View.GONE);
-                    ls_img_collection_forward.setVisibility(View.GONE);
-                    imagecounter.setVisibility(View.GONE);
-
-                    break;
-
-            }
+            ls_photo_view.setVisibility(visible_mode);
+            ls_img_collection_backward.setVisibility(visible_mode);
+            ls_img_collection_forward.setVisibility(visible_mode);
+            imagecounter.setVisibility(visible_mode);
         } catch (Exception e)
         {
            exmsg("250720231006",e);
@@ -1581,6 +1468,49 @@ public class Material extends Fragment {
         if(imageset.length >0)
         {
             imageset_array_pointer=0;
+        }
+
+    }
+
+    private void  update_photo_view()  //Akuallisiert das imageView mit dem Akueller Position des imagset pointers
+    {
+        String path = in_directory+"/"+imageset[imageset_array_pointer]; //Pfad des Mediums
+
+        Bitmap ls_picture=null;
+        Bitmap ls_picture_scaled =null;
+
+
+        switch(bsf.detect_extension(path))  // fixme try block?
+        {
+            case ".jpeg":
+                ls_picture= BitmapFactory.decodeFile(path);
+                ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+                ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
+                break;
+
+            case ".jpg":
+                ls_picture= BitmapFactory.decodeFile(path);
+                ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+                ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
+                break;
+
+            case ".png":
+
+                ls_picture= BitmapFactory.decodeFile(path);
+                ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+                ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
+                break;
+
+            case ".pdf":
+                Bitmap pdf_logo = BitmapFactory.decodeResource(getResources(), R.drawable.pdflogo);
+                Bitmap pdf_logo_scaled =  Bitmap.createScaledBitmap(pdf_logo,foto_preview_w,foto_preview_h,true);
+                ls_photo_view.setImageBitmap(pdf_logo_scaled);
+                break;
+
+            default:
+                Bitmap sometype = BitmapFactory.decodeResource(getResources(), R.drawable.some_file);
+                Bitmap sometype_scaled =  Bitmap.createScaledBitmap(sometype,foto_preview_w,foto_preview_h,true);
+                ls_photo_view.setImageBitmap(sometype_scaled);
         }
 
     }
