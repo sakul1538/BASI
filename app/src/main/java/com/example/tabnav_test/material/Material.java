@@ -3,10 +3,12 @@ package com.example.tabnav_test.material;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -77,6 +79,9 @@ public class Material extends Fragment {
     private static final int foto_preview_h = 800; // höhe
     private static final String ls_media_directory_name = "/Lieferscheine"; // höhe
     private static final String ls_media_directory_name_temp = "/Lieferscheine/temp"; // höhe
+    private static final String TAG = "BASI"; // höhe
+    private static final String TAKE_IMAGE_REFRESH_MODE = "refresh"; // höhe
+    private static final String TAKE_IMAGE_NEW_MODE = "new"; // höhe
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -99,6 +104,7 @@ public class Material extends Fragment {
     ImageButton reset_form;
     ImageButton save_ls_entry;
     ImageButton start_material_log_activity;
+
 
     ImageButton open_pdf;
     ImageButton open_filesystem;
@@ -139,12 +145,13 @@ public class Material extends Fragment {
     TextView imagecounter;
 
     ImageView  ls_photo_view;
+    ImageView  photo_viewer;
 
-   LinearLayout date_background;
+
+    LinearLayout date_background;
 
    String []imageset;
    Integer imageset_array_pointer=0;
-
 
 
     public Material()
@@ -181,10 +188,11 @@ public class Material extends Fragment {
                 dirname.setText(resultData.getData().getLastPathSegment());
                 break;
 
-            case 1://Foto mit Kamera
+            case 1://Foto mit Kamera neu
 
                 if (resultData != null)
                 {
+
                     try {
 
                         create_imageset(); //liest alle Dateien im Verzeichniss "in_directory" ein und Speichert sie im Array "imageset"
@@ -193,19 +201,6 @@ public class Material extends Fragment {
                         {
                             media_visibilitiy(View.VISIBLE);
                             media_shift("r");
-
-                            ls_photo_view.setOnClickListener(new View.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(View view)
-
-                                {
-                             /*  Basic_func_img bsfi = new Basic_func_img();
-                                String filename_contains = foto_path.substring(foto_path.lastIndexOf("/")+1,foto_path.lastIndexOf("ID")-1);
-                                String in_directory = foto_path.substring(0,foto_path.lastIndexOf("/")+1);
-                                bsfi.ls_image_viewer(in_directory,filename_contains,getContext());*/
-                                }
-                            });
                         }
 
                     }catch (Exception e)
@@ -217,49 +212,46 @@ public class Material extends Fragment {
                 //Toast.makeText(getContext(),path, Toast.LENGTH_SHORT).show();
                 break;
 
+            case 2:
+
+                refresh_viewer_photo();
+                update_photo_view();
+            break;
+
             case 3: //PDF öffnen
 
                     if (resultData != null)
                     {
-
                         uri = resultData.getData(); //Url von der Datei, die Kopiert werden soll
                         String source_uri = uri.getPath();
                         source_uri = source_uri.replace("/document/primary:",Environment.getExternalStorageDirectory().getAbsolutePath()+"/");
-
                         String destinationPath ="";
-                        try {
+                        String filename = create_media_filename(".pdf");
 
-                            String lieferant = Zulieferer_liste_main.getSelectedItem().toString();
-                            String ls_nr = String.valueOf(lsnr_field.getText());
-                            String date  = (String) date_label.getText();
-                            date = date.replace(".","");
+                        if(filename !="null")
+                        {
+                            try {
+                                destinationPath = in_directory+"/"+filename; //Verzeichniss und Dateiname verbinden
+                                File source = new File(source_uri);
+                                File destination = new File(destinationPath);
 
-                            long time= System.currentTimeMillis(); //"Zufallszahl" generieren, damit dateien Verschiedene Namen haben.
+                                try {
+                                    bsf.copyFileUsingStream(source,destination); //Kopieren von-zu
+                                    create_imageset();
+                                    media_visibilitiy(View.VISIBLE);
+                                    media_shift("r");
 
-                            String filename= lieferant+"_NR_"+ls_nr+"@"+date+"_ID_"+String.valueOf(time)+".pdf"; //Name der Kopierten Datei
-                            destinationPath = in_directory+"/"+filename; //Verzeichniss und Dateiname verbinden
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
+                                } catch (IOException e)
+                                {
+                                    exmsg("250720231849",e);
+                                }
+
+                            } catch (Exception e)
+                            {
+                                exmsg("270720231227",e);
+                                Toast.makeText(getContext(), "PDF import Fehlgeschlagen! \n"+e, Toast.LENGTH_SHORT).show();
+                            }
                         }
-                        File source = new File(source_uri);
-                        File destination = new File(destinationPath);
-
-                      try {
-                          bsf.copyFileUsingStream(source,destination); //Kopieren von-zu
-
-                          create_imageset();
-                          media_visibilitiy(View.VISIBLE);
-                          media_shift("r");
-
-                          Bitmap default_pdf_logo = BitmapFactory.decodeResource(getResources(), R.drawable.pdflogo);
-                          Bitmap default_pdf_logo_scaled =  Bitmap.createScaledBitmap(default_pdf_logo,foto_preview_w,foto_preview_h,true);
-                          ls_photo_view.setImageBitmap(default_pdf_logo_scaled);
-
-                        } catch (IOException e)
-                      {
-                            exmsg("250720231849",e);
-                        }
-
                     }
                 break;
 
@@ -270,50 +262,37 @@ public class Material extends Fragment {
                     uri = resultData.getData();
                     String source_path = uri.getPath();///document/primary:DCIM/Baustellen /testprojekt/Lieferscheine/Volken_NR_1223@25072023_ID_6547592956172734206.jpeg
                     source_path = source_path.replace("/document/primary:",Environment.getExternalStorageDirectory().getAbsolutePath()+"/");
-                    String file_extension = bsf.detect_extension(source_path); //Gibt den Dateityp (.jpeg .png ect) zurück in file_extension
                     String destinationPath =null;
-                    try {
-                        String lieferant = Zulieferer_liste_main.getSelectedItem().toString();
-                        String ls_nr = String.valueOf(lsnr_field.getText());
-                        String date  = (String) date_label.getText();
-                        date = date.replace(".","");
 
-                        long time= System.currentTimeMillis(); //"Zufallszahl" generieren, damit dateien Verschiedene Namen haben.
-
-                        String filename= lieferant+"_NR_"+ls_nr+"@"+date+"_ID_"+String.valueOf(time)+file_extension; //Name der Kopierten Datei
-                        destinationPath= in_directory+"/"+filename; //Verzeichniss und Dateiname verbinden
-                    } catch (Exception e)
+                    String filename = create_media_filename(bsf.detect_extension(source_path));
+                    if(filename != "null");
                     {
-                        throw new RuntimeException(e);
-                    }
-                    File source = new File(source_path);
-                    File destination = new File(destinationPath);
+                        try {
+                            destinationPath= in_directory+"/"+filename; //Verzeichniss und Dateiname verbinden
+                            File source = new File(source_path);
+                            File destination = new File(destinationPath);
 
-                    try {
-                        bsf.copyFileUsingStream(source,destination); //Kopieren von-zu
-                        media_visibilitiy(View.VISIBLE);
-                        create_imageset();
-                        media_shift("r");
+                            try {
+                                bsf.copyFileUsingStream(source,destination); //Kopieren von-zu
+                                media_visibilitiy(View.VISIBLE);
+                                create_imageset();
+                                media_shift("r");
+                            } catch (IOException e)
+                            {
+                                exmsg("250720231849",e);
+                            }
 
-                        Bitmap ls_picture= BitmapFactory.decodeFile(destinationPath);
-                        Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(
-                                ls_picture,
-                                foto_preview_w,
-                                foto_preview_h,
-                                true);
-
-                        ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView
-
-                    } catch (IOException e)
-                    {
-                        exmsg("250720231849",e);
+                        } catch (Exception e)
+                        {
+                            exmsg("270720231230",e);
+                            Toast.makeText(getContext(), "Bild import Fehlgeschlagen! \n"+e, Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
                 break;
+
         }
     }
-
-
 
 
     @Override
@@ -397,6 +376,7 @@ public class Material extends Fragment {
 
 
 
+
         //EditText
         lsnr_field =view.findViewById(R.id.edittext_LS_ID);
 
@@ -419,7 +399,15 @@ public class Material extends Fragment {
             throw new RuntimeException(e);
         }
 
-        //Liferschein Nr.
+
+
+        ls_photo_view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+            ls_image_viewer();
+            }
+        });
 
         ls_img_collection_forward.setOnClickListener(new View.OnClickListener()
         {
@@ -479,6 +467,8 @@ public class Material extends Fragment {
 
             }
         });
+
+
 
         ls_delet_foto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -672,18 +662,7 @@ public class Material extends Fragment {
             public void onClick(View view)
             {
                 material_database_ops mdo = new material_database_ops(getContext());
-
-
-                String zulieferer = Zulieferer_liste_main.getSelectedItem().toString();
-
-
-
-                String date = String.valueOf(date_label.getText());
-                date = date.replace(".","");
-
-
-                dispatchTakePictureIntent(in_directory,zulieferer.trim()+"_NR_"+lsnr_field.getText().toString(),false,"", date);
-                //dispatchTakePictureIntent(p[2]+"/Lieferscheine/"+zulieferer.trim(),p[0]+"#"+zulieferer.trim(),false,"", date);
+                take_picture(in_directory,TAKE_IMAGE_NEW_MODE);
             }
         });
         ls_note_reset.setOnClickListener(new View.OnClickListener() {
@@ -1057,6 +1036,110 @@ public class Material extends Fragment {
         return view;
     }
 
+    public void ls_image_viewer()
+    {
+        String file_url = in_directory+"/"+imageset[imageset_array_pointer];
+
+        try {
+            if (file_url != "null")
+            {
+                if(bsf.detect_extension(file_url).contains(".pdf")) //Pdf öffnen
+                {
+                    open_pdf(file_url,getContext());
+                }
+                else
+                {
+
+
+                    LayoutInflater myLayout = LayoutInflater.from(getContext());
+                    View pic_view_UI = myLayout.inflate(R.layout.show_picture, null);
+
+                    TextView path_value = pic_view_UI.findViewById(R.id.textView65);
+
+                    photo_viewer = (ImageView) pic_view_UI.findViewById(R.id.imageView4);
+
+                    ImageButton refresh_image = (ImageButton) pic_view_UI.findViewById(R.id.imageButton60);
+                    ImageButton rotate_right = (ImageButton) pic_view_UI.findViewById(R.id.imageButton62);
+
+                    path_value.setText(file_url.replace(Environment.getExternalStorageDirectory().getAbsolutePath(),""));
+
+                    try {
+                        photo_viewer.setImageBitmap(update_photo_view());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+
+
+
+
+                    rotate_right.setOnClickListener(new View.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(View view)
+                        {
+                            Matrix matrix = new Matrix();
+                            Bitmap bMap = update_photo_view();
+                            Bitmap bMapRotation =null;
+
+                            matrix.setRotate(90);
+                            bMapRotation = Bitmap.createBitmap(bMap, 0, 0, bMap.getWidth(), bMap.getHeight(), matrix, true);
+
+                            File file = new File(file_url);
+                            if (file.exists()) {
+                                file.delete();
+                            }
+                            try {
+                                FileOutputStream out = new FileOutputStream(file);
+                                bMapRotation.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                                out.flush();
+                                out.close();
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            photo_viewer.setImageBitmap(update_photo_view());
+                        }
+                    });
+
+
+                    refresh_image.setOnClickListener(new View.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(View view)
+                        {
+                            //Todo fallbacks wenn kein Bild existiert, damit man noch eines Hinzufügen kann.
+
+                            take_picture(file_url,TAKE_IMAGE_REFRESH_MODE);
+                        }
+                    });
+
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+
+                    // set prompts.xml to alertdialog builder
+                    alertDialogBuilder.setView(pic_view_UI);
+                    alertDialogBuilder.setTitle("Viewer");
+                    alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i)
+                        {
+                            ls_photo_view.setImageBitmap(update_photo_view());
+                            dialogInterface.cancel();
+                        }
+                    });
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
+
+                }
+
+            } //else?
+        }
+        catch (Exception e )
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void reset_complete()
     {
         reset_date();
@@ -1203,7 +1286,6 @@ public class Material extends Fragment {
 
     }
 
-
     public void refresh_spinner() {
         material_database_ops mdo = new material_database_ops(getContext());
         //Spinner adapter
@@ -1257,108 +1339,65 @@ public class Material extends Fragment {
 
     //Bild aufnehmen
 
-    private void dispatchTakePictureIntent(String path,String title,boolean tag_on,String tag,String date)
+    private void take_picture(String path,String mode)
     {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-
-        // Create the File where the photo should go
         File photoFile = null;
-        try {
+        int request_code =1;
 
-            String addings= date+"_ID_";
-            String imageFileName = title+"@" + addings;
-
-            File storageDir = new File(path);
-            storageDir.mkdirs();  //erstellt fehlende Ordner...
-            File image = File.createTempFile(
-                    imageFileName,  /* prefix */
-                    ".jpeg",         /* suffix */
-                    storageDir      /* directory */
-            );
-
-            // Save a file: path for use with ACTION_VIEW intents
-            currentPhotoPath = image.getAbsolutePath();
-            photoFile = image;
-            //photoFile= createImageFile(path,title,tag_on,tag,date);
-        } catch (IOException e)
+        switch(mode)
         {
-            exmsg("250720231154",e);
-            // Error occurred while creating the File
+
+            case "new":
+
+                Log.d(TAG,"take_picture_new");
+                String imageFileName = create_media_filename(""); //Extension für in image.creatTempfile hinzugefügt (".jepg"
+                if (imageFileName != "null")
+                {
+                    try {
+                        File storageDir = new File(path);
+
+                        storageDir.mkdirs();  //erstellt fehlende Ordner...
+                        File image = File.createTempFile(
+                                imageFileName,  /* prefix */
+                                ".jpeg",         /* suffix */
+                                storageDir      /* directory */
+                        );
+
+                        currentPhotoPath = image.getAbsolutePath();
+                        photoFile = image;
+                    } catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+
+                break;
+            case "refresh":
+                Log.d(TAG,"take_picture_refresh");
+                photoFile  = new File(path);
+                request_code=2;
+                break;
+            default:
+
         }
-        // Continue only if the File was successfully created
+
+
         if (photoFile != null)
         {
             try {
                 photoURI = FileProvider.getUriForFile(getContext(),"com.example.tabnav_test.fileprovider",photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent,1);
+                startActivityForResult(takePictureIntent,request_code);
             } catch (Exception e)
             {
                 e.printStackTrace();
             }
         }
-    }
+
+   }
 
 
-    public void refrehshPicture(String path)
-    {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-
-        // Create the File where the photo should go
-        File photoFile  = new File(path);
-
-
-
-        // Continue only if the File was successfully created
-        if (photoFile != null)
-        {
-            try {
-                photoURI = FileProvider.getUriForFile(getContext(),"com.example.tabnav_test.fileprovider",photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent,1);
-            } catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-
-        }
-    }
-
-
-
-    private File createImageFile(String path,String title,boolean tag_on,String tag,String date) throws IOException
-    {
-
-        String addings= date+"_ID_";
-        String imageFileName = title+"@" + addings;
-
-
-
-        File storageDir = new File(path);
-        storageDir.mkdirs();  //erstellt fehlende Ordner...
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpeg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.getAbsolutePath();
-
-        return image;
-    }
-
-    private String get_foto_path()
-    {
-        return  photo_path;
-    }
-
-    private void set_foto_path(String path)
-    {
-          photo_path =path;
-    }
 
     private void reset_date()
     {
@@ -1390,6 +1429,7 @@ public class Material extends Fragment {
 
     private void media_shift(String direction)
     {
+        Bitmap ls_picture_scaled=null;
         int max = imageset.length;
         String arraypos = "";
 
@@ -1402,7 +1442,9 @@ public class Material extends Fragment {
                     {
                         imageset_array_pointer++;
                     }
-                    update_photo_view();
+
+                    ls_picture_scaled=update_photo_view();
+                    ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
 
                     break;
                 case "b": //Rückwärts
@@ -1410,12 +1452,17 @@ public class Material extends Fragment {
                     {
                         imageset_array_pointer--;
                     }
-                    update_photo_view();
+
+                    ls_picture_scaled=update_photo_view();
+                    ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
 
                     break;
 
                 case "r"://aktuallisieren "relaod"
-                     update_photo_view();
+
+                    ls_picture_scaled=update_photo_view();
+                    ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
+
                     break;
                 default:
                     Toast.makeText(getContext(), "Fehler: Keine gültiger Parameter", Toast.LENGTH_SHORT).show();
@@ -1463,6 +1510,28 @@ public class Material extends Fragment {
         }
     }
 
+    public String create_media_filename(String file_extension)
+    {
+        String filename ="null";
+
+        try {
+            String lieferant = Zulieferer_liste_main.getSelectedItem().toString();
+            String ls_nr = String.valueOf(lsnr_field.getText());
+            String date  = (String) date_label.getText();
+            String art = String.valueOf(edit_artikel_name.getText());
+            date = date.replace(".","");
+
+            long time= System.currentTimeMillis(); //"Zufallszahl" generieren, damit dateien Verschiedene Namen haben.
+
+           filename = lieferant+"_LSNR_"+ls_nr+"#"+art+"@"+date+"_ID_"+String.valueOf(time)+file_extension; //Name der Kopierten Datei
+        }catch (Exception e )
+        {
+            exmsg("270720231219",e);
+            filename = "null";
+        }
+        return filename;
+    }
+
     private void  create_imageset()
     {
         File f = new File(in_directory);
@@ -1471,50 +1540,53 @@ public class Material extends Fragment {
         {
             imageset_array_pointer=0;
         }
-
     }
 
-    private void  update_photo_view()  //Akuallisiert das imageView mit dem Akueller Position des imagset pointers
+    private Bitmap  update_photo_view()  //Akuallisiert das imageView mit dem Akueller Position des imagset pointers
     {
         String path = in_directory+"/"+imageset[imageset_array_pointer]; //Pfad des Mediums
 
-        Bitmap ls_picture=null;
-        Bitmap ls_picture_scaled =null;
+       Bitmap ls_picture;
+       Bitmap ls_picture_scaled;
 
+        try {
+            switch(bsf.detect_extension(path))  // fixme try block?
+            {
+                case ".jpeg":
+                    ls_picture= BitmapFactory.decodeFile(path);
+                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
 
-        switch(bsf.detect_extension(path))  // fixme try block?
-        {
-            case ".jpeg":
-                ls_picture= BitmapFactory.decodeFile(path);
-                ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
-                ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
-                break;
+                    break;
 
-            case ".jpg":
-                ls_picture= BitmapFactory.decodeFile(path);
-                ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
-                ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
-                break;
+                case ".jpg":
+                    ls_picture= BitmapFactory.decodeFile(path);
+                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
 
-            case ".png":
+                    break;
 
-                ls_picture= BitmapFactory.decodeFile(path);
-                ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
-                ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
-                break;
+                case ".png":
 
-            case ".pdf":
-                Bitmap pdf_logo = BitmapFactory.decodeResource(getResources(), R.drawable.pdflogo);
-                Bitmap pdf_logo_scaled =  Bitmap.createScaledBitmap(pdf_logo,foto_preview_w,foto_preview_h,true);
-                ls_photo_view.setImageBitmap(pdf_logo_scaled);
-                break;
+                    ls_picture= BitmapFactory.decodeFile(path);
+                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
 
-            default:
-                Bitmap sometype = BitmapFactory.decodeResource(getResources(), R.drawable.some_file);
-                Bitmap sometype_scaled =  Bitmap.createScaledBitmap(sometype,foto_preview_w,foto_preview_h,true);
-                ls_photo_view.setImageBitmap(sometype_scaled);
+                    break;
+
+                case ".pdf":
+                    ls_picture = BitmapFactory.decodeResource(getResources(), R.drawable.pdflogo);
+                    ls_picture_scaled =  Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+
+                    break;
+
+                default:
+                    ls_picture = BitmapFactory.decodeResource(getResources(), R.drawable.some_file);
+                    ls_picture_scaled =  Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
 
+        return  ls_picture_scaled;
     }
 
     private boolean copy_media_files_from_temp()
@@ -1578,6 +1650,23 @@ public class Material extends Fragment {
         }
             in_directory = in_directory_backup; //Wiederherstellen
     }
+
+    public void open_pdf(String file_url,Context context)
+    {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        Uri pdfUri = FileProvider.getUriForFile(context,"com.example.tabnav_test.fileprovider", new File(file_url));
+        Log.d("BASI", "openPDF: intent with uri: " + pdfUri);
+        intent.setDataAndType(pdfUri, "application/pdf");
+        startActivity(Intent.createChooser(intent, "Open with..."));
+    }
+
+    private void refresh_viewer_photo()
+    {
+        Bitmap ls_picture= BitmapFactory.decodeFile(in_directory+"/"+imageset[imageset_array_pointer]);
+        Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+        photo_viewer.setImageBitmap(ls_picture_scaled);
+    }
+
 
     void exmsg(String msg, Exception e)
     {

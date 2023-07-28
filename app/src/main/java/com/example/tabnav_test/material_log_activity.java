@@ -45,10 +45,11 @@ public class material_log_activity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if(requestCode == 1)
+        switch(requestCode)
         {
-            bsfi.photo.setImageBitmap(BitmapFactory.decodeFile(bsfi.image_path));
+            case 1:
+
+                  break;
         }
     }
 

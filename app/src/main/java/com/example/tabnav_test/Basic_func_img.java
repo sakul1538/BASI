@@ -1,10 +1,6 @@
 package com.example.tabnav_test;
 
 
-
-import static androidx.core.app.ActivityCompat.startActivityForResult;
-import static androidx.core.content.ContextCompat.startActivity;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -16,10 +12,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,17 +23,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
+
+import com.example.tabnav_test.material.Material;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 public class Basic_func_img extends Basic_funct
+
 {
 
    public ImageView photo = null;
@@ -188,81 +181,6 @@ public class Basic_func_img extends Basic_funct
 
     }
 
-    public void ls_image_viewer(String path,String filename_contains,Context context)
-    {
-
-        //path Bsp: /storage/emulated/0/DCIM/Baustellen /Martinsheim Süd/Lieferscheine/Hydro Nico_NR_1212@22072023_ID_1408876708414326862.jpeg
-        //filename_contains Bsp: Hydro Nico_NR_1212@22072023
-        /*
-        LayoutInflater myLayout = LayoutInflater.from(context);
-        View pic_view_UI = myLayout.inflate(R.layout.show_picture, null);
-
-        TextView path_value= pic_view_UI.findViewById(R.id.textView65);
-
-        ImageButton refresh_image =(ImageButton) pic_view_UI.findViewById(R.id.imageButton60);
-        photo = (ImageView) pic_view_UI.findViewById(R.id.imageView4);
-
-
-
-        try
-        {
-            image_path= this.URLdecode(foto_path);
-            path_value.setText(image_path);
-        }
-        catch (Exception e)
-        {
-            path_value.setText("");
-
-            exmsg("220720231435",e);
-        }
-
-
-
-        refresh_image.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View view)
-                {
-                    //Todo fallbacks wenn kein Bild existiert, damit man noch eines Hinzufügen kann.
-                    dispatchTakePictureIntent(view.getContext(),image_path);
-                }
-            });
-
-
-        try {
-
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-
-            if(foto_path != "null")
-            {
-                photo.setImageBitmap(BitmapFactory.decodeFile(foto_path));
-
-                // set prompts.xml to alertdialog builder
-                alertDialogBuilder.setView(pic_view_UI);
-                alertDialogBuilder.setTitle("Viewer");
-                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i)
-                    {
-                        dialogInterface.cancel();
-                    }
-                });
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
-
-            }
-
-        } catch (Exception e)
-        {
-
-            Toast.makeText(context, "Kein Bild gefunden", Toast.LENGTH_SHORT).show();
-            throw new RuntimeException(e);
-
-        */
-
-
-    }
 
     private void dispatchTakePictureIntent(Context context, String path)
     {
@@ -280,6 +198,7 @@ public class Basic_func_img extends Basic_funct
         }
 
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
         // Ensure that there's a camera activity to handle the intent
 
         // Create the File where the photo should go
@@ -292,14 +211,18 @@ public class Basic_func_img extends Basic_funct
                 photoURI = FileProvider.getUriForFile(context,"com.example.tabnav_test.fileprovider",storageDir);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
 
-                ((Activity) context).startActivityForResult(takePictureIntent, 1); //startActivityForResult in material_log_activity
+                ((Activity) context).startActivityForResult(takePictureIntent, 5); //startActivityForResult in material_log_activity
+
             } catch (Exception e)
             {
                 e.printStackTrace();
             }
         }
-
+        
     }
+
+
+
 
     private void exmsg(String msg,Exception e)
     {
@@ -307,6 +230,7 @@ public class Basic_func_img extends Basic_funct
 
     }
 
+ 
 
 
 }

@@ -1,6 +1,7 @@
 package com.example.tabnav_test;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -37,7 +38,12 @@ public class MainActivity extends AppCompatActivity
     ScreenSlidePagerAdapter adapter;
     ScrollView scroll_main;
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d("BASI", String.valueOf(requestCode));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
