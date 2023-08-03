@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("BASI", String.valueOf(requestCode));
+        //Log.d("BASI", String.valueOf(requestCode));
     }
 
     @Override

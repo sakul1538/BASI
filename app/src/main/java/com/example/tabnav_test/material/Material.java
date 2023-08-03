@@ -2,13 +2,16 @@ package com.example.tabnav_test.material;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -87,10 +90,10 @@ public class Material extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    String currentPhotoPath ="null";
-    Uri photoURI=null;
-    String photo_path ="null";
-    String in_directory ="/";
+    String currentPhotoPath = "null";
+    Uri photoURI = null;
+    String photo_path = "null";
+    String in_directory = "/";
 
     //ImageButton
     ImageButton settings_projekt_button;
@@ -144,18 +147,20 @@ public class Material extends Fragment {
     TextView date_label;
     TextView imagecounter;
 
-    ImageView  ls_photo_view;
-    ImageView  photo_viewer;
+    ImageView ls_photo_view;
+    ImageView photo_viewer;
 
 
     LinearLayout date_background;
 
-   String []imageset;
-   Integer imageset_array_pointer=0;
+    String[] imageset;
+    Integer imageset_array_pointer = 0;
 
 
-    public Material()
-    {
+    Bitmap ls_picture;
+    Bitmap ls_picture_scaled;
+
+    public Material() {
 
         // Required empty public constructor
     }
@@ -179,34 +184,37 @@ public class Material extends Fragment {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent resultData)
-    {
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         Uri uri = null;
-        switch (requestCode)
-        {
+        switch (requestCode) {
             case 0:
                 dirname.setText(resultData.getData().getLastPathSegment());
                 break;
 
             case 1://Foto mit Kamera neu
 
-                if (resultData != null)
-                {
+                String path = photoURI.getPath().replace("/primary", Environment.getExternalStorageDirectory().getAbsolutePath());
 
-                    try {
+                corr_pic_orientaion(path);
+                compress_bitmap(path);
 
-                        create_imageset(); //liest alle Dateien im Verzeichniss "in_directory" ein und Speichert sie im Array "imageset"
 
-                        if(imageset.length>0) // Wenn das imageset einträge enthält...
-                        {
-                            media_visibilitiy(View.VISIBLE);
-                            media_shift("r");
-                        }
+                //Log.d(TAG, path); //storage/emulated/0/DCIM/Baustellen/TST/Lieferscheine/temp/Kiener+Wittlin_LSNR_#@01012022_ID_16910464164706228446865913171345.jpeg
+                //String datapath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/DCIM/BASI/";
 
-                    }catch (Exception e)
+                create_imageset();
+                try {
+
+                    //liest alle Dateien im Verzeichniss "in_directory" ein und Speichert sie im Array "imageset"
+
+                    if (imageset.length > 0) // Wenn das imageset einträge enthält...
                     {
-                        exmsg("18062023110",e);
+                        media_visibilitiy(View.VISIBLE);
+                        media_shift("r");
                     }
+
+                } catch (Exception e) {
+                    exmsg("18062023110", e);
                 }
 
                 //Toast.makeText(getContext(),path, Toast.LENGTH_SHORT).show();
@@ -216,81 +224,98 @@ public class Material extends Fragment {
 
                 refresh_viewer_photo();
                 update_photo_view();
-            break;
+                break;
 
             case 3: //PDF öffnen
 
-                    if (resultData != null)
-                    {
-                        uri = resultData.getData(); //Url von der Datei, die Kopiert werden soll
-                        String source_uri = uri.getPath();
-                        source_uri = source_uri.replace("/document/primary:",Environment.getExternalStorageDirectory().getAbsolutePath()+"/");
-                        String destinationPath ="";
-                        String filename = create_media_filename(".pdf");
+                if (resultData != null) {
+                    uri = resultData.getData(); //Url von der Datei, die Kopiert werden soll
+                    String source_uri = uri.getPath();
+                    source_uri = source_uri.replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
+                    String destinationPath = "";
+                    String filename = create_media_filename(".pdf");
 
-                        if(filename !="null")
-                        {
-                            try {
-                                destinationPath = in_directory+"/"+filename; //Verzeichniss und Dateiname verbinden
-                                File source = new File(source_uri);
-                                File destination = new File(destinationPath);
-
-                                try {
-                                    bsf.copyFileUsingStream(source,destination); //Kopieren von-zu
-                                    create_imageset();
-                                    media_visibilitiy(View.VISIBLE);
-                                    media_shift("r");
-
-                                } catch (IOException e)
-                                {
-                                    exmsg("250720231849",e);
-                                }
-
-                            } catch (Exception e)
-                            {
-                                exmsg("270720231227",e);
-                                Toast.makeText(getContext(), "PDF import Fehlgeschlagen! \n"+e, Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }
-                break;
-
-            case 4: //bild von dateien öffnen
-
-                if (resultData != null)
-                {
-                    uri = resultData.getData();
-                    String source_path = uri.getPath();///document/primary:DCIM/Baustellen /testprojekt/Lieferscheine/Volken_NR_1223@25072023_ID_6547592956172734206.jpeg
-                    source_path = source_path.replace("/document/primary:",Environment.getExternalStorageDirectory().getAbsolutePath()+"/");
-                    String destinationPath =null;
-
-                    String filename = create_media_filename(bsf.detect_extension(source_path));
-                    if(filename != "null");
-                    {
+                    if (filename != "null") {
                         try {
-                            destinationPath= in_directory+"/"+filename; //Verzeichniss und Dateiname verbinden
-                            File source = new File(source_path);
+                            destinationPath = in_directory + "/" + filename; //Verzeichniss und Dateiname verbinden
+                            File source = new File(source_uri);
                             File destination = new File(destinationPath);
 
                             try {
-                                bsf.copyFileUsingStream(source,destination); //Kopieren von-zu
-                                media_visibilitiy(View.VISIBLE);
+                                bsf.copyFileUsingStream(source, destination); //Kopieren von-zu
                                 create_imageset();
+                                media_visibilitiy(View.VISIBLE);
                                 media_shift("r");
-                            } catch (IOException e)
-                            {
-                                exmsg("250720231849",e);
+
+                            } catch (IOException e) {
+                                exmsg("250720231849", e);
                             }
 
-                        } catch (Exception e)
-                        {
-                            exmsg("270720231230",e);
-                            Toast.makeText(getContext(), "Bild import Fehlgeschlagen! \n"+e, Toast.LENGTH_SHORT).show();
+                        } catch (Exception e) {
+                            exmsg("270720231227", e);
+                            Toast.makeText(getContext(), "PDF import Fehlgeschlagen! \n" + e, Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
                 break;
 
+            case 4: //bild von dateien öffnen
+
+                if (resultData != null) {
+                    uri = resultData.getData();
+                    String source_path = uri.getPath();///document/primary:DCIM/Baustellen /testprojekt/Lieferscheine/Volken_NR_1223@25072023_ID_6547592956172734206.jpeg
+                    source_path = source_path.replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
+                    String destinationPath = null;
+
+                    String filename = create_media_filename(bsf.detect_extension(source_path));
+                    if (filename != "null") ;
+                    {
+                        try {
+                            destinationPath = in_directory + "/" + filename; //Verzeichniss und Dateiname verbinden
+                            File source = new File(source_path);
+                            File destination = new File(destinationPath);
+
+                            try {
+                                bsf.copyFileUsingStream(source, destination); //Kopieren von-zu
+                                media_visibilitiy(View.VISIBLE);
+                                create_imageset();
+                                media_shift("r");
+                            } catch (IOException e) {
+                                exmsg("250720231849", e);
+                            }
+
+                        } catch (Exception e) {
+                            exmsg("270720231230", e);
+                            Toast.makeText(getContext(), "Bild import Fehlgeschlagen! \n" + e, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+                break;
+
+        }
+    }
+
+    private void corr_pic_orientaion(String file_url) {
+        try {
+            ExifInterface exif = new ExifInterface(file_url);
+            int orientaion = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
+
+            Bitmap bMap = BitmapFactory.decodeFile(file_url);
+
+            Log.d(TAG, String.valueOf(orientaion));
+            Matrix matrix = new Matrix();
+
+
+            switch (orientaion) {
+                case 6:
+                    matrix.setRotate(90);
+                    Bitmap bMapRotation = Bitmap.createBitmap(bMap, 0, 0, bMap.getWidth(), bMap.getHeight(), matrix, true);
+                    save_bitmap(bMapRotation,file_url);
+                    break;
+
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -306,21 +331,19 @@ public class Material extends Fragment {
     }
 
     @Override
-    public void onDestroyView()
-    {
+    public void onDestroyView() {
         super.onDestroyView();
         try {
             set_media_directory(ls_media_directory_name_temp);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        clean_temp_dir(); 
-      
+        clean_temp_dir();
+
     }
 
     @Override
-    public void onDestroy()
-    {
+    public void onDestroy() {
         super.onDestroy();
         try {
             set_media_directory(ls_media_directory_name_temp);
@@ -332,8 +355,7 @@ public class Material extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
-    {
+                             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_material, container, false);
 
         //Instanzen
@@ -375,10 +397,8 @@ public class Material extends Fragment {
         open_filesystem = view.findViewById(R.id.imageButton43);
 
 
-
-
         //EditText
-        lsnr_field =view.findViewById(R.id.edittext_LS_ID);
+        lsnr_field = view.findViewById(R.id.edittext_LS_ID);
 
         //Spinner
         spinner_einheiten = view.findViewById(R.id.spinner6_einheiten);
@@ -400,51 +420,41 @@ public class Material extends Fragment {
         }
 
 
-
         ls_photo_view.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
-            ls_image_viewer();
+            public void onClick(View view) {
+                ls_image_viewer();
             }
         });
 
-        ls_img_collection_forward.setOnClickListener(new View.OnClickListener()
-        {
+        ls_img_collection_forward.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 media_shift("f");
             }
         });
 
 
-        ls_img_collection_backward.setOnClickListener(new View.OnClickListener()
-        {
+        ls_img_collection_backward.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 media_shift("b");
             }
         });
 
-        open_pdf.setOnClickListener(new View.OnClickListener()
-        {
+        open_pdf.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
 
-               Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("application/pdf");
                 startActivityForResult(intent, 3);
             }
         });
-        open_filesystem.setOnClickListener(new View.OnClickListener()
-        {
+        open_filesystem.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("image/*");
@@ -452,53 +462,50 @@ public class Material extends Fragment {
             }
         });
 
-                start_material_log_activity.setOnClickListener(new View.OnClickListener()
-        {
+        start_material_log_activity.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 try {
                     Intent log_activity = new Intent(getContext(), material_log_activity.class);
                     startActivity(log_activity);
-                }catch (Exception e)
-                {
-                    exmsg("250620231224",e);
+                } catch (Exception e) {
+                    exmsg("250620231224", e);
                 }
 
             }
         });
 
-
-
         ls_delet_foto.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
-                if(imageset.length >0)
-                {
+            public void onClick(View view) {
+                if (imageset.length > 0) {
 
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
                     // set prompts.xml to alertdialog builder
 
                     alertDialogBuilder.setTitle("Artikelverwaltung");
-                    alertDialogBuilder.setMessage("Bild löschen?\n"+in_directory+"/"+imageset[imageset_array_pointer]);
+                    alertDialogBuilder.setMessage("Bild löschen?\n" + in_directory + "/" + imageset[imageset_array_pointer]);
 
                     alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialogInterface, int i)
-                        {
-                            File f = new File(in_directory+"/"+imageset[imageset_array_pointer]);
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            File f = new File(in_directory + "/" + imageset[imageset_array_pointer]);
                             f.delete();
                             create_imageset();
-                            media_shift("r");
-                            dialogInterface.cancel();
+                            if (imageset.length > 0) {
+                                media_shift("r");
+                                dialogInterface.cancel();
+                            } else {
+                                media_visibilitiy(View.GONE);
+                            }
+
+
                         }
                     });
 
                     alertDialogBuilder.setNegativeButton("Abbrecen", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialogInterface, int i)
-                        {
+                        public void onClick(DialogInterface dialogInterface, int i) {
                             dialogInterface.cancel();
                         }
                     });
@@ -509,29 +516,28 @@ public class Material extends Fragment {
 
                 }
 
+
             }
         });
 
-        save_ls_entry.setOnClickListener(new View.OnClickListener()
-        {
+        save_ls_entry.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 material_database_ops mdo = new material_database_ops(getContext());
 
-                String proj= String.valueOf(projekt_label.getText());
-                int spos= proj.lastIndexOf("[");
-                int epos= proj.lastIndexOf("]");
+                String proj = String.valueOf(projekt_label.getText());
+                int spos = proj.lastIndexOf("[");
+                int epos = proj.lastIndexOf("]");
 
                 ContentValues data = new ContentValues();
 
                 try {
-                    data.put("ID",bsf.gen_UUID());
-                    data.put("PROJEKT_ID",proj.substring(spos+1,epos));
+                    data.put("ID", bsf.gen_UUID());
+                    data.put("PROJEKT_ID", proj.substring(spos + 1, epos));
                     data.put("DATUM", String.valueOf(date_label.getText()));
                     data.put("LSNR", String.valueOf(lsnr_field.getText()));
                     //String id_zulieferer =  mdo.get_id_zulieferer(Zulieferer_liste_main.getSelectedItem().toString());
-                    String id_zulieferer =  mdo.get_zulieferer_param(
+                    String id_zulieferer = mdo.get_zulieferer_param(
                             new String[]{Zulieferer_liste_main.getSelectedItem().toString()},
                             "NAME =?",
                             new String[]{"ID"});
@@ -540,70 +546,55 @@ public class Material extends Fragment {
 
                     data.put("MENGE", String.valueOf(menge.getText()).trim());
 
-                    data.put("EINHEIT_ID",spinner_einheiten.getSelectedItem().toString());
+                    data.put("EINHEIT_ID", spinner_einheiten.getSelectedItem().toString());
 
-                    String notiz= note_field.getText().toString();
-                    if(notiz == "" || notiz.isEmpty())
-                    {
-                        data.put("NOTIZ","null");
-                    }
-                    else
-                    {
-                        data.put("NOTIZ",notiz);
+                    String notiz = note_field.getText().toString();
+                    if (notiz == "" || notiz.isEmpty()) {
+                        data.put("NOTIZ", "null");
+                    } else {
+                        data.put("NOTIZ", notiz);
                     }
 
-                    data.put("SRC","null"); //Fixme anpassen !!!
+                    data.put("SRC", "null"); //Fixme anpassen !!!
 
-                    String artikel_value =String.valueOf(edit_artikel_name.getText()).trim();
+                    String artikel_value = String.valueOf(edit_artikel_name.getText()).trim();
 
-                    String id_artikel =  mdo.get_artikel_param(new String[]{artikel_value},"NAME    =?",new String[]{"ID"});
+                    String id_artikel = mdo.get_artikel_param(new String[]{artikel_value}, "NAME    =?", new String[]{"ID"});
 
-                    if(id_artikel == "null")
-                    {
+                    if (id_artikel == "null") {
                         mdo.add_artikel_to_list(artikel_value, String.valueOf(data.get("EINHEIT_ID"))); //Erstellt Speichert den Artikel in Datenbank, da er nicht existert
-                        data.put("MATERIAL_ID", mdo.get_artikel_param(new String[]{artikel_value},"NAME=?",new String[]{"ID"}));
+                        data.put("MATERIAL_ID", mdo.get_artikel_param(new String[]{artikel_value}, "NAME=?", new String[]{"ID"}));
+                    } else {
+                        data.put("MATERIAL_ID", id_artikel);
                     }
-                    else
-                    {
-                        data.put("MATERIAL_ID",id_artikel);
-                    }
-                }catch (Exception e)
-                {
-                     exmsg("200720232123",e);
+                } catch (Exception e) {
+                    exmsg("200720232123", e);
                 }
 
-                try
-                {
-                    long response=   mdo.add_material_log_entry(data);
-                    if(response >0)
-                    {
-                        String copy_temp_msg  = "";
-                        if( copy_media_files_from_temp()== true)
-                        {
-                            copy_temp_msg="+ Medien wurden ins Verzeichniss übernommen!";
+                try {
+                    long response = mdo.add_material_log_entry(data);
+                    if (response > 0) {
+                        String copy_temp_msg = "";
+                        if (copy_media_files_from_temp() == true) {
+                            copy_temp_msg = "+ Medien wurden ins Verzeichniss übernommen!";
 
 
-                        }else
-                        {
-                            copy_temp_msg ="+ Medien wurden NICHT ins Verzeichnis übernommen!";
+                        } else {
+                            copy_temp_msg = "+ Medien wurden NICHT ins Verzeichnis übernommen!";
 
                         }
 
-                        Toast.makeText(getContext(), "+Es  wurde  eine Eintrag erstellt!\n"+copy_temp_msg, Toast.LENGTH_SHORT).show();
-                    }
-                    else
-                    {
-                        Toast.makeText(getContext(), "+ Es konnte KEIN Eintrag erstellt werden!" , Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "+Es  wurde  eine Eintrag erstellt!\n" + copy_temp_msg, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "+ Es konnte KEIN Eintrag erstellt werden!", Toast.LENGTH_SHORT).show();
 
                     }
 
                     clean_temp_dir();
                     reset_complete();
-                }
-                catch (Exception e)
-                {
-                    exmsg("200620232152",e);
-                    Toast.makeText(getContext(), "Kein Eintrag erstellt, interner Feher \n "+e.getMessage().toString() , Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    exmsg("200620232152", e);
+                    Toast.makeText(getContext(), "Kein Eintrag erstellt, interner Feher \n " + e.getMessage().toString(), Toast.LENGTH_SHORT).show();
                     clean_temp_dir();
                     reset_complete();
                 }
@@ -612,8 +603,7 @@ public class Material extends Fragment {
 
         reset_form.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
 
                 reset_complete();
 
@@ -622,24 +612,20 @@ public class Material extends Fragment {
 
         refresh_date.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 reset_date();
             }
         });
 
         date_label.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 DatePickerDialog datePickerDialog = new DatePickerDialog(getContext());
-                datePickerDialog.setOnDateSetListener(new DatePickerDialog.OnDateSetListener()
-                {
+                datePickerDialog.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
                     @Override
-                    public void onDateSet(DatePicker datePicker, int i, int i1, int i2)
-                    {
+                    public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
                         Calendar calendar = Calendar.getInstance();
-                        calendar.set(i,i1 , i2);
+                        calendar.set(i, i1, i2);
 
 
                         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
@@ -648,7 +634,7 @@ public class Material extends Fragment {
 
 
                         date_label.setText(dateString);
-                        date_background.setBackgroundColor(ContextCompat.getColor(getContext(),R.color.orange));
+                        date_background.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.orange));
 
                     }
                 });
@@ -659,24 +645,26 @@ public class Material extends Fragment {
 
         ls_take_photo.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 material_database_ops mdo = new material_database_ops(getContext());
-                take_picture(in_directory,TAKE_IMAGE_NEW_MODE);
+                try {
+                    set_media_directory(ls_media_directory_name_temp);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                take_picture(in_directory, TAKE_IMAGE_NEW_MODE, getContext());
             }
         });
         ls_note_reset.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 reset_notiz();
             }
         });
 
         reset_LS.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 reset_ls_nr();
             }
         });
@@ -684,8 +672,7 @@ public class Material extends Fragment {
 
         reset_artikel.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 reset_artikel();
                 reset_menge();
             }
@@ -693,48 +680,41 @@ public class Material extends Fragment {
 
         add_artikel.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
 
-                    try {
-                        material_database_ops mdo = new material_database_ops(getContext());
-                        long response = mdo.add_artikel_to_list( edit_artikel_name.getText().toString(),spinner_einheiten.getSelectedItem().toString());
-                        if(response>0)
-                        {
-                            bsf.succes_msg(edit_artikel_name.getText().toString()+" wurde geschpeichert!", view.getContext());
-                        }
-                        else
-                        {
-                            bsf.error_msg(edit_artikel_name.getText().toString()+" konnte nicht hinzügefügt werden!", view.getContext());
-                        }
-
-                    }catch (Exception e)
-                    {
-                        exmsg("110620231140",e);
+                try {
+                    material_database_ops mdo = new material_database_ops(getContext());
+                    long response = mdo.add_artikel_to_list(edit_artikel_name.getText().toString(), spinner_einheiten.getSelectedItem().toString());
+                    if (response > 0) {
+                        bsf.succes_msg(edit_artikel_name.getText().toString() + " wurde geschpeichert!", view.getContext());
+                    } else {
+                        bsf.error_msg(edit_artikel_name.getText().toString() + " konnte nicht hinzügefügt werden!", view.getContext());
                     }
+
+                } catch (Exception e) {
+                    exmsg("110620231140", e);
+                }
 
                 try {
                     refresh_artikel_autocomplete();
-                }catch (Exception e)
-                {
-                    exmsg("110620231105A",e);
+                } catch (Exception e) {
+                    exmsg("110620231105A", e);
                 }
             }
         });
 
         edit_artikel_name.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
-            {
-               String selected =  edit_artikel_name.getText().toString();
-                int spos= selected.lastIndexOf("[");
-                int epos= selected.lastIndexOf("]");
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String selected = edit_artikel_name.getText().toString();
+                int spos = selected.lastIndexOf("[");
+                int epos = selected.lastIndexOf("]");
 
-                String artikel = selected.substring(0,spos);
-                String einheit = selected.substring(spos+1,epos);
+                String artikel = selected.substring(0, spos);
+                String einheit = selected.substring(spos + 1, epos);
                 edit_artikel_name.setText(artikel);
-                ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(view.getContext(),R.array.einheiten_array, android.R.layout.simple_spinner_item);
-                int index =adapter.getPosition(einheit);
+                ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(view.getContext(), R.array.einheiten_array, android.R.layout.simple_spinner_item);
+                int index = adapter.getPosition(einheit);
                 spinner_einheiten.setSelection(index);
 
             }
@@ -742,9 +722,7 @@ public class Material extends Fragment {
 
         settings_artikel.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-
-            {
+            public void onClick(View view) {
                 LayoutInflater li = LayoutInflater.from(getActivity());
                 View view_artikel = li.inflate(R.layout.material_type_conf, container, false);
 
@@ -755,7 +733,7 @@ public class Material extends Fragment {
                 String[] material_artikel_adapter = mdo.artikel_list_all();
                 com.example.tabnav_test.material_artikel_adapter lcar = new material_artikel_adapter(material_artikel_adapter);
                 matieral_artikel.setAdapter(lcar);
-                matieral_artikel.setLayoutManager( new LinearLayoutManager(getContext()));
+                matieral_artikel.setLayoutManager(new LinearLayoutManager(getContext()));
 
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
                 // set prompts.xml to alertdialog builder
@@ -764,8 +742,7 @@ public class Material extends Fragment {
 
                 alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i)
-                    {
+                    public void onClick(DialogInterface dialogInterface, int i) {
                         refresh_artikel_autocomplete();
                         dialogInterface.cancel();
                     }
@@ -777,11 +754,9 @@ public class Material extends Fragment {
         });
 
         //Zulieferer
-        settings_zulieferer.setOnClickListener(new View.OnClickListener()
-        {
+        settings_zulieferer.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 LayoutInflater li = LayoutInflater.from(getActivity());
                 View promptsView = li.inflate(R.layout.lieferanten_config_dialog, container, false);
 
@@ -794,8 +769,7 @@ public class Material extends Fragment {
 
                 add_zulieferer.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View view)
-                    {
+                    public void onClick(View view) {
 
                         LayoutInflater li = LayoutInflater.from(getActivity());
                         View input_view = li.inflate(R.layout.add_lieferanten_dialog, container, false);
@@ -808,11 +782,9 @@ public class Material extends Fragment {
                         alertDialogBuilder.setView(input_view);
                         alertDialogBuilder.setTitle("Zulieferer hinzufügen");
 
-                        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener()
-                        {
+                        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialogInterface, int i)
-                            {
+                            public void onClick(DialogInterface dialogInterface, int i) {
                                 material_database_ops mdo = new material_database_ops(getContext());
                                 mdo.add_zulieferer(name_zulieferer.getText().toString());
                                 refresh_spinner_zulieferer_settings();
@@ -821,11 +793,9 @@ public class Material extends Fragment {
                                 dialogInterface.cancel();
                             }
                         });
-                        alertDialogBuilder.setNeutralButton("Abbrechen",new DialogInterface.OnClickListener()
-                        {
+                        alertDialogBuilder.setNeutralButton("Abbrechen", new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialogInterface, int i)
-                            {
+                            public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.cancel();
                             }
                         });
@@ -833,11 +803,9 @@ public class Material extends Fragment {
                     }
                 });
 
-                update_zulieferer.setOnClickListener(new View.OnClickListener()
-                {
+                update_zulieferer.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View view)
-                    {
+                    public void onClick(View view) {
 
                         LayoutInflater li = LayoutInflater.from(getActivity());
                         View input_view = li.inflate(R.layout.add_lieferanten_dialog, container, false);
@@ -850,14 +818,12 @@ public class Material extends Fragment {
                         alertDialogBuilder.setView(input_view);
                         alertDialogBuilder.setTitle("Zulieferer hinzufügen");
 
-                        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener()
-                        {
+                        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialogInterface, int i)
-                            {
+                            public void onClick(DialogInterface dialogInterface, int i) {
                                 //update_zulieferer(alte Bezeichnung ,neuer Name)
                                 material_database_ops mdo = new material_database_ops(getContext());
-                                mdo.update_zulieferer(zulieferer_name,name_zulieferer.getText().toString());
+                                mdo.update_zulieferer(zulieferer_name, name_zulieferer.getText().toString());
                                 refresh_spinner_zulieferer_settings();
 
                                 dialogInterface.cancel();
@@ -868,44 +834,38 @@ public class Material extends Fragment {
                     }
                 });
 
-                del_zuliefere.setOnClickListener(new View.OnClickListener()
-                {
+                del_zuliefere.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View view)
-
-                    {
-                            // f//inal Boolean confirm_value = false;
+                    public void onClick(View view) {
+                        // f//inal Boolean confirm_value = false;
 
                         String zulieferer_name = zulieferer_liste.getSelectedItem().toString();
 
-                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-                            alertDialogBuilder.setTitle("Bestätigen");
-                            alertDialogBuilder.setIcon(R.drawable.ic_baseline_info_24_blue);
-                            alertDialogBuilder.setMessage("Zulieferer "+zulieferer_name+ "  wiklich löschen?").setPositiveButton("OK", new DialogInterface.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i)
-                                {
-                                    material_database_ops mdo = new material_database_ops(getContext());
-                                    mdo.zulieferer_delet(zulieferer_name);
-                                    refresh_spinner_zulieferer_settings();
-                                    //TODO Ordner im Verzeichnis auch löschen!
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                        alertDialogBuilder.setTitle("Bestätigen");
+                        alertDialogBuilder.setIcon(R.drawable.ic_baseline_info_24_blue);
+                        alertDialogBuilder.setMessage("Zulieferer " + zulieferer_name + "  wiklich löschen?").setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                material_database_ops mdo = new material_database_ops(getContext());
+                                mdo.zulieferer_delet(zulieferer_name);
+                                refresh_spinner_zulieferer_settings();
+                                //TODO Ordner im Verzeichnis auch löschen!
 
-                                    dialogInterface.cancel();
-                                }
-                            });
+                                dialogInterface.cancel();
+                            }
+                        });
 
-                            alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i)
-                                {
+                        alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
 
-                                    dialogInterface.cancel();
-                                }
-                            });
+                                dialogInterface.cancel();
+                            }
+                        });
 
-                            AlertDialog alertDialog = alertDialogBuilder.create();
-                            alertDialog.show();
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        alertDialog.show();
                     }
                 });
 
@@ -1036,20 +996,16 @@ public class Material extends Fragment {
         return view;
     }
 
-    public void ls_image_viewer()
-    {
-        String file_url = in_directory+"/"+imageset[imageset_array_pointer];
+    public void ls_image_viewer() {
+        String file_url = in_directory + "/" + imageset[imageset_array_pointer];
 
         try {
-            if (file_url != "null")
-            {
-                if(bsf.detect_extension(file_url).contains(".pdf")) //Pdf öffnen
+            if (file_url != "null") {
+                if (bsf.detect_extension(file_url).contains(".pdf")) //Pdf öffnen
                 {
-                    open_pdf(file_url,getContext());
-                }
-                else
-                {
-
+                    Log.d(TAG, file_url);
+                    open_pdf(file_url, getContext());
+                } else {
 
                     LayoutInflater myLayout = LayoutInflater.from(getContext());
                     View pic_view_UI = myLayout.inflate(R.layout.show_picture, null);
@@ -1061,28 +1017,22 @@ public class Material extends Fragment {
                     ImageButton refresh_image = (ImageButton) pic_view_UI.findViewById(R.id.imageButton60);
                     ImageButton rotate_right = (ImageButton) pic_view_UI.findViewById(R.id.imageButton62);
 
-                    path_value.setText(file_url.replace(Environment.getExternalStorageDirectory().getAbsolutePath(),""));
+                    path_value.setText(file_url.replace(Environment.getExternalStorageDirectory().getAbsolutePath(), ""));
 
                     try {
-                        photo_viewer.setImageBitmap(update_photo_view());
+                        photo_viewer.setImageBitmap(ls_picture_scaled);
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
 
-
-
-
-                    rotate_right.setOnClickListener(new View.OnClickListener()
-                    {
+                    rotate_right.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onClick(View view)
-                        {
+                        public void onClick(View view) {
                             Matrix matrix = new Matrix();
-                            Bitmap bMap = update_photo_view();
-                            Bitmap bMapRotation =null;
+                            Bitmap bMap = BitmapFactory.decodeFile(file_url);
 
-                            matrix.setRotate(90);
-                            bMapRotation = Bitmap.createBitmap(bMap, 0, 0, bMap.getWidth(), bMap.getHeight(), matrix, true);
+                           matrix.setRotate(90);
+                           Bitmap bMapRotation = Bitmap.createBitmap(bMap, 0, 0, bMap.getWidth(), bMap.getHeight(), matrix, true);
 
                             File file = new File(file_url);
                             if (file.exists()) {
@@ -1090,27 +1040,24 @@ public class Material extends Fragment {
                             }
                             try {
                                 FileOutputStream out = new FileOutputStream(file);
-                                bMapRotation.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                                bMapRotation.compress(Bitmap.CompressFormat.JPEG, 50, out);
                                 out.flush();
                                 out.close();
 
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-
                             photo_viewer.setImageBitmap(update_photo_view());
+
                         }
                     });
 
-
-                    refresh_image.setOnClickListener(new View.OnClickListener()
-                    {
+                    refresh_image.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onClick(View view)
-                        {
+                        public void onClick(View view) {
                             //Todo fallbacks wenn kein Bild existiert, damit man noch eines Hinzufügen kann.
 
-                            take_picture(file_url,TAKE_IMAGE_REFRESH_MODE);
+                            take_picture(file_url, TAKE_IMAGE_REFRESH_MODE, view.getContext());
                         }
                     });
 
@@ -1121,27 +1068,22 @@ public class Material extends Fragment {
                     alertDialogBuilder.setTitle("Viewer");
                     alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialogInterface, int i)
-                        {
+                        public void onClick(DialogInterface dialogInterface, int i) {
                             ls_photo_view.setImageBitmap(update_photo_view());
                             dialogInterface.cancel();
                         }
                     });
                     AlertDialog alertDialog = alertDialogBuilder.create();
                     alertDialog.show();
-
                 }
 
             } //else?
-        }
-        catch (Exception e )
-        {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void reset_complete()
-    {
+    private void reset_complete() {
         reset_date();
         reset_ls_nr();
         reset_artikel();
@@ -1153,15 +1095,13 @@ public class Material extends Fragment {
         create_imageset();
     }
 
-    void refresh_artikel_autocomplete()
-    {
+    void refresh_artikel_autocomplete() {
 
         material_database_ops mdo = new material_database_ops(getContext());
         String[] artikel = mdo.artikel_list_all();
         ArrayAdapter<String> artikelAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, artikel);
         edit_artikel_name.setAdapter(artikelAdapter);
     }
-
 
     public void add_projekt(ViewGroup container) {
         LayoutInflater li = LayoutInflater.from(getActivity());
@@ -1297,26 +1237,24 @@ public class Material extends Fragment {
         projlist.setAdapter(spinnerArrayAdapter);
 
     }
-    public void refresh_spinner_zulieferer()
-    {
+
+    public void refresh_spinner_zulieferer() {
         material_database_ops mdo = new material_database_ops(getContext());
         //Spinner adapter
         String[] zulieferer_liste_items = mdo.zulieferer_list_all();
-        if (zulieferer_liste_items.length == 0)
-        {
+        if (zulieferer_liste_items.length == 0) {
             zulieferer_liste_items = new String[]{"Keine Zulieferer"};
         }
 
-            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, zulieferer_liste_items);
-            Zulieferer_liste_main.setAdapter(spinnerArrayAdapter);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, zulieferer_liste_items);
+        Zulieferer_liste_main.setAdapter(spinnerArrayAdapter);
     }
-    public void refresh_spinner_zulieferer_settings()
-    {
+
+    public void refresh_spinner_zulieferer_settings() {
         material_database_ops mdo = new material_database_ops(getContext());
         //Spinner adapter
         String[] zulieferer_liste_items = mdo.zulieferer_list_all();
-        if (zulieferer_liste_items.length == 0)
-        {
+        if (zulieferer_liste_items.length == 0) {
             zulieferer_liste_items = new String[]{"Keine Zulieferer"};
         }
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, zulieferer_liste_items);
@@ -1331,29 +1269,25 @@ public class Material extends Fragment {
 
     }
 
-    public void refresh_projekt_label()
-    {
+    public void refresh_projekt_label() {
         material_database_ops mdo = new material_database_ops(getContext());
         projekt_label.setText(mdo.get_selectet_projekt());
     }
 
     //Bild aufnehmen
 
-    private void take_picture(String path,String mode)
-    {
+    private void take_picture(String path, String mode, Context context) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File photoFile = null;
-        int request_code =1;
+        int request_code = 1;
 
-        switch(mode)
-        {
+        switch (mode) {
 
             case "new":
 
-                Log.d(TAG,"take_picture_new");
+                Log.d(TAG, "take_picture_new");
                 String imageFileName = create_media_filename(""); //Extension für in image.creatTempfile hinzugefügt (".jepg"
-                if (imageFileName != "null")
-                {
+                if (imageFileName != "null") {
                     try {
                         File storageDir = new File(path);
 
@@ -1366,101 +1300,89 @@ public class Material extends Fragment {
 
                         currentPhotoPath = image.getAbsolutePath();
                         photoFile = image;
-                    } catch (Exception e)
-                    {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
 
                 break;
             case "refresh":
-                Log.d(TAG,"take_picture_refresh");
-                photoFile  = new File(path);
-                request_code=2;
+                Log.d(TAG, "take_picture_refresh");
+                photoFile = new File(path);
+                request_code = 2;
                 break;
             default:
 
         }
 
 
-        if (photoFile != null)
-        {
+        if (photoFile != null) {
             try {
-                photoURI = FileProvider.getUriForFile(getContext(),"com.example.tabnav_test.fileprovider",photoFile);
+                photoURI = FileProvider.getUriForFile(context, "com.example.tabnav_test.fileprovider", photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent,request_code);
-            } catch (Exception e)
-            {
+                startActivityForResult(takePictureIntent, request_code);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-   }
-
-
-
-    private void reset_date()
-    {
-        date_label.setText(bsf.date_refresh_rev2());
-        date_background.setBackgroundColor(ContextCompat.getColor(getContext(),R.color.hellgrün));
     }
 
-    private void reset_ls_nr()
-    {
+
+    private void reset_date() {
+        date_label.setText(bsf.date_refresh_rev2());
+        date_background.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.hellgrün));
+    }
+
+    private void reset_ls_nr() {
         lsnr_field.setText("");
     }
-    private void reset_artikel()
-    {
+
+    private void reset_artikel() {
         edit_artikel_name.setText("");
     }
-    private void reset_menge()
-    {
+
+    private void reset_menge() {
         menge.setText("");
     }
-    private void reset_notiz()
-    {
+
+    private void reset_notiz() {
         note_field.setText("");
     }
 
-    private void reset_camera()
-    {
+    private void reset_camera() {
         ls_photo_view.setImageResource(R.drawable.cam);
     }
 
-    private void media_shift(String direction)
-    {
-        Bitmap ls_picture_scaled=null;
+    private void media_shift(String direction) {
+        Bitmap ls_picture_scaled = null;
         int max = imageset.length;
         String arraypos = "";
 
-        if (max > 0)
-        {
-            switch (direction)
-            {
+        if (max > 0) {
+            switch (direction) {
                 case "f": //Vorwärts
-                    if (imageset_array_pointer <= max - 2)
-                    {
+                    if (imageset_array_pointer <= max - 2) {
                         imageset_array_pointer++;
                     }
 
-                    ls_picture_scaled=update_photo_view();
+                    ls_picture_scaled = update_photo_view();
                     ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
 
                     break;
                 case "b": //Rückwärts
-                    if (imageset_array_pointer >= 1)
-                    {
+                    if (imageset_array_pointer >= 1) {
                         imageset_array_pointer--;
                     }
 
-                    ls_picture_scaled=update_photo_view();
+                    ls_picture_scaled = update_photo_view();
                     ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
 
                     break;
 
                 case "r"://aktuallisieren "relaod"
 
-                    ls_picture_scaled=update_photo_view();
+                    ls_picture_scaled = update_photo_view();
                     ls_photo_view.setImageBitmap(ls_picture_scaled); //Setzt das Bild im ImageView*/
 
                     break;
@@ -1469,130 +1391,115 @@ public class Material extends Fragment {
             }
 
             arraypos = "  (" + imageset_array_pointer + ")";
-            imagecounter.setText("Bild "+String.valueOf(imageset_array_pointer+1)+ " von "+max+arraypos);
+            imagecounter.setText("Bild " + String.valueOf(imageset_array_pointer + 1) + " von " + max + arraypos);
 
-        } else
-        {
-            media_visibilitiy(View.GONE);
+        } else {
+            ///media_visibilitiy(View.GONE);
             Toast.makeText(getContext(), "Keine Bilder ", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void set_media_directory(String sub_dir) throws Exception
-    {
+    private void set_media_directory(String sub_dir) throws Exception {
         material_database_ops mdo = new material_database_ops(getContext());
 
         try {
-            String  r = mdo.get_selectet_projekt_root().split(",")[2]; //Martinheim Süd,23110022,primary:DCIM/Baustellen /Martinsheim Süd;
-            r = r.replace("primary:",Environment.getExternalStorageDirectory().getAbsolutePath()+"/");
-            r +=sub_dir;
+            String r = mdo.get_selectet_projekt_root().split(",")[2]; //Martinheim Süd,23110022,primary:DCIM/Baustellen /Martinsheim Süd;
+            r = r.replace("primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
+            r += sub_dir;
             in_directory = r;
-            Log.d("in_directory",r);
+            Log.d("in_directory", r);
             File f = new File(r);
             f.mkdirs(); //erstellt die fehlenden verzeichnisse.
-        } catch (Exception e)
-        {
-            exmsg("250720231142",e);
+        } catch (Exception e) {
+            exmsg("250720231142", e);
         }
 
     }
 
-    private void media_visibilitiy(int visible_mode)
-    {
+    private void media_visibilitiy(int visible_mode) {
         try {
             ls_photo_view.setVisibility(visible_mode);
             ls_img_collection_backward.setVisibility(visible_mode);
             ls_img_collection_forward.setVisibility(visible_mode);
             imagecounter.setVisibility(visible_mode);
-        } catch (Exception e)
-        {
-           exmsg("250720231006",e);
+        } catch (Exception e) {
+            exmsg("250720231006", e);
         }
     }
 
-    public String create_media_filename(String file_extension)
-    {
-        String filename ="null";
+    public String create_media_filename(String file_extension) {
+        String filename = "null";
 
         try {
             String lieferant = Zulieferer_liste_main.getSelectedItem().toString();
             String ls_nr = String.valueOf(lsnr_field.getText());
-            String date  = (String) date_label.getText();
+            String date = (String) date_label.getText();
             String art = String.valueOf(edit_artikel_name.getText());
-            date = date.replace(".","");
+            date = date.replace(".", "");
 
-            long time= System.currentTimeMillis(); //"Zufallszahl" generieren, damit dateien Verschiedene Namen haben.
+            long time = System.currentTimeMillis(); //"Zufallszahl" generieren, damit dateien Verschiedene Namen haben.
 
-           filename = lieferant+"_LSNR_"+ls_nr+"#"+art+"@"+date+"_ID_"+String.valueOf(time)+file_extension; //Name der Kopierten Datei
-        }catch (Exception e )
-        {
-            exmsg("270720231219",e);
+            filename = lieferant + "_LSNR_" + ls_nr + "#" + art + "@" + date + "_ID_" + String.valueOf(time) + file_extension; //Name der Kopierten Datei
+        } catch (Exception e) {
+            exmsg("270720231219", e);
             filename = "null";
         }
         return filename;
     }
 
-    private void  create_imageset()
-    {
+    private void create_imageset() {
         File f = new File(in_directory);
-        imageset =f.list();
-        if(imageset.length >0)
-        {
-            imageset_array_pointer=0;
+        imageset = f.list();
+        if (imageset.length > 0) {
+            imageset_array_pointer = 0;
         }
     }
 
-    private Bitmap  update_photo_view()  //Akuallisiert das imageView mit dem Akueller Position des imagset pointers
+    private Bitmap update_photo_view()  //Akuallisiert das imageView mit dem Akueller Position des imagset pointers
     {
-        String path = in_directory+"/"+imageset[imageset_array_pointer]; //Pfad des Mediums
-
-       Bitmap ls_picture;
-       Bitmap ls_picture_scaled;
+        String path = in_directory + "/" + imageset[imageset_array_pointer]; //Pfad des Mediums
 
         try {
-            switch(bsf.detect_extension(path))  // fixme try block?
+            switch (bsf.detect_extension(path))  // fixme try block?
             {
                 case ".jpeg":
-                    ls_picture= BitmapFactory.decodeFile(path);
-                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+                    ls_picture = BitmapFactory.decodeFile(path);
+                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
 
                     break;
 
                 case ".jpg":
-                    ls_picture= BitmapFactory.decodeFile(path);
-                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
-
+                    ls_picture = BitmapFactory.decodeFile(path);
+                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
                     break;
 
                 case ".png":
-
-                    ls_picture= BitmapFactory.decodeFile(path);
-                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+                    ls_picture = BitmapFactory.decodeFile(path);
+                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
 
                     break;
 
                 case ".pdf":
                     ls_picture = BitmapFactory.decodeResource(getResources(), R.drawable.pdflogo);
-                    ls_picture_scaled =  Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
 
                     break;
 
                 default:
                     ls_picture = BitmapFactory.decodeResource(getResources(), R.drawable.some_file);
-                    ls_picture_scaled =  Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
 
             }
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
 
-        return  ls_picture_scaled;
+        return ls_picture_scaled;
     }
 
-    private boolean copy_media_files_from_temp()
-    {
-        String source_dir ="";
-        String destination_dir ="";
+    private boolean copy_media_files_from_temp() {
+        String source_dir = "";
+        String destination_dir = "";
         Boolean check = false;
         try {
             set_media_directory(ls_media_directory_name);
@@ -1603,21 +1510,18 @@ public class Material extends Fragment {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        File f = new File (in_directory);
-        if(f.exists())
-
-        {
+        File f = new File(in_directory);
+        if (f.exists()) {
             String[] files = f.list();
 
-            for(String d: files)
-            {
-                String source = source_dir+"/"+d;
-                String destination =destination_dir+"/"+d;
+            for (String d : files) {
+                String source = source_dir + "/" + d;
+                String destination = destination_dir + "/" + d;
                 check = true;
 
                 try {
                     File source_file = new File(source);
-                    bsf.copyFileUsingStream(source_file,new File(destination)); //Kopieren von-zu
+                    bsf.copyFileUsingStream(source_file, new File(destination)); //Kopieren von-zu
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -1625,47 +1529,89 @@ public class Material extends Fragment {
 
         }
 
-        return  check;
+        return check;
     }
 
-    public void clean_temp_dir()
-    {
+    public void clean_temp_dir() {
         String in_directory_backup = in_directory; //Sichern
-        try
-            {
+        try {
             set_media_directory(ls_media_directory_name_temp);
-            File f= new File(in_directory);
+            File f = new File(in_directory);
 
-            String [] files =f.list();
-            for (String d: files)
-            {
-                File t = new File(in_directory+"/"+d);
+            String[] files = f.list();
+            for (String d : files) {
+                File t = new File(in_directory + "/" + d);
                 t.delete();
             }
-                bsf.log("Verzeichnis 'temp' bereinigt!");
+            bsf.log("Verzeichnis 'temp' bereinigt!");
 
-        } catch (Exception e)
-        {
-            bsf.error_msg("Verzeichnis 'temp' bereinigung Fehlgeschlagen!\n"+e,getContext());
+        } catch (Exception e) {
+            bsf.error_msg("Verzeichnis 'temp' bereinigung Fehlgeschlagen!\n" + e, getContext());
         }
-            in_directory = in_directory_backup; //Wiederherstellen
+        in_directory = in_directory_backup; //Wiederherstellen
     }
 
-    public void open_pdf(String file_url,Context context)
-    {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        Uri pdfUri = FileProvider.getUriForFile(context,"com.example.tabnav_test.fileprovider", new File(file_url));
-        Log.d("BASI", "openPDF: intent with uri: " + pdfUri);
-        intent.setDataAndType(pdfUri, "application/pdf");
-        startActivity(Intent.createChooser(intent, "Open with..."));
+    public void open_pdf(String file_url, Context context) {
+
+        Intent pdfIntent = new Intent(Intent.ACTION_VIEW);
+        Uri uri = FileProvider.getUriForFile(context, "com.example.tabnav_test.fileprovider", new File(file_url));
+        Log.d(TAG, String.valueOf(uri));
+        pdfIntent.setDataAndType(uri, "application/pdf");
+        pdfIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        pdfIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        try {
+            startActivity(pdfIntent);
+        } catch (ActivityNotFoundException e) {
+            // Adobe Reader oder ein geeigneter PDF-Viewer ist nicht installiert
+            Toast.makeText(context, "Es wurde kein PDF-Viewer gefunden", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
-    private void refresh_viewer_photo()
-    {
-        Bitmap ls_picture= BitmapFactory.decodeFile(in_directory+"/"+imageset[imageset_array_pointer]);
-        Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture,foto_preview_w,foto_preview_h,true);
+    private void refresh_viewer_photo() {
+        Bitmap ls_picture = BitmapFactory.decodeFile(in_directory + "/" + imageset[imageset_array_pointer]);
+        Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
         photo_viewer.setImageBitmap(ls_picture_scaled);
     }
+
+    private void compress_bitmap(String bitmap_paht) {
+        Bitmap bMap = BitmapFactory.decodeFile(bitmap_paht);
+
+        File file = new File(bitmap_paht);
+        if (file.exists()) {
+            file.delete();
+        }
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            bMap.compress(Bitmap.CompressFormat.JPEG, 50, out);
+            out.flush();
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void save_bitmap(Bitmap bMap,String file_url)
+    {
+        File file = new File(file_url);
+        if (file.exists()) {
+            file.delete();
+        }
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            bMap.compress(Bitmap.CompressFormat.JPEG, 50, out);
+            out.flush();
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
 
     void exmsg(String msg, Exception e)
