@@ -22,6 +22,8 @@ import java.io.File;
 
 public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder>
 {
+
+    String meine_eanderung;
     String[] localDataSet;
     String proj_nr;
     String proj_src;
