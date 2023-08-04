@@ -24,7 +24,7 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
 {
 
     String meine_eanderung;
-    String[] localDataSet;
+    String[] localDataSet={"null"};
     String proj_nr;
     String proj_src;
     String name_idenifer;
@@ -50,11 +50,24 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
         Log.d("BASI_SRC",this.proj_src);
         Log.d("BASI_DATUM",data.get("DATUM").toString());
 
-        File f  = new File(this.proj_src);
-        this.localDataSet=f.list();
-
 
         this.name_idenifer = name_zuleferer+"_LSNR_"+data.get("LSNR")+"@"+data.get("DATUM").toString().replace(".","");
+
+        File f  = new File(this.proj_src);
+        String []filelist = f.list();
+        int c = 0;
+      for(String filename: filelist)
+      {
+          File f2 = new File(this.proj_src+"/"+filename);
+          if(f2.isFile())
+          {
+              if(filename.contains(name_idenifer) == true)
+              {
+                  this.localDataSet[c]=this.proj_src+"/"+filename;
+              }
+          }
+      }
+
 
 
     }
@@ -71,7 +84,7 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull galery_adaper.ViewHolder holder, int position)
     {
-        if(this.localDataSet.length >0)
+        if(this.localDataSet[0] !="null")
         {
             try {
 
@@ -100,7 +113,6 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
     @Override
     public int getItemCount()
     {
-
         return localDataSet.length;
     }
 
