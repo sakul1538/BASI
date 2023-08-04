@@ -16,116 +16,34 @@
         tools:layout_editor_absoluteX="-6dp"
         tools:layout_editor_absoluteY="5dp">
 
-        <TextView
-            android:id="@+id/textView78"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:padding="5dp"
-            android:text="TextView"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textView78"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:padding="5dp"
+                android:text="TextView"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+
+        </LinearLayout>
 
         <TableLayout
+            android:id="@+id/table_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:padding="0dp">
+            android:padding="0dp"
+            android:visibility="gone">
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="5dp"
-                android:padding="0dp">
-
-                <TextView
-                    android:id="@+id/textView66"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:padding="0dp"
-                    android:text="@string/material_zulieferer_banner"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/textView67"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:padding="0dp"
-                    android:text="TextView"
-                    android:textColor="@color/white"
-                    android:textSize="12sp" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="5dp"
-                android:padding="0dp">
-
-                <TextView
-                    android:id="@+id/textView76"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:padding="0dp"
-                    android:text="@string/matieral_date_label"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/textView77"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:padding="0dp"
-                    android:text="TextView"
-                    android:textColor="@color/white"
-                    android:textSize="12sp" />
-            </TableRow>
-
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="5dp"
-                android:padding="0dp">
-
-                <TextView
-                    android:id="@+id/textView68"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:padding="0dp"
-                    android:text="@string/matieral_lsnr_label"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/textView69"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:padding="0dp"
-                    android:text="TextView"
-                    android:textColor="@color/white"
-                    android:textSize="12sp" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="5dp"
-                android:padding="0dp">
+                android:layout_height="match_parent">
 
                 <TextView
                     android:id="@+id/textView74"
@@ -137,8 +55,8 @@
                     android:textColor="@color/white"
                     android:textSize="12sp"
                     android:textStyle="bold" />
-
             </TableRow>
+
 
             <TableRow
                 android:layout_width="match_parent"
@@ -155,7 +73,18 @@
                     android:text="TextView"
                     android:textColor="@color/white"
                     android:textSize="12sp" />
+            </TableRow>
 
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="5dp"
+                android:padding="0dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/gallery_rcv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
             </TableRow>
 
         </TableLayout>
@@ -165,16 +94,6 @@
             android:layout_height="wrap_content"
             android:gravity="right"
             android:orientation="horizontal">
-
-            <ImageButton
-                android:id="@+id/imageButton44"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:layout_weight="0"
-                android:background="@color/Cornfield_3"
-                android:padding="5dp"
-                app:srcCompat="@drawable/baseline_image_search_24" />
 
             <ImageButton
                 android:id="@+id/imageButton41"

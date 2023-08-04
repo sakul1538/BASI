@@ -5,6 +5,11 @@ import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.opengl.Visibility;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,28 +20,37 @@ import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.dynamicanimation.animation.SpringForce;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.tabnav_test.material.galery_adaper;
 import com.example.tabnav_test.material.material_database_ops;
+import com.google.android.material.tabs.TabLayout;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rcv_adapter.ViewHolder>
 {
+
     String[] localDataSet ;
     private ViewGroup parent;
     material_database_ops mdo;
 
-
     public ls_log_view_rcv_adapter(String[] ls_log_view_rcv_adapter)
     {
         this.localDataSet = ls_log_view_rcv_adapter;
+
 
     }
 
@@ -56,6 +70,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
     public void onBindViewHolder(@NonNull ls_log_view_rcv_adapter.ViewHolder holder, int position)
     {
             String[] items = localDataSet[position].split(",");
+
 
 
             ContentValues data = new ContentValues();
@@ -84,16 +99,15 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                     "ID=?",
                     new String[]{"NAME"});
 
-            holder.artikel().setText(artikel_name +" ["+data.get("EINHEIT").toString()+"]");
 
             String name_zuleferer =  mdo.get_zulieferer_param(
                     new String[]{data.get("ZULIEFERER_ID").toString()},
                     "ID=?",
                     new String[]{"NAME"});
 
-            holder.zulieferer().setText(name_zuleferer);
-            holder.datum().setText(data.get("DATUM").toString());
-            holder.lsnr().setText(data.get("LSNR").toString());
+            String head =artikel_name+": "+data.get("MENGE").toString()+" " +data.get("EINHEIT").toString()+"\n"+name_zuleferer+" LSNR: "+data.get("LSNR")+" am "+ data.get("DATUM").toString();
+
+            holder.artikel().setText(head);
             holder.notiz().setText(data.get("NOTIZ").toString());
 
             //Image Buttons
@@ -102,19 +116,43 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                 @Override
                 public void onClick(View view)
                 {
-                   // delet_dialog(artikel_name,data);
-                     update_log_entry(data.get("ID").toString(), view);
+                    delet_dialog(artikel_name,data);
+
                 }
             });
 
-            holder.getMedia_entry().setOnClickListener(new View.OnClickListener()
-            {
+            holder.getUpdate_entry().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view)
                 {
-                  //  material_log_activity.bsfi.ls_image_viewer(material_log_activity.bsfi.URLdecode(data.get("SRC").toString()), parent.getContext());
+                    update_log_entry(data.get("ID").toString(), view);
                 }
             });
+
+
+            holder.getEntry_details().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view)
+                {
+                   if(holder.table_details().getVisibility() == View.VISIBLE)
+                   {
+                       holder.table_details().setVisibility(View.GONE);
+                   }
+                   else
+                   {
+                       holder.table_details().setVisibility(View.VISIBLE);
+
+                       galery_adaper galery_adaper_rcv = new galery_adaper(data,parent.getContext());
+
+                       RecyclerView.LayoutManager layoutManager = new GridLayoutManager(parent.getContext(), 3);
+
+                       holder.getGallery_rcv().setAdapter(galery_adaper_rcv);
+                       holder.getGallery_rcv().setLayoutManager(layoutManager);
+
+                   }
+                }
+            });
+
 
     }
 
@@ -126,34 +164,41 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
     public class ViewHolder extends RecyclerView.ViewHolder
     {
         private  final TextView artikel;
-        private  final TextView zulieferer;
-        private  final TextView datum;
-        private  final TextView lsnr;
         private  final TextView noitz;
-        private final ImageButton media_entry;
-
         private  final ImageButton delet_entry;
+        private  final ImageButton entry_details;
+
+        private  final ImageButton update_entry;
+
+        private final TableLayout table_layout_details;
+        private final RecyclerView gallery_rcv;
+
+
 
         public ViewHolder(@NonNull View itemView)
         {
             super(itemView);
             artikel = (TextView) itemView.findViewById(R.id.textView78);
-            zulieferer = (TextView) itemView.findViewById(R.id.textView67);
-            datum = (TextView) itemView.findViewById(R.id.textView77);
-            lsnr = (TextView) itemView.findViewById(R.id.textView69);
             noitz = (TextView) itemView.findViewById(R.id.textView75);
             delet_entry = (ImageButton) itemView.findViewById(R.id.imageButton42);
-            media_entry = (ImageButton) itemView.findViewById(R.id.imageButton44);
+            entry_details = (ImageButton) itemView.findViewById(R.id.imageButton40);
+            table_layout_details = (TableLayout) itemView.findViewById(R.id.table_details);
+            gallery_rcv = (RecyclerView) itemView.findViewById(R.id.gallery_rcv);
+            update_entry = (ImageButton)   itemView.findViewById(R.id.imageButton41);
         }
 
         public TextView artikel() {return artikel;}
-        public TextView zulieferer() {return zulieferer;}
-        public TextView  datum() {return datum;}
-        public TextView  lsnr() {return lsnr;}
+
         public TextView  notiz() {return noitz;}
-        public ImageButton  getMedia_entry() {return media_entry;}
+
 
         public ImageButton  getDelet_entry() {return delet_entry;}
+        public ImageButton  getEntry_details() {return entry_details;}
+        public ImageButton  getUpdate_entry() {return update_entry;}
+        public TableLayout table_details() {return table_layout_details;}
+        public RecyclerView getGallery_rcv() {return gallery_rcv;}
+
+
     }
 
     public void refresh_dataset(Context context)
@@ -371,6 +416,76 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
 
     }
+    public void ls_image_viewer(String lsnr)
+    {
+
+                    LayoutInflater myLayout = LayoutInflater.from(parent.getContext());
+                    View pic_view_UI = myLayout.inflate(R.layout.show_picture, null);
+
+                    TextView path_value = pic_view_UI.findViewById(R.id.textView65);
+
+                    ImageView  photo_viewer = (ImageView) pic_view_UI.findViewById(R.id.imageView4);
+
+                    ImageButton refresh_image = (ImageButton) pic_view_UI.findViewById(R.id.imageButton60);
+                    ImageButton rotate_right = (ImageButton) pic_view_UI.findViewById(R.id.imageButton62);
+
+                   // path_value.setText(file_url.replace(Environment.getExternalStorageDirectory().getAbsolutePath(), ""));
+
+
+                    rotate_right.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view)
+                        {
+                           /* Matrix matrix = new Matrix();
+                            Bitmap bMap = BitmapFactory.decodeFile(file_url);
+
+                            matrix.setRotate(90);
+                            Bitmap bMapRotation = Bitmap.createBitmap(bMap, 0, 0, bMap.getWidth(), bMap.getHeight(), matrix, true);
+
+                            File file = new File(file_url);
+                            if (file.exists()) {
+                                file.delete();
+                            }
+                            try {
+                                FileOutputStream out = new FileOutputStream(file);
+                                bMapRotation.compress(Bitmap.CompressFormat.JPEG, 50, out);
+                                out.flush();
+                                out.close();
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            photo_viewer.setImageBitmap(update_photo_view());
+                            */
+                        }
+                    });
+
+                    refresh_image.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            //Todo fallbacks wenn kein Bild existiert, damit man noch eines Hinzufügen kann.
+
+                            //take_picture(file_url, TAKE_IMAGE_REFRESH_MODE, view.getContext());
+                        }
+                    });
+
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(parent.getContext());
+
+                    // set prompts.xml to alertdialog builder
+                    alertDialogBuilder.setView(pic_view_UI);
+                    alertDialogBuilder.setTitle("Viewer");
+                    alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                           // ls_photo_view.setImageBitmap(update_photo_view());
+                            dialogInterface.cancel();
+                        }
+                    });
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
+
+    }
+
 
     public void exmsg(String msg, Exception e)
     {

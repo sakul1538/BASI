@@ -65,10 +65,18 @@ public class material_log_activity extends AppCompatActivity
         slide_adapter = new material_log_slidePagerAdapter(this);
 
         viewpager.setAdapter(slide_adapter);
+        viewpager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position)
+            {
+                super.onPageSelected(position);
+                tabLayout.selectTab(tabLayout.getTabAt(position));
+            }
+        });
+
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener()
         {
-
             @Override
             public void onTabSelected(TabLayout.Tab tab)
             {

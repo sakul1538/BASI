@@ -996,7 +996,8 @@ public class Material extends Fragment {
         return view;
     }
 
-    public void ls_image_viewer() {
+    public void ls_image_viewer()
+    {
         String file_url = in_directory + "/" + imageset[imageset_array_pointer];
 
         try {
@@ -1439,7 +1440,7 @@ public class Material extends Fragment {
 
             long time = System.currentTimeMillis(); //"Zufallszahl" generieren, damit dateien Verschiedene Namen haben.
 
-            filename = lieferant + "_LSNR_" + ls_nr + "#" + art + "@" + date + "_ID_" + String.valueOf(time) + file_extension; //Name der Kopierten Datei
+            filename = lieferant + "_LSNR_" + ls_nr +"@" + date + "_ID_" + String.valueOf(time) + file_extension; //Name der Kopierten Datei
         } catch (Exception e) {
             exmsg("270720231219", e);
             filename = "null";
