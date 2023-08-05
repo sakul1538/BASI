@@ -231,6 +231,7 @@ public class Material extends Fragment {
                 if (resultData != null) {
                     uri = resultData.getData(); //Url von der Datei, die Kopiert werden soll
                     String source_uri = uri.getPath();
+                    Log.d("BASI",source_uri);
                     source_uri = source_uri.replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
                     String destinationPath = "";
                     String filename = create_media_filename(".pdf");
@@ -292,6 +293,31 @@ public class Material extends Fragment {
                 }
                 break;
 
+            case 5:
+                if (resultData != null) {
+                    uri = resultData.getData();
+                    String source_path = uri.getPath();///document/primary:DCIM/Baustellen /testprojekt/Lieferscheine/Volken_NR_1223@25072023_ID_6547592956172734206.jpeg
+                    source_path = source_path.replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
+                    String destinationPath = in_directory + "/" + imageset[imageset_array_pointer]; //Pfad des Mediums
+
+                        try {
+                            File source = new File(source_path);
+                            File destination = new File(destinationPath);
+
+                            try {
+                                bsf.copyFileUsingStream(source, destination); //Kopieren von-zu
+                                refresh_viewer_photo();
+                            } catch (IOException e) {
+                                exmsg("250720231849", e);
+                            }
+
+                        } catch (Exception e) {
+                            exmsg("270720231230", e);
+                            Toast.makeText(getContext(), "Bild import Fehlgeschlagen! \n" + e, Toast.LENGTH_SHORT).show();
+                        }
+                }
+
+                break;
         }
     }
 
@@ -478,7 +504,8 @@ public class Material extends Fragment {
         ls_delet_foto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (imageset.length > 0) {
+                if (imageset.length > 0)
+                {
 
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
                     // set prompts.xml to alertdialog builder
@@ -1006,7 +1033,9 @@ public class Material extends Fragment {
                 {
                     Log.d(TAG, file_url);
                     open_pdf(file_url, getContext());
-                } else {
+
+                } else
+                {
 
                     LayoutInflater myLayout = LayoutInflater.from(getContext());
                     View pic_view_UI = myLayout.inflate(R.layout.show_picture, null);
@@ -1016,6 +1045,7 @@ public class Material extends Fragment {
                     photo_viewer = (ImageView) pic_view_UI.findViewById(R.id.imageView4);
 
                     ImageButton refresh_image = (ImageButton) pic_view_UI.findViewById(R.id.imageButton60);
+                    ImageButton refresh_image_file = (ImageButton) pic_view_UI.findViewById(R.id.imageButton63);
                     ImageButton rotate_right = (ImageButton) pic_view_UI.findViewById(R.id.imageButton62);
 
                     path_value.setText(file_url.replace(Environment.getExternalStorageDirectory().getAbsolutePath(), ""));
@@ -1057,8 +1087,19 @@ public class Material extends Fragment {
                         @Override
                         public void onClick(View view) {
                             //Todo fallbacks wenn kein Bild existiert, damit man noch eines Hinzufügen kann.
-
                             take_picture(file_url, TAKE_IMAGE_REFRESH_MODE, view.getContext());
+                        }
+                    });
+
+
+                    refresh_image_file.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view)
+                        {
+                            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                            intent.addCategory(Intent.CATEGORY_OPENABLE);
+                            intent.setType("image/*");
+                            startActivityForResult(intent, 5);
                         }
                     });
 

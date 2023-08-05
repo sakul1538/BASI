@@ -38,6 +38,7 @@ import com.google.android.material.tabs.TabLayout;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rcv_adapter.ViewHolder>
@@ -70,8 +71,6 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
     public void onBindViewHolder(@NonNull ls_log_view_rcv_adapter.ViewHolder holder, int position)
     {
             String[] items = localDataSet[position].split(",");
-
-
 
             ContentValues data = new ContentValues();
 
@@ -130,28 +129,46 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             });
 
 
-            holder.getEntry_details().setOnClickListener(new View.OnClickListener() {
+            holder.getEntry_details().setOnClickListener(new View.OnClickListener()
+            {
                 @Override
                 public void onClick(View view)
                 {
                    if(holder.table_details().getVisibility() == View.VISIBLE)
                    {
                        holder.table_details().setVisibility(View.GONE);
+                       holder.getadd_media_camera().setVisibility(View.GONE);
+                       holder.getadd_media_files().setVisibility(View.GONE);
                    }
                    else
                    {
                        holder.table_details().setVisibility(View.VISIBLE);
+                       holder.getadd_media_camera().setVisibility(View.VISIBLE);
+                       holder.getadd_media_files().setVisibility(View.VISIBLE);
 
-                       galery_adaper galery_adaper_rcv = new galery_adaper(data,parent.getContext());
+                       String files_found =mdo.media_scanner(data);
 
-                       RecyclerView.LayoutManager layoutManager = new GridLayoutManager(parent.getContext(), 3);
+                       if(files_found !="")
+                       {
+                           String [] media_set =files_found.split(",");
+                           holder.gallery_rcv.setVisibility(View.VISIBLE);
 
-                       holder.getGallery_rcv().setAdapter(galery_adaper_rcv);
-                       holder.getGallery_rcv().setLayoutManager(layoutManager);
+                           galery_adaper galery_adaper_rcv = new galery_adaper(media_set,data, parent.getContext());
 
+                           RecyclerView.LayoutManager layoutManager = new GridLayoutManager(parent.getContext(), 3);
+
+                           holder.getGallery_rcv().setAdapter(galery_adaper_rcv);
+                           holder.getGallery_rcv().setLayoutManager(layoutManager);
+                       }
+                       else
+                       {
+                           holder.gallery_rcv.setVisibility(View.GONE);
+                       }
                    }
                 }
             });
+
+
 
 
     }
@@ -169,9 +186,12 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         private  final ImageButton entry_details;
 
         private  final ImageButton update_entry;
+        private  final ImageButton add_media_camera;
+        private  final ImageButton add_media_files;
 
         private final TableLayout table_layout_details;
         private final RecyclerView gallery_rcv;
+
 
 
 
@@ -185,6 +205,8 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             table_layout_details = (TableLayout) itemView.findViewById(R.id.table_details);
             gallery_rcv = (RecyclerView) itemView.findViewById(R.id.gallery_rcv);
             update_entry = (ImageButton)   itemView.findViewById(R.id.imageButton41);
+            add_media_camera = (ImageButton)   itemView.findViewById(R.id.imageButton44);
+            add_media_files = (ImageButton)   itemView.findViewById(R.id.imageButton38);
         }
 
         public TextView artikel() {return artikel;}
@@ -195,6 +217,8 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         public ImageButton  getDelet_entry() {return delet_entry;}
         public ImageButton  getEntry_details() {return entry_details;}
         public ImageButton  getUpdate_entry() {return update_entry;}
+        public ImageButton  getadd_media_camera() {return add_media_camera;}
+        public ImageButton  getadd_media_files() {return add_media_files;}
         public TableLayout table_details() {return table_layout_details;}
         public RecyclerView getGallery_rcv() {return gallery_rcv;}
 
@@ -203,7 +227,6 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
     public void refresh_dataset(Context context)
     {
-
         localDataSet = mdo.material_entrys_list();
         notifyDataSetChanged();
     }
@@ -414,75 +437,6 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             }
         });
 
-
-    }
-    public void ls_image_viewer(String lsnr)
-    {
-
-                    LayoutInflater myLayout = LayoutInflater.from(parent.getContext());
-                    View pic_view_UI = myLayout.inflate(R.layout.show_picture, null);
-
-                    TextView path_value = pic_view_UI.findViewById(R.id.textView65);
-
-                    ImageView  photo_viewer = (ImageView) pic_view_UI.findViewById(R.id.imageView4);
-
-                    ImageButton refresh_image = (ImageButton) pic_view_UI.findViewById(R.id.imageButton60);
-                    ImageButton rotate_right = (ImageButton) pic_view_UI.findViewById(R.id.imageButton62);
-
-                   // path_value.setText(file_url.replace(Environment.getExternalStorageDirectory().getAbsolutePath(), ""));
-
-
-                    rotate_right.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view)
-                        {
-                           /* Matrix matrix = new Matrix();
-                            Bitmap bMap = BitmapFactory.decodeFile(file_url);
-
-                            matrix.setRotate(90);
-                            Bitmap bMapRotation = Bitmap.createBitmap(bMap, 0, 0, bMap.getWidth(), bMap.getHeight(), matrix, true);
-
-                            File file = new File(file_url);
-                            if (file.exists()) {
-                                file.delete();
-                            }
-                            try {
-                                FileOutputStream out = new FileOutputStream(file);
-                                bMapRotation.compress(Bitmap.CompressFormat.JPEG, 50, out);
-                                out.flush();
-                                out.close();
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            photo_viewer.setImageBitmap(update_photo_view());
-                            */
-                        }
-                    });
-
-                    refresh_image.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            //Todo fallbacks wenn kein Bild existiert, damit man noch eines Hinzufügen kann.
-
-                            //take_picture(file_url, TAKE_IMAGE_REFRESH_MODE, view.getContext());
-                        }
-                    });
-
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(parent.getContext());
-
-                    // set prompts.xml to alertdialog builder
-                    alertDialogBuilder.setView(pic_view_UI);
-                    alertDialogBuilder.setTitle("Viewer");
-                    alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                           // ls_photo_view.setImageBitmap(update_photo_view());
-                            dialogInterface.cancel();
-                        }
-                    });
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    alertDialog.show();
 
     }
 

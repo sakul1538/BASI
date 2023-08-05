@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
 import android.text.Editable;
 import android.util.Log;
 import android.widget.Toast;
@@ -14,6 +15,7 @@ import androidx.annotation.Nullable;
 import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.SQL_finals;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -485,5 +487,38 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         db.close();
 
         return param;
+    }
+
+
+    public String media_scanner(ContentValues data)
+    {
+        String name_zuleferer =     this.get_zulieferer_param(
+                new String[]{data.get("ZULIEFERER_ID").toString()},
+                "ID=?",
+                new String[]{"NAME"});
+
+        String proj_src = this.get_selectet_projekt_root()
+                .split(",")[2]
+                .replace("primary:", Environment.getExternalStorageDirectory()+"/")+"/Lieferscheine";
+
+        String idenifer = name_zuleferer+"_LSNR_"+data.get("LSNR")+"@"+data.get("DATUM").toString().replace(".","");
+        File f  =new File(proj_src);
+        String []filelist = f.list();
+        String localImageSet ="";
+        int counter=0;
+        for(String files: filelist)
+        {
+            File f2 = new File(proj_src+"/"+files);
+            if(f2.isFile())
+            {
+                if(files.contains(idenifer) == true)
+                {
+                    localImageSet +=proj_src+"/"+files+",";
+                }
+            }
+        }
+
+        return localImageSet;
+
     }
 }

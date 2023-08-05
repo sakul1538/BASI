@@ -96,6 +96,28 @@
             android:orientation="horizontal">
 
             <ImageButton
+                android:id="@+id/imageButton44"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="0"
+                android:background="@color/yellow"
+                android:padding="5dp"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_baseline_add_a_photo_24" />
+
+            <ImageButton
+                android:id="@+id/imageButton38"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="0"
+                android:background="@color/yellow"
+                android:padding="5dp"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_baseline_folder_open_24" />
+
+            <ImageButton
                 android:id="@+id/imageButton41"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -121,9 +143,10 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="0"
-                android:background="@color/white"
+                android:background="@color/Solemn_3"
                 android:padding="5dp"
-                app:srcCompat="@drawable/ic_baseline_info_24_blue" />
+                app:srcCompat="@drawable/baseline_attach_file_24" />
+
         </LinearLayout>
     </LinearLayout>
 

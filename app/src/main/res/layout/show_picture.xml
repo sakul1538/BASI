@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="5dp">
+    android:layout_margin="5dp"
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,7 +15,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:layout_margin="5dp"
+            android:orientation="horizontal"
+            android:padding="5dp">
 
             <ImageButton
                 android:id="@+id/imageButton60"
@@ -25,6 +28,16 @@
                 android:background="#00FFFFFF"
                 android:padding="5dp"
                 app:srcCompat="@drawable/baseline_flip_camera_ios_24" />
+
+            <ImageButton
+                android:id="@+id/imageButton63"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="#00FFFFFF"
+                android:padding="5dp"
+                app:srcCompat="@drawable/ic_baseline_folder_open_24" />
 
             <ImageButton
                 android:id="@+id/imageButton62"
@@ -45,27 +58,11 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <ImageButton
-                android:id="@+id/imageButton38"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0"
-                android:background="#00FFFFFF"
-                app:srcCompat="@drawable/ic_baseline_keyboard_arrow_left_24" />
-
             <ImageView
                 android:id="@+id/imageView4"
                 android:layout_width="800px"
                 android:layout_height="800px"
                 app:srcCompat="@drawable/bg_dummy_800_800" />
-
-            <ImageButton
-                android:id="@+id/imageButton63"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0"
-                android:background="#00FFFFFF"
-                app:srcCompat="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
         </LinearLayout>
 
