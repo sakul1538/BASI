@@ -41,7 +41,7 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
     String ls_id;
     Context context;
     ContentValues data;
-    Basic_funct bsf  =new Basic_funct();
+    Basic_funct bsf  =new Basic_funct(); //Häufig verwendete Methoden
 
 
     public galery_adaper(String[] localDataSet, ContentValues data, Context context)
@@ -66,9 +66,10 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
         String path = this.localDataSet[position];
         if(this.localDataSet[position] != "")
         {
-            if (bsf.detect_extension(path).contains(".pdf")) //Pdf öffnen
+            if (bsf.detect_extension(path).contains(".pdf"))
+//Fixme extension ==".pfd"  ohne contains?
             {
-                Bitmap ls_picture = BitmapFactory.decodeResource(context.getResources(), R.drawable.pdflogo);
+Bitmap ls_picture = BitmapFactory.decodeResource(context.getResources(), R.drawable.pdflogo);
                 Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
                 holder.Image_view().setImageBitmap(ls_picture_scaled);
 
