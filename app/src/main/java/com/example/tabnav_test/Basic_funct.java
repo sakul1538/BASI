@@ -71,8 +71,8 @@ public class Basic_funct {
 
     public void succes_msg(String msg, Context context) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-        alertDialogBuilder.setTitle("Info");
-        alertDialogBuilder.setIcon(R.drawable.ic_baseline_info_24_blue);
+        alertDialogBuilder.setTitle("Erledigt");
+        alertDialogBuilder.setIcon(R.drawable.ic_baseline_check_circle_green);
         alertDialogBuilder.setMessage(msg).setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -83,6 +83,22 @@ public class Basic_funct {
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
     }
+
+    public void info_msg(String msg, Context context) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        alertDialogBuilder.setTitle("Info");
+        alertDialogBuilder.setIcon(R.drawable.alert);
+        alertDialogBuilder.setMessage(msg).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+            }
+        });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
 
 
     public Boolean confirm(String msg, Context context) {
@@ -494,6 +510,10 @@ public class Basic_funct {
         return arraylist;
     }
 
+    public String ls_filename_form(String lieferant, String ls_nr,String date)
+    {
+        return   lieferant + "_LSNR_" + ls_nr +"@" + date + "_ID_" + String.valueOf(System.currentTimeMillis()); //Name der Kopierten Datei
+    }
 
     public void log_output_arraylist(ArrayList arraylist) {
 

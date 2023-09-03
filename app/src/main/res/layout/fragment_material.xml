@@ -98,6 +98,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/ls_nr_bg"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="5dp"
@@ -389,7 +390,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:background="#00FFFFFF"
+                    android:background="#FFFFFF"
                     android:scaleType="fitCenter"
                     android:src="@drawable/cam"
                     android:visibility="gone"

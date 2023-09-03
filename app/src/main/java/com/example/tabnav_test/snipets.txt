@@ -178,3 +178,8 @@ package:mine
            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(view.getContext(),R.array.einheiten_array, android.R.layout.simple_spinner_item);
            int index =adapter.getPosition(einheit);
            spinner_einheit.setSelection(index);
+
+
+
+#Context    Activity
+ ((Activity) context).startActivityForResult(takePictureIntent, 4);

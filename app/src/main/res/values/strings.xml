@@ -9,6 +9,7 @@
     <string name="kamera_tag_onoff">ON/OFF</string>
     <string name="start">Speicherort: </string>
     <string name="kamera_label_date">Datum:</string>
+    <string name="kamera_label_media">Medien:</string>
 
     <string name="dialog_start_game">Starten</string>
     <string name="cancel">BEENDEN</string>

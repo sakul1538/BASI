@@ -1,6 +1,5 @@
-package com.example.tabnav_test;
+package com.example.tabnav_test.Kamera;
 
-import static com.example.tabnav_test.Log_main.ITHEM_FAV;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -17,10 +16,11 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.appcompat.widget.Toolbar$InspectionCompanion;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -42,6 +42,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tabnav_test.Basic_funct;
+import com.example.tabnav_test.R;
+import com.example.tabnav_test.log_fav;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -60,7 +64,6 @@ public class Kamera<onActivityResult> extends Fragment
     String currentPhotoPath;
     Uri photoURI=null;
 
-    int onresumecode=0;
 
 
     static final int REQUEST_IMAGE_CAPTURE = 2;
@@ -81,12 +84,16 @@ public class Kamera<onActivityResult> extends Fragment
     ImageButton kamera_tag_add_fav = null;
     ImageView camera_photo  = null;
     ImageButton camera_reset_form  = null;
+    ImageButton camera_delet_image  = null;
 
 
     EditText name= null;
     EditText dir = null;
     TextView pfadtemp = null;
-    TextView nametemp = null;
+    TextView tag;
+    TextView media_label;
+
+    TextView save_paht_set;
     ImageView previewImageView = null;
 
     private int requestCode;
@@ -159,7 +166,11 @@ public class Kamera<onActivityResult> extends Fragment
 
 
         curr_date_refresh_button =(ImageButton) view.findViewById(R.id.kamera_date_refresh_button);
+
         curr_date =(TextView) view.findViewById(R.id.kamera_date);
+        tag =(TextView) view.findViewById(R.id.textView32);
+        media_label =(TextView) view.findViewById(R.id.textView66);
+        save_paht_set =(TextView) view.findViewById(R.id.textView4);
 
 
         take_picture = view.findViewById(R.id.imageButton11);
@@ -168,6 +179,7 @@ public class Kamera<onActivityResult> extends Fragment
         adddir_modify = view.findViewById(R.id.imageButton9);
         camera_photo = view.findViewById(R.id.imageView3);
         camera_reset_form = view.findViewById(R.id.imageButton32);
+        camera_delet_image = view.findViewById(R.id.delet_image);
 
 
         spinner = view.findViewById(R.id.spinner4);
@@ -175,6 +187,59 @@ public class Kamera<onActivityResult> extends Fragment
         refresh_spinner();
 
         kamera_tag_field_value.setAdapter(refresh_fav_auto_complete());
+        tag_visibility(View.GONE);
+        preview_camera_visibility(View.GONE);
+
+        /*save_paht_set.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+
+                View kamera_save_path_view = getLayoutInflater().inflate(R.layout.kamera_save_path_config_dialog, null);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+
+                // set prompts.xml to alertdialog builder
+                alertDialogBuilder.setView(kamera_save_path_view);
+
+                alertDialogBuilder.setTitle("Speicherpfade");
+
+                RecyclerView path_list_rcv = kamera_save_path_view.findViewById(R.id.save_paht_rcv);
+
+                path_list_rcv_adapter plrcva = new  path_list_rcv_adapter(getContext());
+                path_list_rcv.setAdapter(plrcva);
+                path_list_rcv.setLayoutManager(new LinearLayoutManager(getContext()));
+
+                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        dialogInterface.cancel();
+                    }
+                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+
+            }
+        });*/
+
+        tag.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                if(kamera_tag_field_value.getVisibility() == View.VISIBLE)
+                {
+                    tag_visibility(View.GONE);
+                }
+                    else
+                    {
+                        tag_visibility(View.VISIBLE);
+
+                }
+
+            }
+        });
 
         adddir_modify.setOnClickListener(new View.OnClickListener()
         {
@@ -226,8 +291,54 @@ public class Kamera<onActivityResult> extends Fragment
 
                 } else
                     dispatchTakePictureIntent(responde[1], responde[0], false, "", date); //Path
+
             }
 
+        });
+
+        camera_delet_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+               // Toast.makeText(getContext(), currentPhotoPath, Toast.LENGTH_SHORT).show();
+                Basic_funct bsf = new Basic_funct();
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                alertDialogBuilder.setTitle("Löschen bestätigen:");
+                alertDialogBuilder.setIcon(R.drawable.ic_baseline_report_gmailerrorred_24);
+                alertDialogBuilder.setMessage("Bild entfernen?").setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        try {
+                            File f = new File(currentPhotoPath);
+                            if(f.exists())
+                            {
+                                f.delete();
+                                bsf.succes_msg("Bild gelöscht!\n"+currentPhotoPath,getContext());
+                                preview_camera_visibility(View.GONE);
+                            }
+                        } catch (Exception e)
+                        {
+                            bsf.error_msg("Löschung Fehlgeschlagen!\n"+e.getMessage(),getContext());
+                            throw new RuntimeException(e);
+                        }
+                        dialogInterface.cancel();
+                    }
+                });
+
+                alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        dialogInterface.cancel();
+                    }
+                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+
+            }
         });
 
         camera_reset_form.setOnClickListener(new View.OnClickListener()
@@ -247,6 +358,8 @@ public class Kamera<onActivityResult> extends Fragment
                     tag_bg.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.hellgrün));
                     camera_photo.setImageResource(0);
                     kamera_switch_tag_onoff.setChecked(false);
+                    preview_camera_visibility(View.GONE);
+                    tag_visibility(View.GONE);
 
                 } catch (Exception e)
                 {
@@ -254,7 +367,6 @@ public class Kamera<onActivityResult> extends Fragment
                 }
             }
         });
-
 
 
         kamera_switch_tag_onoff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -282,7 +394,7 @@ public class Kamera<onActivityResult> extends Fragment
             public void onClick(View view)
             {
                 log_fav logfav = new log_fav(getContext());
-                int resonse = (int) logfav.addOne(RROJ_NR, ITHEM_FAV, kamera_tag_field_value.getText().toString());
+                int resonse = (int) logfav.addOne(RROJ_NR, "ITHEM_FAV", kamera_tag_field_value.getText().toString());
 
                 if (resonse == -1)
                 {
@@ -363,6 +475,23 @@ public class Kamera<onActivityResult> extends Fragment
         return view;
     }
 
+    private void tag_visibility(int visibility)
+    {
+            kamera_tag_field_value.setVisibility(visibility);
+            kamera_tag_field_value.setText("");
+            kamera_tag_add_fav.setVisibility(visibility);
+            kamera_reset_tag.setVisibility(visibility);
+            kamera_switch_tag_onoff.setVisibility(visibility);
+            kamera_switch_tag_onoff.setChecked(false);
+    }
+
+    private void preview_camera_visibility(int visibility)
+    {
+            camera_photo.setVisibility(visibility);
+            camera_delet_image.setVisibility(visibility);
+            media_label.setVisibility(visibility);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
@@ -382,7 +511,7 @@ public class Kamera<onActivityResult> extends Fragment
                 break;
 
             case 2:
-
+                preview_camera_visibility(View.VISIBLE);
                 Basic_funct bsf  = new Basic_funct();
 
                 String filename ="";

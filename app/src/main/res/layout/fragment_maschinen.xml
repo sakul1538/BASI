@@ -85,6 +85,16 @@
                 android:textColor="#004D40" />
 
             <ImageButton
+                android:id="@+id/time_preset"
+                android:layout_width="@dimen/buttons_1"
+                android:layout_height="@dimen/buttons_1"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                app:srcCompat="@drawable/baseline_lock_clock_24"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+            <ImageButton
                 android:id="@+id/m_refresh_datetime"
                 android:layout_width="@dimen/buttons_1"
                 android:layout_height="@dimen/buttons_1"

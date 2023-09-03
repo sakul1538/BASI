@@ -25,7 +25,7 @@
         android:theme="@style/Theme.TABNAV_TEST"
         tools:targetApi="31" >
         <activity
-            android:name=".material_log_activity"
+            android:name=".material.material_log_activity"
             android:exported="false"
             android:label="@string/title_activity_material_log"
             android:theme="@style/Theme.TABNAV_TEST" />

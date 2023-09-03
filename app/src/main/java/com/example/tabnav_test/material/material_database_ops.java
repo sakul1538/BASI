@@ -62,7 +62,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         int deletedRows = db.delete(TB_MATERIAL_LOG,where,selectionArgs);
 
         return deletedRows;
-
     }
 
 
@@ -451,7 +450,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
             return c;
         }
 
-
     public long update_artikel(String artikel, String einheit, String artikel_to, String einheit_to)
     {
 
@@ -489,7 +487,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         return param;
     }
 
-
     public String media_scanner(ContentValues data)
     {
         String name_zuleferer =     this.get_zulieferer_param(
@@ -519,6 +516,27 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         }
 
         return localImageSet;
+
+    }
+
+    public boolean find_similar(String table_name,String[] selectionArgs,String where)
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Boolean res = false;
+        String[] colums = {"ID"};
+
+        Cursor cursor = db.query(table_name,colums, where, selectionArgs, null, null, null);
+        Log.d("BASI", String.valueOf(cursor.getCount()));
+
+        if(cursor.getCount() >0) //Wenn grösser als 0, ist vorhanden
+        {
+         res= true;
+        }
+        db.close();
+        cursor.close();
+
+        return res;
+
 
     }
 }

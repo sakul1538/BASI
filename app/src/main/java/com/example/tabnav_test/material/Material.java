@@ -9,14 +9,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.pdf.PdfRenderer;
 import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
@@ -24,8 +22,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Environment;
-import android.os.FileUtils;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,28 +41,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.tabnav_test.Basic_func_img;
 import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.R;
+import com.example.tabnav_test.SQL_finals;
 import com.example.tabnav_test.material_artikel_adapter;
-import com.example.tabnav_test.material_log_activity;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.channels.FileChannel;
-import java.nio.file.Files;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -80,7 +68,7 @@ public class Material extends Fragment {
 
     private static final int foto_preview_w = 800; //breite
     private static final int foto_preview_h = 800; // höhe
-    private static final String ls_media_directory_name = "/Lieferscheine"; // höhe
+    public static final String ls_media_directory_name = "/Lieferscheine"; // höhe
     private static final String ls_media_directory_name_temp = "/Lieferscheine/temp"; // höhe
     private static final String TAG = "BASI"; // höhe
     private static final String TAKE_IMAGE_REFRESH_MODE = "refresh"; // höhe
@@ -152,6 +140,8 @@ public class Material extends Fragment {
 
 
     LinearLayout date_background;
+    LinearLayout ls_nr_background;
+
 
     String[] imageset;
     Integer imageset_array_pointer = 0;
@@ -160,7 +150,14 @@ public class Material extends Fragment {
     Bitmap ls_picture;
     Bitmap ls_picture_scaled;
 
-    public Material() {
+
+
+    routines r = new routines();
+
+
+
+    public Material()
+    {
 
         // Required empty public constructor
     }
@@ -204,7 +201,6 @@ public class Material extends Fragment {
 
                 create_imageset();
                 try {
-
                     //liest alle Dateien im Verzeichniss "in_directory" ein und Speichert sie im Array "imageset"
 
                     if (imageset.length > 0) // Wenn das imageset einträge enthält...
@@ -340,7 +336,8 @@ public class Material extends Fragment {
                     break;
 
             }
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             throw new RuntimeException(e);
         }
     }
@@ -431,7 +428,7 @@ public class Material extends Fragment {
 
         //Layouts
         date_background = view.findViewById(R.id.date_background);
-        date_background = view.findViewById(R.id.date_background);
+        ls_nr_background = view.findViewById(R.id.ls_nr_bg);
 
 
         try {
@@ -441,9 +438,38 @@ public class Material extends Fragment {
             set_media_directory(ls_media_directory_name_temp);
             clean_temp_dir();
             create_imageset();
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        reset_complete();
+        Zulieferer_liste_main.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l)
+            {
+                r.lsnr_test_alert(r.lsnr_test());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+
+
+        lsnr_field.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b)
+            {
+                if(b==false)
+                {
+                    r.lsnr_test_alert(r.lsnr_test());
+                }
+
+            }
+        });
 
 
         ls_photo_view.setOnClickListener(new View.OnClickListener() {
@@ -562,12 +588,21 @@ public class Material extends Fragment {
                     data.put("ID", bsf.gen_UUID());
                     data.put("PROJEKT_ID", proj.substring(spos + 1, epos));
                     data.put("DATUM", String.valueOf(date_label.getText()));
-                    data.put("LSNR", String.valueOf(lsnr_field.getText()));
+
+                    if(TextUtils.isEmpty(lsnr_field.getText()))
+                    {
+                        String ms_time_string =  String.valueOf(System.currentTimeMillis());
+
+                        String ls_nr_alternativ ="G"+ms_time_string.substring(ms_time_string.length()-5,ms_time_string.length());
+                        data.put("LSNR", ls_nr_alternativ);
+
+                    }
+                    else
+                    {
+                        data.put("LSNR", String.valueOf(lsnr_field.getText()));
+                    }
                     //String id_zulieferer =  mdo.get_id_zulieferer(Zulieferer_liste_main.getSelectedItem().toString());
-                    String id_zulieferer = mdo.get_zulieferer_param(
-                            new String[]{Zulieferer_liste_main.getSelectedItem().toString()},
-                            "NAME =?",
-                            new String[]{"ID"});
+                    String id_zulieferer = r.get_id_zulieferer();
 
                     data.put("LIEFERANT_ID", String.valueOf(id_zulieferer));
 
@@ -599,6 +634,9 @@ public class Material extends Fragment {
                 }
 
                 try {
+
+
+
                     long response = mdo.add_material_log_entry(data);
                     if (response > 0) {
                         String copy_temp_msg = "";
@@ -644,6 +682,8 @@ public class Material extends Fragment {
             }
         });
 
+        date_label.setText(bsf.date_refresh_rev2());
+
         date_label.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -668,6 +708,8 @@ public class Material extends Fragment {
                 datePickerDialog.show();
             }
         });
+
+
 
 
         ls_take_photo.setOnClickListener(new View.OnClickListener() {
@@ -717,7 +759,6 @@ public class Material extends Fragment {
                     } else {
                         bsf.error_msg(edit_artikel_name.getText().toString() + " konnte nicht hinzügefügt werden!", view.getContext());
                     }
-
                 } catch (Exception e) {
                     exmsg("110620231140", e);
                 }
@@ -1135,6 +1176,8 @@ public class Material extends Fragment {
         media_visibilitiy(View.GONE);
         clean_temp_dir();
         create_imageset();
+        r.lsnr_test_alert(r.lsnr_test());
+
     }
 
     void refresh_artikel_autocomplete() {
@@ -1292,7 +1335,8 @@ public class Material extends Fragment {
         Zulieferer_liste_main.setAdapter(spinnerArrayAdapter);
     }
 
-    public void refresh_spinner_zulieferer_settings() {
+    public void refresh_spinner_zulieferer_settings()
+    {
         material_database_ops mdo = new material_database_ops(getContext());
         //Spinner adapter
         String[] zulieferer_liste_items = mdo.zulieferer_list_all();
@@ -1301,6 +1345,7 @@ public class Material extends Fragment {
         }
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, zulieferer_liste_items);
         zulieferer_liste.setAdapter(spinnerArrayAdapter);
+
     }
 
     public String[] divider(String value) {
@@ -1318,7 +1363,8 @@ public class Material extends Fragment {
 
     //Bild aufnehmen
 
-    private void take_picture(String path, String mode, Context context) {
+    public void take_picture(String path, String mode, Context context)
+    {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File photoFile = null;
         int request_code = 1;
@@ -1378,6 +1424,7 @@ public class Material extends Fragment {
 
     private void reset_ls_nr() {
         lsnr_field.setText("");
+        ls_nr_background.setBackgroundColor(getResources().getColor(R.color.hellgrün));
     }
 
     private void reset_artikel() {
@@ -1469,19 +1516,18 @@ public class Material extends Fragment {
         }
     }
 
-    public String create_media_filename(String file_extension) {
+    private String create_media_filename(String file_extension)
+    {
         String filename = "null";
 
         try {
             String lieferant = Zulieferer_liste_main.getSelectedItem().toString();
             String ls_nr = String.valueOf(lsnr_field.getText());
             String date = (String) date_label.getText();
-            String art = String.valueOf(edit_artikel_name.getText());
             date = date.replace(".", "");
 
-            long time = System.currentTimeMillis(); //"Zufallszahl" generieren, damit dateien Verschiedene Namen haben.
+            filename = bsf.ls_filename_form(lieferant,ls_nr,date)+file_extension;
 
-            filename = lieferant + "_LSNR_" + ls_nr +"@" + date + "_ID_" + String.valueOf(time) + file_extension; //Name der Kopierten Datei
         } catch (Exception e) {
             exmsg("270720231219", e);
             filename = "null";
@@ -1522,8 +1568,34 @@ public class Material extends Fragment {
                     break;
 
                 case ".pdf":
-                    ls_picture = BitmapFactory.decodeResource(getResources(), R.drawable.pdflogo);
-                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
+
+
+                    // Öffnen Sie die PDF-Datei mit PdfRenderer
+                    ParcelFileDescriptor fileDescriptor = null;
+                    try {
+                        fileDescriptor = ParcelFileDescriptor.open(new File(path), ParcelFileDescriptor.MODE_READ_ONLY);
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                    try {
+                        PdfRenderer pdfRenderer = new PdfRenderer(fileDescriptor);
+                        PdfRenderer.Page page = pdfRenderer.openPage(0);
+
+                        ls_picture_scaled = Bitmap.createBitmap(foto_preview_w,  foto_preview_h, Bitmap.Config.ARGB_8888);
+                        Bitmap.Config[] formates = Bitmap.Config.values();
+
+                        Log.d(TAG, String.valueOf(Bitmap.Config.values()[0]));
+                        page.render(ls_picture_scaled, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+
+                    } catch (IOException e)
+                    {
+
+                        ls_picture = BitmapFactory.decodeResource(getResources(), R.drawable.pdflogo);
+                        ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
+                        throw new RuntimeException(e);
+
+                    }
+
 
                     break;
 
@@ -1598,7 +1670,7 @@ public class Material extends Fragment {
         Intent pdfIntent = new Intent(Intent.ACTION_VIEW);
         Uri uri = FileProvider.getUriForFile(context, "com.example.tabnav_test.fileprovider", new File(file_url));
         Log.d(TAG, String.valueOf(uri));
-        pdfIntent.setDataAndType(uri, "application/pdf");
+       pdfIntent.setDataAndType(uri, "application/pdf");
         pdfIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
         pdfIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -1635,7 +1707,6 @@ public class Material extends Fragment {
             e.printStackTrace();
         }
     }
-
     private void save_bitmap(Bitmap bMap,String file_url)
     {
         File file = new File(file_url);
@@ -1650,6 +1721,67 @@ public class Material extends Fragment {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private class routines implements SQL_finals
+    {
+        public String get_lsnr()
+        {
+          return   lsnr_field.getText().toString();
+        }
+        public String get_zulieferer_name()
+        {
+          return  Zulieferer_liste_main.getSelectedItem().toString();
+        }
+
+        public String get_selectet_projekt_id()
+        {
+
+            String name_id =   mdo.get_selectet_projekt();
+
+            return  name_id.substring(name_id.lastIndexOf("[")+1,name_id.length()-1);
+        }
+
+
+
+        public Boolean lsnr_test()
+        {
+
+           String lsnr =   lsnr_field.getText().toString();
+
+           String[] select_args ={
+                   lsnr,
+                   this.get_id_zulieferer(),
+                   get_selectet_projekt_id()
+                };
+
+         return mdo.find_similar(TB_MATERIAL_LOG,select_args,"LSNR=? AND LIEFERANT_ID=? AND PROJEKT_ID=?");
+        }
+
+        public void lsnr_test_alert(Boolean b)
+        {
+            if (b==true)
+            {
+                bsf.info_msg( this.get_lsnr() + " von "+this.get_zulieferer_name()+" \n =>  In Datenbank gefunden!", getContext());
+                ls_nr_background.setBackgroundColor(getResources().getColor(R.color.camera_button));
+
+            } else
+            {
+                ls_nr_background.setBackgroundColor(getResources().getColor(R.color.hellgrün));
+            }
+
+        }
+
+        public String get_id_zulieferer()
+        {
+            String id_zulieferer = mdo.get_zulieferer_param(
+            new String[]{Zulieferer_liste_main.getSelectedItem().toString()},
+            "NAME =?",
+            new String[]{"ID"});
+
+            return  id_zulieferer;
+
         }
     }
 

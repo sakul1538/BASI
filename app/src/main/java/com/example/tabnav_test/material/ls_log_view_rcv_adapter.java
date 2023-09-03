@@ -1,15 +1,15 @@
-package com.example.tabnav_test;
+package com.example.tabnav_test.material;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.opengl.Visibility;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,38 +20,36 @@ import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.dynamicanimation.animation.SpringForce;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.tabnav_test.material.galery_adaper;
-import com.example.tabnav_test.material.material_database_ops;
-import com.google.android.material.tabs.TabLayout;
+import com.example.tabnav_test.Basic_funct;
+import com.example.tabnav_test.R;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
+
 
 public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rcv_adapter.ViewHolder>
 {
 
     String[] localDataSet ;
     private ViewGroup parent;
+
     material_database_ops mdo;
 
     public ls_log_view_rcv_adapter(String[] ls_log_view_rcv_adapter)
     {
         this.localDataSet = ls_log_view_rcv_adapter;
-
 
     }
 
@@ -66,6 +64,9 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
         return new ViewHolder(view);
     }
+
+
+
 
     @Override
     public void onBindViewHolder(@NonNull ls_log_view_rcv_adapter.ViewHolder holder, int position)
@@ -111,14 +112,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
             //Image Buttons
 
-            holder.getDelet_entry().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view)
-                {
-                    delet_dialog(artikel_name,data);
-
-                }
-            });
+            holder.getDelet_entry().setOnClickListener(view -> delet_dialog(artikel_name,data));
 
             holder.getUpdate_entry().setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -134,6 +128,9 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                 @Override
                 public void onClick(View view)
                 {
+
+
+
                    if(holder.table_details().getVisibility() == View.VISIBLE)
                    {
                        holder.table_details().setVisibility(View.GONE);
@@ -150,14 +147,15 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
                        if(files_found !="")
                        {
+
                            String [] media_set =files_found.split(",");
                            holder.gallery_rcv.setVisibility(View.VISIBLE);
 
-                           galery_adaper galery_adaper_rcv = new galery_adaper(media_set,data, parent.getContext());
+                           material_log_activity.gad= new galery_adaper(media_set,data, parent.getContext());
 
                            RecyclerView.LayoutManager layoutManager = new GridLayoutManager(parent.getContext(), 3);
 
-                           holder.getGallery_rcv().setAdapter(galery_adaper_rcv);
+                           holder.getGallery_rcv().setAdapter(material_log_activity.gad);
                            holder.getGallery_rcv().setLayoutManager(layoutManager);
                        }
                        else
@@ -169,9 +167,88 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             });
 
 
+                holder.getadd_media_files().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        Basic_funct bsf =new Basic_funct();
+                        try {
+                            String proj_root = mdo.get_selectet_projekt_root()
+                                    .split(",")[2]
+                                    .replace("primary:", Environment.getExternalStorageDirectory().toString()+"/")
+                                    +Material.ls_media_directory_name; //primary:DCIM/Baustellen /testprojekt
+
+
+                            String document_name  =  bsf.ls_filename_form(name_zuleferer,
+                                    data.get("LSNR").toString(),
+                                    data.get("DATUM").toString().replace(".","")); //ohne Dateityp  Endung .jpeg
+
+                            material_log_activity.filePath = proj_root+"/"+document_name+".pdf";
+
+                            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                            intent.addCategory(Intent.CATEGORY_OPENABLE);
+                            intent.setType("application/pdf");
+                            ((Activity) view.getContext()).startActivityForResult(intent, 2);
+
+                        }catch ( Exception e)
+                        {
+                            exmsg("030920231259",e);
+                            bsf.error_msg("Interner Fehler:\n "+e.getMessage().toString(),view.getContext());
+                        }
+                    }
+                });
+
+
+                holder.getadd_media_camera().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        Basic_funct bsf = new Basic_funct();
+                        try {
+
+
+                            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            String root = mdo.get_selectet_projekt_root()
+                                    .split(",")[2]
+                                    .replace("primary:", Environment.getExternalStorageDirectory().toString()+"/")
+                                    +Material.ls_media_directory_name; //primary:DCIM/Baustellen /testprojekt
+
+                            File in_directory = new File(root);
+                            in_directory.mkdirs();
+
+                            String image_name  =  bsf.ls_filename_form(name_zuleferer,
+                                    data.get("LSNR").toString(),
+                                    data.get("DATUM").toString().replace(".","")); //ohne Dateityp  Endung .jpeg
+
+                            File image_file = File.createTempFile(image_name,".jpeg",in_directory);
+
+                            Uri photoURI;
+
+                            if (image_file != null)
+                            {
+                                try {
+
+                                    photoURI = FileProvider.getUriForFile(view.getContext(), "com.example.tabnav_test.fileprovider",image_file);
+                                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                                    ((Activity) view.getContext()).startActivityForResult(takePictureIntent, 1);
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                        } catch (IOException e)
+                        {
+                            bsf.error_msg("Interner Fehler:\n+"+e.getMessage().toString(), view.getContext());
+                        }
+                    }
+                });
+
+
 
 
     }
+
 
     @Override
     public int getItemCount() {
@@ -439,6 +516,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
 
     }
+
 
 
     public void exmsg(String msg, Exception e)

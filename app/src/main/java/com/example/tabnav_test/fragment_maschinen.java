@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.contentcapture.ContentCaptureCondition;
@@ -85,6 +86,7 @@ public class fragment_maschinen extends Fragment
     ImageButton m_maschine_reset_field;
     ImageButton m_date_forward;
     ImageButton m_date_backward;
+    ImageButton time_preset;
 
     LinearLayout m_time_and_date_frame;
     LinearLayout m_maschine_autocomplete_select_layout;
@@ -196,6 +198,7 @@ public class fragment_maschinen extends Fragment
         m_reset_form = (ImageButton) view.findViewById(R.id.m_reset_form);
         m_date_forward = (ImageButton) view.findViewById(R.id.imageButton20);
         m_date_backward = (ImageButton) view.findViewById(R.id.imageButton23);
+        time_preset = (ImageButton) view.findViewById(R.id.time_preset);
 
         //Layouts
         m_time_and_date_frame = (LinearLayout) view.findViewById(R.id.m_time_and_date_frame);
@@ -233,6 +236,8 @@ public class fragment_maschinen extends Fragment
         radiobutton_color_refresh();
 
         m_date.setText(bsf.date_refresh_rev2());
+
+
         m_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)
@@ -272,15 +277,15 @@ public class fragment_maschinen extends Fragment
             @Override
             public void onClick(View view)
             {
-                m_date.setText(bsf.time_day_shift(m_date.getText().toString(),"",-1));   ;
+                m_date.setText(bsf.time_day_shift(m_date.getText().toString(),"",-1));
             }
         });
 
 
 
-
         m_time.setText(bsf.time_refresh());
-        m_time.setOnClickListener(new View.OnClickListener() {
+        m_time.setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View view) {
 
@@ -305,6 +310,17 @@ public class fragment_maschinen extends Fragment
             }
 
         });
+
+
+        time_preset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+               m_time.setText("17:00");
+            }
+        });
+
+
         m_refresh_timedate_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)

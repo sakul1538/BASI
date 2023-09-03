@@ -1,4 +1,4 @@
-package com.example.tabnav_test;
+package com.example.tabnav_test.Kamera;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,7 +10,10 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-public class kamera_spinner<ID> extends SQLiteOpenHelper implements db_controlls,SQL_finals
+import com.example.tabnav_test.SQL_finals;
+import com.example.tabnav_test.db_controlls;
+
+public class kamera_spinner<ID> extends SQLiteOpenHelper implements db_controlls, SQL_finals
 {
 
     private  String where ="";
