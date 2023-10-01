@@ -370,6 +370,7 @@ public class Material extends Fragment {
         super.onDestroy();
         try {
             set_media_directory(ls_media_directory_name_temp);
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -467,7 +468,6 @@ public class Material extends Fragment {
                 {
                     r.lsnr_test_alert(r.lsnr_test());
                 }
-
             }
         });
 
@@ -638,12 +638,12 @@ public class Material extends Fragment {
 
 
                     long response = mdo.add_material_log_entry(data);
-                    if (response > 0) {
+                    if (response > 0)
+                    {
                         String copy_temp_msg = "";
-                        if (copy_media_files_from_temp() == true) {
+                        if (copy_media_files_from_temp(r.get_zulieferer_name(),data.get("LSNR").toString(),r.get_date().replace(".","")) == true)
+                        {
                             copy_temp_msg = "+ Medien wurden ins Verzeichniss übernommen!";
-
-
                         } else {
                             copy_temp_msg = "+ Medien wurden NICHT ins Verzeichnis übernommen!";
 
@@ -757,7 +757,7 @@ public class Material extends Fragment {
                     if (response > 0) {
                         bsf.succes_msg(edit_artikel_name.getText().toString() + " wurde geschpeichert!", view.getContext());
                     } else {
-                        bsf.error_msg(edit_artikel_name.getText().toString() + " konnte nicht hinzügefügt werden!", view.getContext());
+                        bsf.error_msg(edit_artikel_name.getText().toString() + " konnte nicht hinzügefügt werden, da schon ein Eintrag existiert!", view.getContext());
                     }
                 } catch (Exception e) {
                     exmsg("110620231140", e);
@@ -1611,7 +1611,8 @@ public class Material extends Fragment {
         return ls_picture_scaled;
     }
 
-    private boolean copy_media_files_from_temp() {
+    private boolean copy_media_files_from_temp(String lieferant, String lsnr,String date)
+    {
         String source_dir = "";
         String destination_dir = "";
         Boolean check = false;
@@ -1621,16 +1622,19 @@ public class Material extends Fragment {
             set_media_directory(ls_media_directory_name_temp);
             source_dir = in_directory;
 
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new RuntimeException(e);
         }
         File f = new File(in_directory);
         if (f.exists()) {
             String[] files = f.list();
 
-            for (String d : files) {
+            for (String d : files)
+            {
                 String source = source_dir + "/" + d;
-                String destination = destination_dir + "/" + d;
+
+                String destination = destination_dir + "/" + bsf.ls_filename_form(lieferant,lsnr,date) +bsf.detect_extension(d);
                 check = true;
 
                 try {
@@ -1729,6 +1733,10 @@ public class Material extends Fragment {
         public String get_lsnr()
         {
           return   lsnr_field.getText().toString();
+        }
+        public String get_date()
+        {
+          return   date_label.getText().toString();
         }
         public String get_zulieferer_name()
         {

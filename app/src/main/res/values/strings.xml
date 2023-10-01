@@ -157,14 +157,14 @@
 
     <string name="material_projekt_banner">Projekt</string>
     <string name="material_datum_ls_banner">Datum/LS Nr</string>
-    <string name="material_zulieferer_banner">Zulieferer</string>
+    <string name="material_zulieferer_banner">Zulieferer:</string>
     <string name="material_wievie_was_lbanner">Artikel/Menge/Einheit</string>
     <string name="material_einheit_lbanner">Einheit:</string>
     <string name="material_medien_banner">Medien/Dateien</string>
-    <string name="LSnr_label">LS-Nr</string>
+    <string name="LSnr_label">LS-Nr:</string>
     <string name="Proj_label_sample">Ceppi Areal Lonza</string>
-    <string name="Artikel_label">Artikel</string>
-    <string name="Menge_label">Menge</string>
+    <string name="Artikel_label">Artikel:</string>
+    <string name="Menge_label">Menge:</string>
     <string name="Medien_switch_label">Speichern ON/OFF</string>
     <string name="Projektname_add_dialog_label">Projektname: </string>
     <string name="Projektdir_add__dialog_label">Projektverzeichniss: </string>
@@ -213,6 +213,7 @@
         <item>cm</item>
         <item>mm</item>
         <item>h</item>
+        <item>Big Bag</item>
 
     </string-array>
 

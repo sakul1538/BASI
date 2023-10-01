@@ -103,7 +103,7 @@
                 android:layout_weight="0"
                 android:background="@color/yellow"
                 android:padding="5dp"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:srcCompat="@drawable/ic_baseline_add_a_photo_24" />
 
             <ImageButton
@@ -114,7 +114,7 @@
                 android:layout_weight="0"
                 android:background="@color/yellow"
                 android:padding="5dp"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:srcCompat="@drawable/ic_baseline_folder_open_24" />
 
             <ImageButton

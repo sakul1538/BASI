@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.R;
+import com.example.tabnav_test.SQL_finals;
 
 import java.io.File;
 import java.io.IOException;
@@ -128,8 +130,6 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                 @Override
                 public void onClick(View view)
                 {
-
-
 
                    if(holder.table_details().getVisibility() == View.VISIBLE)
                    {
@@ -349,7 +349,10 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
 
         AutoCompleteTextView artikel = update_log_entry_dialog_layout.findViewById(R.id.autoCompleteTextView);
+
         AutoCompleteTextView ls_zulieferer = update_log_entry_dialog_layout.findViewById(R.id.autoCompleteTextView2);
+
+        EditText menge = update_log_entry_dialog_layout.findViewById(R.id.editTextNumberDecimal3);
 
         Spinner artikel_einheit = update_log_entry_dialog_layout.findViewById(R.id.spinner6);
 
@@ -358,7 +361,6 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         EditText ls_nr= update_log_entry_dialog_layout.findViewById(R.id.editTextText3);
         EditText ls_note= update_log_entry_dialog_layout.findViewById(R.id.editTextText4);
 
-        ImageButton ls_media = update_log_entry_dialog_layout.findViewById(R.id.imageButton61);
         ImageButton reset_artikel = update_log_entry_dialog_layout.findViewById(R.id.imageButton55);
         ImageButton reset_zulieferer = update_log_entry_dialog_layout.findViewById(R.id.imageButton54);
         ImageButton reset_lsnr = update_log_entry_dialog_layout.findViewById(R.id.imageButton56);
@@ -373,6 +375,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
         ContentValues data= mdo.material_get_entry_id(id);
         String artikel_name ="";
+        menge.setText(data.get("MENGE").toString());
 
         //Artikel
         artikel.setAdapter(artikelAdapter);
@@ -427,7 +430,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                     new String[]{"NAME"});
         }catch (Exception e)
         {
-            Log.d("BasI",e.getMessage().toString());
+            Log.d("BASI",e.getMessage().toString());
         }
 
         artikel.setText(artikel_name);
@@ -477,6 +480,46 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             @Override
             public void onClick(DialogInterface dialogInterface, int i)
             {
+                    ContentValues data_new = new ContentValues();
+
+                    data_new.put("ID" ,data.get("ID").toString());
+
+                    String selectet_projekt_data = mdo.get_selectet_projekt();
+                    String selectet_projekt_id = selectet_projekt_data.substring(selectet_projekt_data.lastIndexOf("[")+1,selectet_projekt_data.lastIndexOf("]"));
+
+                    data_new.put("PROJEKT_ID",selectet_projekt_id);
+                    data_new.put("DATUM",ls_date.getText().toString());
+                    data_new.put("LSNR",ls_nr.getText().toString());
+
+
+
+                    String ls_zulieferere_id = mdo.get_zulieferer_param(
+                                        new String[]{ ls_zulieferer.getText().toString()}, "NAME=?",new String[]{"ID"});
+
+                    if(TextUtils.equals(ls_zulieferere_id,"null"))
+                    {
+
+
+                    }
+
+                    data_new.put("LIEFERANT_ID",ls_zulieferere_id);
+
+                    mdo.add_artikel_to_list(artikel.getText().toString(),artikel_einheit.getSelectedItem().toString());
+
+                    String artikel_id = mdo.get_artikel_param(new String[]  {artikel.getText().toString().trim(),artikel_einheit.getSelectedItem().toString().trim()},"NAME=? AND EINHEIT=?",new String[]{"ID"});
+                    Log.d("BASI Artikel: ",artikel_id.toString());
+                    data_new.put("MATERIAL_ID",artikel_id);
+
+                    data_new.put("MENGE",menge.getText().toString());
+                    data_new.put("EINHEIT_ID",artikel_einheit.getSelectedItem().toString());
+                    data_new.put("NOTIZ",ls_note.getText().toString());
+                    mdo.update_material_log_entry(data_new);
+                    refresh_dataset(parent.getContext());
+
+                //LS,Datum & Lieferant abgleichen mit anderen einträgen, sowie die Fotos abändernm, falls nötig.
+                //Testen auf Duplikate
+                // ID's auf Duplikate Prüfen
+
                 dialogInterface.cancel();
             }
 

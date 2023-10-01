@@ -73,6 +73,7 @@ public class material_log_activity extends AppCompatActivity
         switch (requestCode)
         {
             case 1:
+
                 gad.reload_images();
                 break;
             case 2:

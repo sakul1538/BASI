@@ -5,8 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
 import android.os.Environment;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -62,6 +64,22 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         int deletedRows = db.delete(TB_MATERIAL_LOG,where,selectionArgs);
 
         return deletedRows;
+    }
+
+    public void update_material_log_entry(ContentValues data_new )
+
+    {
+
+        SQLiteDatabase dbw = this.getWritableDatabase();
+
+       // ContentValues data_old = this.material_get_entry_id(data_new.get("ID").toString());
+
+        String[] selectionArgs = { data_new.get("ID").toString() };
+        String where = "ID=?";
+
+        long response = dbw.update(TB_MATERIAL_LOG,data_new,where,selectionArgs);
+
+
     }
 
 
@@ -280,16 +298,26 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
 
     //Zulieferer funktionen
-    public void add_zulieferer(String text)
+    public void add_zulieferer(String zulieferer_name)
     {
-        //TODO  auf Duplikate prüfen
+        //TODO  auf Duplikate prüfen$
 
-        SQLiteDatabase wdb = this.getWritableDatabase();
-        ContentValues data = new ContentValues();
-        data.put("ID",bsf.gen_ID());
-        data.put("NAME",text);
-        data.put("DATE",bsf.date_refresh()+ " "+bsf.time_refresh());
-        long newRowId = wdb.insert(TB_MATERIAL_ZULIEFERER,null,data);
+        String[] selectionArgs = {zulieferer_name};
+        long response = 0;
+
+        //Auf Duplikate prüfen
+        Boolean check_exist = this.find_similar(TB_MATERIAL_ZULIEFERER,selectionArgs,"NAME=?");
+
+        if(check_exist == false)
+        {
+            SQLiteDatabase wdb = this.getWritableDatabase();
+            ContentValues data = new ContentValues();
+            data.put("ID",bsf.gen_ID());
+            data.put("NAME",zulieferer_name);
+            data.put("DATE",bsf.date_refresh()+ " "+bsf.time_refresh());
+            long newRowId = wdb.insert(TB_MATERIAL_ZULIEFERER,null,data);
+        }
+
     }
 
     public String[] zulieferer_list_all()
@@ -389,17 +417,27 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
     //Artikel funktionen
     public long add_artikel_to_list(String artikel,String einheit)
     {
-        //TODO  auf Duplikate prüfen
 
-        SQLiteDatabase wdb = this.getWritableDatabase();
-        ContentValues data = new ContentValues();
-        data.put("ID",bsf.gen_ID());
-        data.put("NAME",artikel.trim());
-        data.put("EINHEIT",einheit.trim());
-        long response = wdb.insert(TB_MATERIAL_TYP,null,data);
+
+        String[] selectionArgs = { artikel.trim(),einheit.trim() };
+        long response = 0;
+
+        //Auf Duplikate prüfen
+        Boolean check_exist = this.find_similar(TB_MATERIAL_TYP,selectionArgs,"NAME=? AND EINHEIT=?");
+
+        if(check_exist == false)
+        {
+            SQLiteDatabase wdb = this.getWritableDatabase();
+            ContentValues data = new ContentValues();
+            data.put("ID",bsf.gen_ID());
+            data.put("NAME",artikel.trim());
+            data.put("EINHEIT",einheit.trim());
+            response = wdb.insert(TB_MATERIAL_TYP,null,data);
+        }
 
         return  response;
     }
+
 
     public String[] artikel_list_all()
     {
@@ -472,7 +510,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
         String param="null";
 
-        Cursor cursor = db.query(TB_MATERIAL_TYP, colum, where, selectionArgs, null, null, null);
+        Cursor cursor = db.query(TB_MATERIAL_TYP, colum,where, selectionArgs, null, null, null);
         if(cursor.getCount() >0)
         {
             String[] strings = new String[cursor.getCount()];
@@ -526,7 +564,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         String[] colums = {"ID"};
 
         Cursor cursor = db.query(table_name,colums, where, selectionArgs, null, null, null);
-        Log.d("BASI", String.valueOf(cursor.getCount()));
+        Log.d("BASI FIND SIMILAR", String.valueOf(cursor.getCount()));
 
         if(cursor.getCount() >0) //Wenn grösser als 0, ist vorhanden
         {
