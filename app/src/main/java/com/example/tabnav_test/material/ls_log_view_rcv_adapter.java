@@ -23,10 +23,12 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,6 +36,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.R;
 import com.example.tabnav_test.SQL_finals;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +51,9 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
     private ViewGroup parent;
 
     material_database_ops mdo;
+
+    TableRow bg_lsnr;
+    TableRow bg_zulieferer;
 
     public ls_log_view_rcv_adapter(String[] ls_log_view_rcv_adapter)
     {
@@ -365,6 +371,9 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         ImageButton reset_zulieferer = update_log_entry_dialog_layout.findViewById(R.id.imageButton54);
         ImageButton reset_lsnr = update_log_entry_dialog_layout.findViewById(R.id.imageButton56);
 
+        bg_lsnr = update_log_entry_dialog_layout.findViewById(R.id.bg_lsnr);
+        bg_zulieferer = update_log_entry_dialog_layout.findViewById(R.id.bg_zulieferer);
+
         material_database_ops mdo= new material_database_ops(view.getContext());
 
         ArrayAdapter<CharSequence> adapter_einheiten = ArrayAdapter.createFromResource(view.getContext(),R.array.einheiten_array, android.R.layout.simple_list_item_activated_1);
@@ -467,6 +476,71 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         });
 
         ls_zulieferer.setText(ls_zulieferere_name);
+        ls_zulieferer.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b)
+            {
+                if (b == false)
+                {
+
+                    String ls_zulieferere_id = mdo.get_zulieferer_param(
+                            new String[]{ls_zulieferer.getText().toString()}, "NAME=?", new String[]{"ID"});
+
+
+                    if(TextUtils.equals(ls_zulieferere_id,"null"))
+                    {
+                        AlertDialog.Builder create_new_zulieferer_dialog = new AlertDialog.Builder(parent.getContext());
+                        create_new_zulieferer_dialog.setTitle("Aktion");
+                        create_new_zulieferer_dialog.setMessage("Zulieferer Exsistiert nicht. Neu erstellen? ");
+
+                        create_new_zulieferer_dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                                mdo.add_zulieferer(ls_zulieferer.getText().toString());
+                            }
+                        });
+                        create_new_zulieferer_dialog.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                                dialogInterface.cancel();
+                            }
+                        });
+
+                        create_new_zulieferer_dialog.show();
+
+                    }
+                    else
+                    {
+                        String selectet_projekt_data = mdo.get_selectet_projekt();
+                        String selectet_projekt_id = selectet_projekt_data.substring(selectet_projekt_data.lastIndexOf("[")+1,selectet_projekt_data.lastIndexOf("]"));
+                        colision_test(selectet_projekt_id,ls_nr.getText().toString().trim(),ls_zulieferere_id);
+
+                    }
+
+
+                }
+            }
+        });
+
+        ls_nr.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b)
+            {
+
+                if(b == false)
+                {
+
+                    String ls_zulieferere_id = mdo.get_zulieferer_param(
+                            new String[]{ls_zulieferer.getText().toString()}, "NAME=?", new String[]{"ID"});
+
+                        String selectet_projekt_data = mdo.get_selectet_projekt();
+                        String selectet_projekt_id = selectet_projekt_data.substring(selectet_projekt_data.lastIndexOf("[")+1,selectet_projekt_data.lastIndexOf("]"));
+                        colision_test(selectet_projekt_id,ls_nr.getText().toString().trim(),ls_zulieferere_id);
+                }
+                }
+        });
         ls_nr.setText(data.get("LSNR").toString());
         ls_note.setText(data.get("NOTIZ").toString());
 
@@ -496,11 +570,6 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                     String ls_zulieferere_id = mdo.get_zulieferer_param(
                                         new String[]{ ls_zulieferer.getText().toString()}, "NAME=?",new String[]{"ID"});
 
-                    if(TextUtils.equals(ls_zulieferere_id,"null"))
-                    {
-
-
-                    }
 
                     data_new.put("LIEFERANT_ID",ls_zulieferere_id);
 
@@ -513,6 +582,8 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                     data_new.put("MENGE",menge.getText().toString());
                     data_new.put("EINHEIT_ID",artikel_einheit.getSelectedItem().toString());
                     data_new.put("NOTIZ",ls_note.getText().toString());
+
+
                     mdo.update_material_log_entry(data_new);
                     refresh_dataset(parent.getContext());
 
@@ -520,7 +591,6 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                 //Testen auf Duplikate
                 // ID's auf Duplikate Prüfen
 
-                dialogInterface.cancel();
             }
 
         });
@@ -559,6 +629,46 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
 
     }
+
+
+    public void colision_test(String projekt_id,String LSNR,String zuliefere_id)
+    {
+
+        Log.d("BASI",zuliefere_id );
+        Log.d("BASI",LSNR );
+        Log.d("BASI",projekt_id );
+
+        String[] selectionArgs= {projekt_id,LSNR,zuliefere_id};
+        String where = "PROJEKT_ID=? AND LSNR=? AND LIEFERANT_ID=?";
+
+        if(  mdo.find_similar(SQL_finals.TB_MATERIAL_LOG,selectionArgs,where) ==true)
+        {
+            bg_lsnr.setBackgroundColor(ContextCompat.getColor(parent.getContext(), R.color.orange));
+            bg_zulieferer.setBackgroundColor(ContextCompat.getColor(parent.getContext(), R.color.orange));
+
+            AlertDialog.Builder  similar_warning = new AlertDialog.Builder(parent.getContext());
+            similar_warning.setTitle("Warnnung");
+            similar_warning.setMessage("Duplikate Einträge!");
+            similar_warning.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i)
+                {
+                    dialogInterface.cancel();
+                }
+            });
+            similar_warning.show();
+        }
+        else
+        {
+            bg_lsnr.setBackgroundColor(ContextCompat.getColor(parent.getContext(), R.color.white));
+            bg_zulieferer.setBackgroundColor(ContextCompat.getColor(parent.getContext(), R.color.white));
+
+        }
+
+
+    }
+
+
 
 
 

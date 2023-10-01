@@ -103,6 +103,7 @@
             </TableRow>
 
             <TableRow
+                android:id="@+id/bg_zulieferer"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -158,6 +159,7 @@
             </TableRow>
 
             <TableRow
+                android:id="@+id/bg_lsnr"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
