@@ -46,7 +46,7 @@ import java.util.Calendar;
 
 public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rcv_adapter.ViewHolder>
 {
-
+    boolean return_colision_value =true;
     String[] localDataSet ;
     private ViewGroup parent;
 
@@ -142,12 +142,14 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                        holder.table_details().setVisibility(View.GONE);
                        holder.getadd_media_camera().setVisibility(View.GONE);
                        holder.getadd_media_files().setVisibility(View.GONE);
+                       holder.getadd_pdf_file().setVisibility(View.GONE);
                    }
                    else
                    {
                        holder.table_details().setVisibility(View.VISIBLE);
                        holder.getadd_media_camera().setVisibility(View.VISIBLE);
                        holder.getadd_media_files().setVisibility(View.VISIBLE);
+                       holder.getadd_pdf_file().setVisibility(View.VISIBLE);
 
                        String files_found =mdo.media_scanner(data);
 
@@ -173,7 +175,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             });
 
 
-                holder.getadd_media_files().setOnClickListener(new View.OnClickListener() {
+                holder.getadd_pdf_file().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view)
                     {
@@ -205,7 +207,42 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                 });
 
 
-                holder.getadd_media_camera().setOnClickListener(new View.OnClickListener() {
+        holder.getadd_media_files().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                Basic_funct bsf =new Basic_funct();
+                try {
+                    String proj_root = mdo.get_selectet_projekt_root()
+                            .split(",")[2]
+                            .replace("primary:", Environment.getExternalStorageDirectory().toString()+"/")
+                            +Material.ls_media_directory_name; //primary:DCIM/Baustellen /testprojekt
+
+
+                    String document_name  =  bsf.ls_filename_form(name_zuleferer,
+                            data.get("LSNR").toString(),
+                            data.get("DATUM").toString().replace(".","")); //ohne Dateityp  Endung .jpeg
+
+                    material_log_activity.filePath = proj_root+"/"+document_name;
+
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    //intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("image/*");
+                    ((Activity) view.getContext()).startActivityForResult(intent, 3);
+
+                }catch ( Exception e)
+                {
+                    exmsg("030920231259",e);
+                    bsf.error_msg("Interner Fehler:\n "+e.getMessage().toString(),view.getContext());
+                }
+            }
+        });
+
+
+
+
+
+        holder.getadd_media_camera().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view)
                     {
@@ -271,6 +308,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         private  final ImageButton update_entry;
         private  final ImageButton add_media_camera;
         private  final ImageButton add_media_files;
+        private  final ImageButton add_file_pdf;
 
         private final TableLayout table_layout_details;
         private final RecyclerView gallery_rcv;
@@ -289,7 +327,8 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             gallery_rcv = (RecyclerView) itemView.findViewById(R.id.gallery_rcv);
             update_entry = (ImageButton)   itemView.findViewById(R.id.imageButton41);
             add_media_camera = (ImageButton)   itemView.findViewById(R.id.imageButton44);
-            add_media_files = (ImageButton)   itemView.findViewById(R.id.imageButton38);
+            add_media_files = (ImageButton)   itemView.findViewById(R.id.imageButton68);
+            add_file_pdf = (ImageButton)   itemView.findViewById(R.id.imageButton38);
         }
 
         public TextView artikel() {return artikel;}
@@ -302,6 +341,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         public ImageButton  getUpdate_entry() {return update_entry;}
         public ImageButton  getadd_media_camera() {return add_media_camera;}
         public ImageButton  getadd_media_files() {return add_media_files;}
+        public ImageButton  getadd_pdf_file() {return add_file_pdf;}
         public TableLayout table_details() {return table_layout_details;}
         public RecyclerView getGallery_rcv() {return gallery_rcv;}
 
@@ -476,6 +516,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         });
 
         ls_zulieferer.setText(ls_zulieferere_name);
+        String finalLs_zulieferere_name = ls_zulieferere_name;
         ls_zulieferer.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b)
@@ -566,11 +607,8 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                     data_new.put("LSNR",ls_nr.getText().toString());
 
 
-
                     String ls_zulieferere_id = mdo.get_zulieferer_param(
                                         new String[]{ ls_zulieferer.getText().toString()}, "NAME=?",new String[]{"ID"});
-
-
                     data_new.put("LIEFERANT_ID",ls_zulieferere_id);
 
                     mdo.add_artikel_to_list(artikel.getText().toString(),artikel_einheit.getSelectedItem().toString());
@@ -583,9 +621,11 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                     data_new.put("EINHEIT_ID",artikel_einheit.getSelectedItem().toString());
                     data_new.put("NOTIZ",ls_note.getText().toString());
 
+                    colision_test(selectet_projekt_id,ls_nr.getText().toString(),ls_zulieferere_id);
 
                     mdo.update_material_log_entry(data_new);
                     refresh_dataset(parent.getContext());
+
 
                 //LS,Datum & Lieferant abgleichen mit anderen einträgen, sowie die Fotos abändernm, falls nötig.
                 //Testen auf Duplikate
@@ -627,16 +667,11 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             }
         });
 
-
     }
 
 
     public void colision_test(String projekt_id,String LSNR,String zuliefere_id)
     {
-
-        Log.d("BASI",zuliefere_id );
-        Log.d("BASI",LSNR );
-        Log.d("BASI",projekt_id );
 
         String[] selectionArgs= {projekt_id,LSNR,zuliefere_id};
         String where = "PROJEKT_ID=? AND LSNR=? AND LIEFERANT_ID=?";
@@ -648,6 +683,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
             AlertDialog.Builder  similar_warning = new AlertDialog.Builder(parent.getContext());
             similar_warning.setTitle("Warnnung");
+            similar_warning.setIcon(R.drawable.ic_baseline_report_gmailerrorred_24);
             similar_warning.setMessage("Duplikate Einträge!");
             similar_warning.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
@@ -662,10 +698,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         {
             bg_lsnr.setBackgroundColor(ContextCompat.getColor(parent.getContext(), R.color.white));
             bg_zulieferer.setBackgroundColor(ContextCompat.getColor(parent.getContext(), R.color.white));
-
         }
-
-
     }
 
 

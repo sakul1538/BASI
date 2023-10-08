@@ -70,9 +70,18 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
     {
 
+        //Eintrag nach ID ändern
+        // Nach weitereren einträgen Suchen, die der Selben LSNR hat und abändern
+        //Nach medien Suchen und entsprechend den Dateinamen anpassen.
+
+        ContentValues data_old = this.material_get_entry_id(data_new.get("ID").toString());
+        Log.d("BASI OLD",data_old.toString());
+        Log.d("BASI New",data_new.toString());
+        //String s = media_scanner(data_old);
+        //Log.d("BASI_Media",s);
+
         SQLiteDatabase dbw = this.getWritableDatabase();
 
-       // ContentValues data_old = this.material_get_entry_id(data_new.get("ID").toString());
 
         String[] selectionArgs = { data_new.get("ID").toString() };
         String where = "ID=?";

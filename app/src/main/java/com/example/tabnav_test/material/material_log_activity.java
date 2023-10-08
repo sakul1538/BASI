@@ -83,30 +83,51 @@ public class material_log_activity extends AppCompatActivity
                 if((uri).getPath().contains("/document/primary:"))
                 {
                     source_file_path = uri.getPath().replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath()+"/");
-                        try
-                        {
-                            Basic_funct bsf =new Basic_funct();
-                            File source_file = new File(source_file_path);
-                            bsf.copyFileUsingStream(source_file, new File(filePath)); //Kopieren von-zu
-                            gad.reload_images();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-
+                    try
+                    {
+                        Basic_funct bsf =new Basic_funct();
+                        File source_file = new File(source_file_path);
+                        bsf.copyFileUsingStream(source_file, new File(filePath)); //Kopieren von-zu
+                        gad.reload_images();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
+
+                }
 
                 else
                 {
                     source_file_path ="";
                 }
                 break;
+
+            case 3:
+
+                uri = data.getData();
+
+                if((uri).getPath().contains("/document/primary:"))
+                {
+                    source_file_path = uri.getPath().replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath()+"/");
+                    String file_extension = bsfi.detect_extension(source_file_path);
+                    try
+                    {
+                        Basic_funct bsf =new Basic_funct();
+                        File source_file = new File(source_file_path);
+                        bsf.copyFileUsingStream(source_file, new File(filePath+file_extension)); //Kopieren von-zu
+                        gad.reload_images();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }
+
+                else
+                {
+                    source_file_path ="";
+                }
+
+                break;
                 //Todo Wird das noch verwendet?
-
-
-
-
-
-
 
         }
 
