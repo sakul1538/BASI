@@ -5,12 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Bitmap;
 import android.os.Environment;
-import android.text.Editable;
-import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -18,8 +14,6 @@ import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.SQL_finals;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
 
 public class material_database_ops extends SQLiteOpenHelper implements SQL_finals
 {
@@ -67,28 +61,81 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
     }
 
     public void update_material_log_entry(ContentValues data_new )
-
     {
 
-        //Eintrag nach ID ändern
-        // Nach weitereren einträgen Suchen, die der Selben LSNR hat und abändern
+
         //Nach medien Suchen und entsprechend den Dateinamen anpassen.
+            //Eintrag nach ID ändern
 
-        ContentValues data_old = this.material_get_entry_id(data_new.get("ID").toString());
-        Log.d("BASI OLD",data_old.toString());
-        Log.d("BASI New",data_new.toString());
-        //String s = media_scanner(data_old);
-        //Log.d("BASI_Media",s);
+            ContentValues data_old = this.material_get_entry_id(data_new.get("ID").toString());
 
-        SQLiteDatabase dbw = this.getWritableDatabase();
+            SQLiteDatabase dbw = this.getWritableDatabase();
+            String[] selectionArgs = { data_new.get("ID").toString() };
+            String where = "ID=?";
 
+            long response = dbw.update(TB_MATERIAL_LOG,data_new,where,selectionArgs);
 
-        String[] selectionArgs = { data_new.get("ID").toString() };
-        String where = "ID=?";
-
-        long response = dbw.update(TB_MATERIAL_LOG,data_new,where,selectionArgs);
+            // Nach weitereren einträgen Suchen, die der Selben LSNR hat und abändern
+             dbw.close();
+            update_material_log_entry_all_similar(data_old,data_new);
 
 
+
+    }
+
+    public void update_material_log_entry_all_similar(ContentValues data_old, ContentValues data_new)
+    {
+
+            SQLiteDatabase dbw = this.getWritableDatabase();
+
+            ContentValues update_with= new ContentValues();
+
+            update_with.put("DATUM",data_new.get("DATUM").toString());
+            update_with.put("LSNR",data_new.get("LSNR").toString());
+            update_with.put("LIEFERANT_ID",data_new.get("LIEFERANT_ID").toString());
+
+            String[] selectionArgs = { data_old.get("PROJEKT_ID").toString(),
+                    data_old.get("DATUM").toString(),
+                    data_old.get("LSNR").toString(),
+                    data_old.get("LIEFERANT_ID").toString()};
+
+            String where = "PROJEKT_ID=? AND DATUM=? AND LSNR=? AND LIEFERANT_ID=?";
+
+            long response = dbw.update(TB_MATERIAL_LOG,update_with,where,selectionArgs);
+         update_material_log_entry_filenames(data_old, data_new);
+    }
+
+    public void update_material_log_entry_filenames(ContentValues data_old,ContentValues data_new)
+    {
+        String name_zuleferer_old =     this.get_zulieferer_param(new String[]{data_old.get("LIEFERANT_ID").toString()}, "ID=?", new String[]{"NAME"});
+        String name_zuleferer_new =     this.get_zulieferer_param(new String[]{data_new.get("LIEFERANT_ID").toString()}, "ID=?", new String[]{"NAME"});
+
+        String proj_src = this.get_selectet_projekt_root()
+                .split(",")[2]
+                .replace("primary:", Environment.getExternalStorageDirectory()+"/")+"/Lieferscheine";
+
+        String file_idenifer_old = name_zuleferer_old+"_LSNR_"+data_old.get("LSNR")+"@"+data_old.get("DATUM").toString().replace(".","");
+        String file_idenifer_new = name_zuleferer_new+"_LSNR_"+data_new.get("LSNR")+"@"+data_new.get("DATUM").toString().replace(".","");
+
+
+        File f  =new File(proj_src);
+        String []filelist = f.list();
+
+        for(String file: filelist)
+        {
+            File f2 = new File(proj_src+"/"+file);
+            if(f2.isFile())
+            {
+                if(file.contains(file_idenifer_old) == true)
+                {
+                    Log.d("File found:",f2.getPath());
+                    String filename_ID = file.substring(file.lastIndexOf("_ID_",file.length()));
+                    File new_filename = new File(proj_src+"/"+file_idenifer_new+filename_ID);
+                    f2.renameTo(new_filename);
+                    Log.d("File Rename to:",new_filename.getPath());
+                }
+            }
+        }
     }
 
 
@@ -566,7 +613,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
     }
 
-    public boolean find_similar(String table_name,String[] selectionArgs,String where)
+    public Boolean find_similar(String table_name, String[] selectionArgs, String where)
     {
         SQLiteDatabase db = this.getReadableDatabase();
         Boolean res = false;
@@ -583,7 +630,5 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         cursor.close();
 
         return res;
-
-
     }
 }

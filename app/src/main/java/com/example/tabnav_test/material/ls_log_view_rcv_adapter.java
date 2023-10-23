@@ -684,7 +684,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             AlertDialog.Builder  similar_warning = new AlertDialog.Builder(parent.getContext());
             similar_warning.setTitle("Warnnung");
             similar_warning.setIcon(R.drawable.ic_baseline_report_gmailerrorred_24);
-            similar_warning.setMessage("Duplikate Einträge!");
+            similar_warning.setMessage("Duplikate Einträge55!");
             similar_warning.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i)
