@@ -2,7 +2,6 @@
 
 
 Private management project app for construction sites:
-######################################################
 
 Manage:
 
@@ -16,9 +15,10 @@ Develop to further develop my programming skills : )
 All parts of the program may be used freely.
 
 
+########################################################
 
 Application de gestion de projet privée pour chantiers :
-########################################################
+
 
 Gérer:
 
@@ -32,9 +32,10 @@ Développer pour développer davantage mes compétences en programmation : )
 Toutes les parties du programme peuvent être utilisées librement.
 
 
+###############################################
 
 Privates Managment Projekt App für Baustellen:
-###############################################
+
 
 
 Verwalten von :
