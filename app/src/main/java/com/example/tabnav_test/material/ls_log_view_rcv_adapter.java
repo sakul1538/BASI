@@ -36,7 +36,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.R;
 import com.example.tabnav_test.SQL_finals;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,9 +54,12 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
     TableRow bg_lsnr;
     TableRow bg_zulieferer;
 
+    Basic_funct bsf;
+
     public ls_log_view_rcv_adapter(String[] ls_log_view_rcv_adapter)
     {
         this.localDataSet = ls_log_view_rcv_adapter;
+        this.bsf = new Basic_funct();
 
     }
 
@@ -85,7 +87,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
             data.put("ID",items[0]);
             data.put("PROJEKT_ID",items[1]);
-            data.put("DATUM",items[2]);
+            data.put("DATUM",bsf.convert_date(items[2],"format_database_to_readable"));
             data.put("LSNR",items[3]);
             data.put("ZULIEFERER_ID",items[4]);
             data.put("ARTIKEL_ID",items[5]);
@@ -181,7 +183,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                     {
                         Basic_funct bsf =new Basic_funct();
                         try {
-                            String proj_root = mdo.get_selectet_projekt_root()
+                            String proj_root = mdo.get_selectet_projekt_root_data()
                                     .split(",")[2]
                                     .replace("primary:", Environment.getExternalStorageDirectory().toString()+"/")
                                     +Material.ls_media_directory_name; //primary:DCIM/Baustellen /testprojekt
@@ -189,7 +191,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
                             String document_name  =  bsf.ls_filename_form(name_zuleferer,
                                     data.get("LSNR").toString(),
-                                    data.get("DATUM").toString().replace(".","")); //ohne Dateityp  Endung .jpeg
+                                    data.get("DATUM").toString().replace(".",""),"default"); //ohne Dateityp  Endung .jpeg
 
                             material_log_activity.filePath = proj_root+"/"+document_name+".pdf";
 
@@ -213,7 +215,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             {
                 Basic_funct bsf =new Basic_funct();
                 try {
-                    String proj_root = mdo.get_selectet_projekt_root()
+                    String proj_root = mdo.get_selectet_projekt_root_data()
                             .split(",")[2]
                             .replace("primary:", Environment.getExternalStorageDirectory().toString()+"/")
                             +Material.ls_media_directory_name; //primary:DCIM/Baustellen /testprojekt
@@ -221,7 +223,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
                     String document_name  =  bsf.ls_filename_form(name_zuleferer,
                             data.get("LSNR").toString(),
-                            data.get("DATUM").toString().replace(".","")); //ohne Dateityp  Endung .jpeg
+                            data.get("DATUM").toString().replace(".",""),"default"); //ohne Dateityp  Endung .jpeg
 
                     material_log_activity.filePath = proj_root+"/"+document_name;
 
@@ -251,7 +253,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
 
                             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                            String root = mdo.get_selectet_projekt_root()
+                            String root = mdo.get_selectet_projekt_root_data()
                                     .split(",")[2]
                                     .replace("primary:", Environment.getExternalStorageDirectory().toString()+"/")
                                     +Material.ls_media_directory_name; //primary:DCIM/Baustellen /testprojekt
@@ -261,7 +263,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
                             String image_name  =  bsf.ls_filename_form(name_zuleferer,
                                     data.get("LSNR").toString(),
-                                    data.get("DATUM").toString().replace(".","")); //ohne Dateityp  Endung .jpeg
+                                    data.get("DATUM").toString().replace(".",""),"default"); //ohne Dateityp  Endung .jpeg
 
                             File image_file = File.createTempFile(image_name,".jpeg",in_directory);
 
@@ -287,6 +289,16 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                     }
                 });
 
+        holder.getCopy_entry().setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                mdo.material_log_copy_entry(data.get("ID").toString());
+                refresh_dataset(parent.getContext());
+            }
+        });
+
 
 
 
@@ -309,6 +321,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         private  final ImageButton add_media_camera;
         private  final ImageButton add_media_files;
         private  final ImageButton add_file_pdf;
+        private  final ImageButton copy_entry;
 
         private final TableLayout table_layout_details;
         private final RecyclerView gallery_rcv;
@@ -329,6 +342,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             add_media_camera = (ImageButton)   itemView.findViewById(R.id.imageButton44);
             add_media_files = (ImageButton)   itemView.findViewById(R.id.imageButton68);
             add_file_pdf = (ImageButton)   itemView.findViewById(R.id.imageButton38);
+            copy_entry = (ImageButton)   itemView.findViewById(R.id.imageButton71);
         }
 
         public TextView artikel() {return artikel;}
@@ -341,6 +355,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         public ImageButton  getUpdate_entry() {return update_entry;}
         public ImageButton  getadd_media_camera() {return add_media_camera;}
         public ImageButton  getadd_media_files() {return add_media_files;}
+        public ImageButton  getCopy_entry() {return copy_entry;}
         public ImageButton  getadd_pdf_file() {return add_file_pdf;}
         public TableLayout table_details() {return table_layout_details;}
         public RecyclerView getGallery_rcv() {return gallery_rcv;}
@@ -485,7 +500,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         artikel.setText(artikel_name);
 
         //Datum
-        ls_date.setText(data.get("DATUM").toString());
+        ls_date.setText(bsf.convert_date(data.get("DATUM").toString(),"format_database_to_readable"));
         ls_date.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -603,7 +618,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                     String selectet_projekt_id = selectet_projekt_data.substring(selectet_projekt_data.lastIndexOf("[")+1,selectet_projekt_data.lastIndexOf("]"));
 
                     data_new.put("PROJEKT_ID",selectet_projekt_id);
-                    data_new.put("DATUM",ls_date.getText().toString());
+                    data_new.put("DATUM",bsf.convert_date(ls_date.getText().toString(),"format_database"));
                     data_new.put("LSNR",ls_nr.getText().toString());
 
 
@@ -676,7 +691,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         String[] selectionArgs= {projekt_id,LSNR,zuliefere_id};
         String where = "PROJEKT_ID=? AND LSNR=? AND LIEFERANT_ID=?";
 
-        if(  mdo.find_similar(SQL_finals.TB_MATERIAL_LOG,selectionArgs,where) ==true)
+        if(  mdo.find_similar(SQL_finals.TB_MATERIAL_LOG,selectionArgs,where) > 1)
         {
             bg_lsnr.setBackgroundColor(ContextCompat.getColor(parent.getContext(), R.color.orange));
             bg_zulieferer.setBackgroundColor(ContextCompat.getColor(parent.getContext(), R.color.orange));

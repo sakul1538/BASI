@@ -510,9 +510,27 @@ public class Basic_funct {
         return arraylist;
     }
 
-    public String ls_filename_form(String lieferant, String ls_nr,String date)
+    public String ls_filename_form(String lieferant, String ls_nr,String date, String type )
     {
-        return   lieferant + "_LSNR_" + ls_nr +"@" + date + "_ID_" + String.valueOf(System.currentTimeMillis()); //Name der Kopierten Datei
+        String output="";
+        switch(type)
+        {
+            case "default":
+                output = lieferant + "_LSNR_" + ls_nr +"@" + date + "_ID_" + String.valueOf(System.currentTimeMillis()); //Name der Datei
+                break;
+
+            case "default_NO_ID":
+                output = lieferant + "_LSNR_" + ls_nr +"@" + date;
+                break;
+
+                case "default_JUST_ID":
+                    output =  "_ID_" + String.valueOf(System.currentTimeMillis()); //Name der Datei
+                break;
+
+            default:
+                output = lieferant + "_LSNR_" + ls_nr +"@" + date + "_ID_" + String.valueOf(System.currentTimeMillis()); //Name der Datei
+        }
+        return output;
     }
 
     public void log_output_arraylist(ArrayList arraylist) {

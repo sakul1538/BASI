@@ -573,7 +573,8 @@ public class Material extends Fragment {
             }
         });
 
-        save_ls_entry.setOnClickListener(new View.OnClickListener() {
+        save_ls_entry.setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View view) {
                 material_database_ops mdo = new material_database_ops(getContext());
@@ -587,7 +588,8 @@ public class Material extends Fragment {
                 try {
                     data.put("ID", bsf.gen_UUID());
                     data.put("PROJEKT_ID", proj.substring(spos + 1, epos));
-                    data.put("DATUM", String.valueOf(date_label.getText()));
+                    String date_db_format = bsf.convert_date(String.valueOf(date_label.getText()),"format_database");
+                    data.put("DATUM",date_db_format);
 
                     if(TextUtils.isEmpty(lsnr_field.getText()))
                     {
@@ -1492,7 +1494,7 @@ public class Material extends Fragment {
         material_database_ops mdo = new material_database_ops(getContext());
 
         try {
-            String r = mdo.get_selectet_projekt_root().split(",")[2]; //Martinheim Süd,23110022,primary:DCIM/Baustellen /Martinsheim Süd;
+            String r = mdo.get_selectet_projekt_root_data().split(",")[2]; //Martinheim Süd,23110022,primary:DCIM/Baustellen /Martinsheim Süd;
             r = r.replace("primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
             r += sub_dir;
             in_directory = r;
@@ -1526,7 +1528,7 @@ public class Material extends Fragment {
             String date = (String) date_label.getText();
             date = date.replace(".", "");
 
-            filename = bsf.ls_filename_form(lieferant,ls_nr,date)+file_extension;
+            filename = bsf.ls_filename_form(lieferant,ls_nr,date,"default")+file_extension;
 
         } catch (Exception e) {
             exmsg("270720231219", e);
@@ -1634,7 +1636,7 @@ public class Material extends Fragment {
             {
                 String source = source_dir + "/" + d;
 
-                String destination = destination_dir + "/" + bsf.ls_filename_form(lieferant,lsnr,date) +bsf.detect_extension(d);
+                String destination = destination_dir + "/" + bsf.ls_filename_form(lieferant,lsnr,date,"default") +bsf.detect_extension(d);
                 check = true;
 
                 try {
@@ -1764,7 +1766,14 @@ public class Material extends Fragment {
                    get_selectet_projekt_id()
                 };
 
-         return mdo.find_similar(TB_MATERIAL_LOG,select_args,"LSNR=? AND LIEFERANT_ID=? AND PROJEKT_ID=?");
+           if(mdo.find_similar(TB_MATERIAL_LOG,select_args,"LSNR=? AND LIEFERANT_ID=? AND PROJEKT_ID=?")>0)
+           {
+               return true;
+           }
+           else
+           {
+               return false;
+           }
         }
 
         public void lsnr_test_alert(Boolean b)
