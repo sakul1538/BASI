@@ -1,6 +1,7 @@
 package com.example.tabnav_test;
 
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.UUID;
 
@@ -533,12 +535,14 @@ public class Basic_funct {
         return output;
     }
 
-    public void log_output_arraylist(ArrayList arraylist) {
+    public void log_output_arraylist(ArrayList arraylist)
+    {
 
         for (int c = 0; c <= arraylist.size() - 1; c++) {
             Log.d("ARRAYLIST:", arraylist.get(c).toString());
         }
     }
+
 }
 
 

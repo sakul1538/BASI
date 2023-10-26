@@ -14,7 +14,6 @@ import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.SQL_finals;
 
 import java.io.File;
-import java.nio.file.Files;
 
 public class material_database_ops extends SQLiteOpenHelper implements SQL_finals
 {
@@ -218,6 +217,12 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
        return  data;
     }
+
+
+
+
+
+
 
     public String[] material_entrys_list() //Gibt alle Einträge des Projektes zurück
     {
@@ -697,5 +702,24 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         ContentValues data = this.material_get_entry_id(id);
         data.put("ID",bsf.gen_UUID());
         this.add_material_log_entry(data);
+    }
+
+    public String get_artikel_name_by_id(String id)
+    {
+         String artikel_name = this.get_artikel_param(
+                new String[]{id},
+                "ID=?",
+                new String[]{"NAME"});
+
+        return artikel_name;
+    }
+    public String get_lieferant_name_by_id(String id)
+    {
+         String lieferant_name = this.get_zulieferer_param(
+                new String[]{id},
+                "ID=?",
+                new String[]{"NAME"});
+
+        return lieferant_name;
     }
 }

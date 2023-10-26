@@ -154,7 +154,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="0"
-                android:background="@color/yellow"
+                android:background="@color/teal_700"
                 android:padding="5dp"
                 app:srcCompat="@drawable/baseline_content_copy_24" />
 

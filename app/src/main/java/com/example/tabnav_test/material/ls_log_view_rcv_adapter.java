@@ -3,6 +3,8 @@ package com.example.tabnav_test.material;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -294,15 +296,77 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             @Override
             public void onClick(View view)
             {
-                mdo.material_log_copy_entry(data.get("ID").toString());
-                refresh_dataset(parent.getContext());
-            }
-        });
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(parent.getContext());
+
+                // set prompts.xml to alertdialog builder
+                alertDialogBuilder.setTitle("Eintrag Kopieren?");
+                alertDialogBuilder.setMessage("Eintrag "+artikel_name +" ["+data.get("EINHEIT").toString()+"] wirklich Kopieren?");
+                alertDialogBuilder.setIcon(R.drawable.ic_baseline_report_gmailerrorred_24);
+                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        mdo.material_log_copy_entry(data.get("ID").toString());
+                        refresh_dataset(parent.getContext());
+                        dialogInterface.cancel();
+                    }
+                });
+
+
+
+                alertDialogBuilder.setNeutralButton("In Zwischenablage", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+
+                        ClipboardManager clipboard = (ClipboardManager) parent.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        // Creates a new text clip to put on the clipboard
+
+                        //LIEFERANT_ID=AxY4fNkKle PROJEKT_ID=23110022 MATERIAL_ID=IBArupsIjW ID=198edb30b2914fdb933ae1d5418282bb SRC=null LSNR=G99110 DATUM=2023-10-24 MENGE=200 a EINHEIT_ID=m3
+
+
+                       // Theler: Lieferschein Nr: 12345 vom 01.01.2023 , Kies 0/22 2.3m3 =>
+
+                        String data_copy = "";
+
+                         data_copy += mdo.get_lieferant_name_by_id(data.get("ZULIEFERER_ID").toString())+": \n";
+                         data_copy += "Lieferschein Nr:"+data.get("LSNR").toString();
+                         data_copy += " vom "+data.get("DATUM").toString()+"\n";
+                         data_copy += mdo.get_artikel_name_by_id(data.get("ARTIKEL_ID").toString())+" ";
+                         data_copy += data.get("MENGE").toString()+" "+ data.get("EINHEIT").toString();
+
+                         if(data.get("NOTIZ").toString() !="")
+                         {
+                             data_copy +=" => "+ data.get("NOTIZ").toString();
+                         }
+
+                        ClipData clip = ClipData.newPlainText("Material_log",data_copy);
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(parent.getContext(), "Eintrag in die Zwischenablage kopiert!", Toast.LENGTH_SHORT).show();
 
 
 
 
+
+                    }
+                });
+
+                alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        dialogInterface.cancel();
+                    }
+                });
+
+                alertDialogBuilder.show();
+        }});
     }
+
 
 
     @Override
@@ -715,8 +779,6 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             bg_zulieferer.setBackgroundColor(ContextCompat.getColor(parent.getContext(), R.color.white));
         }
     }
-
-
 
 
 
