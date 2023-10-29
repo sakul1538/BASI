@@ -543,6 +543,17 @@ public class Basic_funct {
         }
     }
 
+
+    public String NULLtest(String s)
+    {
+        if(s.contains("NULL"))
+        {
+            return "null";
+        }else
+        {
+            return s;
+        }
+    }
 }
 
 

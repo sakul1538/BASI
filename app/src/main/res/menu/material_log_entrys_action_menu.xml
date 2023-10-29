@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Einträge" >
+        <menu
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <item
+                android:id="@+id/entry_show_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:title="Alle Anzeigen" />
+            <item
+                android:id="@+id/entry_del_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:title="Alle Löschen" />
+        </menu>
+    </item>
+    <item
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Backup/Export">
+        <menu
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <item
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:title="Export" >
+                <menu
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+                    <item
+                        android:id="@+id/export_json"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:title="json" />
+                    <item
+                        android:id="@+id/export_csv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:title="csv" />
+                </menu>
+            </item>
+            <item
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:title="Backup" >
+                <menu
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+                    <item
+                        android:id="@+id/create_backup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:title="Erstellen" />
+                    <item
+                        android:id="@+id/restore_backup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:title="Widerherstellen " />
+                </menu>
+            </item>
+        </menu>
+    </item>
+</menu>

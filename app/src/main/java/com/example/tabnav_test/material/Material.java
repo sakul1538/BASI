@@ -83,12 +83,14 @@ public class Material extends Fragment {
     String photo_path = "null";
     String in_directory = "/";
 
-    //ImageButton
+    Boolean lieferant_lock_status = false;
     ImageButton settings_projekt_button;
     ImageButton settings_zulieferer;
+    ImageButton set_locksatus_zulieferer;
     ImageButton settings_artikel;
     ImageButton add_artikel;
     ImageButton reset_artikel;
+    ImageButton reset_zulieferer;
     ImageButton ls_note_reset;
     ImageButton ls_take_photo;
     ImageButton ls_delet_foto;
@@ -106,6 +108,8 @@ public class Material extends Fragment {
     ImageButton ls_img_collection_forward;
     ImageButton ls_img_collection_backward;
 
+
+
     // EditText
     EditText dirname;
     EditText menge;
@@ -116,12 +120,13 @@ public class Material extends Fragment {
 
     //AutoCompleteText
     AutoCompleteTextView edit_artikel_name;
+    AutoCompleteTextView edit_zulieferer_name;
 
 
     //Spinner
     Spinner projlist;
     Spinner zulieferer_liste;
-    Spinner Zulieferer_liste_main;
+
 
 
     Spinner spinner_einheiten;
@@ -141,6 +146,7 @@ public class Material extends Fragment {
 
     LinearLayout date_background;
     LinearLayout ls_nr_background;
+    LinearLayout zulieferer_backgound;
 
 
     String[] imageset;
@@ -396,15 +402,17 @@ public class Material extends Fragment {
 
         //AutoCompleteText
         edit_artikel_name = view.findViewById(R.id.autoCompleteTextView_artikel);
+        edit_zulieferer_name = view.findViewById(R.id.autocomplete_zulieferer_name);
 
 
         //ImageButtons
         settings_zulieferer = view.findViewById(R.id.imageButton37);
         settings_projekt_button = view.findViewById(R.id.imageButton34);
         settings_artikel = view.findViewById(R.id.imageButton39);
-        Zulieferer_liste_main = view.findViewById(R.id.spinner3);
+
         add_artikel = view.findViewById(R.id.imageButton53);
         reset_artikel = view.findViewById(R.id.reset_artikel);
+        reset_zulieferer = view.findViewById(R.id.reset_zulieferer);
         reset_LS = view.findViewById(R.id.reset_LS);
         ls_note_reset = view.findViewById(R.id.ls_note_reset);
         menge = view.findViewById(R.id.editTextNumberDecimal4_menge);
@@ -419,6 +427,8 @@ public class Material extends Fragment {
         ls_img_collection_backward = view.findViewById(R.id.imageButton64);
         open_pdf = view.findViewById(R.id.imageButton67);
         open_filesystem = view.findViewById(R.id.imageButton43);
+        set_locksatus_zulieferer = view.findViewById(R.id.zulieferer_reset_lock);
+
 
 
         //EditText
@@ -430,12 +440,13 @@ public class Material extends Fragment {
         //Layouts
         date_background = view.findViewById(R.id.date_background);
         ls_nr_background = view.findViewById(R.id.ls_nr_bg);
+        zulieferer_backgound = view.findViewById(R.id.zulieferer_background);
 
 
         try {
             refresh_artikel_autocomplete();
             refresh_projekt_label();
-            refresh_spinner_zulieferer();
+            refresh_autocomplete_liste_zulieferer();
             set_media_directory(ls_media_directory_name_temp);
             clean_temp_dir();
             create_imageset();
@@ -444,20 +455,6 @@ public class Material extends Fragment {
             throw new RuntimeException(e);
         }
         reset_complete();
-        Zulieferer_liste_main.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
-        {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l)
-            {
-                r.lsnr_test_alert(r.lsnr_test());
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
-
 
 
         lsnr_field.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -470,6 +467,33 @@ public class Material extends Fragment {
                 }
             }
         });
+
+        set_locksatus_zulieferer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                if(lieferant_lock_status==false)
+                {
+                    zulieferer_backgound.setBackgroundColor(getResources().getColor(R.color.orange));
+                    lieferant_lock_status =true;
+                }
+                else
+                {
+                    zulieferer_backgound.setBackgroundColor(getResources().getColor(R.color.hellgrün));
+                    lieferant_lock_status = false;
+                }
+            }
+        });
+
+        reset_zulieferer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                reset_autocomplete_liste_zulieferer();
+            }
+        });
+
+
 
 
         ls_photo_view.setOnClickListener(new View.OnClickListener() {
@@ -834,6 +858,8 @@ public class Material extends Fragment {
                 ImageButton update_zulieferer = promptsView.findViewById(R.id.imageButton50);
                 ImageButton del_zuliefere = promptsView.findViewById(R.id.imageButton51);
                 zulieferer_liste = promptsView.findViewById(R.id.spinner5);
+                AutoCompleteTextView add_new_liferant_value = promptsView.findViewById(R.id.editText_add_lieferant);
+                add_new_liferant_value.setAdapter(get_zulieferer_adapter());
 
                 refresh_spinner_zulieferer_settings();
 
@@ -841,31 +867,32 @@ public class Material extends Fragment {
                     @Override
                     public void onClick(View view) {
 
-                        LayoutInflater li = LayoutInflater.from(getActivity());
-                        View input_view = li.inflate(R.layout.add_lieferanten_dialog, container, false);
-
-                        //Fixme Leeres feld nicht in Datenbank eintragen
-                        EditText name_zulieferer = input_view.findViewById(R.id.name_zulieferer);
-
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
                         // set prompts.xml to alertdialog builder
-                        alertDialogBuilder.setView(input_view);
-                        alertDialogBuilder.setTitle("Zulieferer hinzufügen");
+
+                        alertDialogBuilder.setTitle("Aktion Zulieferer");
+                        alertDialogBuilder.setMessage("Zulieferer \""+add_new_liferant_value.getText().toString()+"\" hinzufügen?");
 
                         alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 material_database_ops mdo = new material_database_ops(getContext());
-                                mdo.add_zulieferer(name_zulieferer.getText().toString());
-                                refresh_spinner_zulieferer_settings();
+                                mdo.add_zulieferer(add_new_liferant_value.getText().toString());
+                               refresh_spinner_zulieferer_settings();
 
+                               String lieferant_ID= mdo.get_id_zulieferer(add_new_liferant_value.getText().toString());
 
+                                Toast.makeText(getContext(),   "Lieferant NAME:" +mdo.get_lieferant_name_by_id(lieferant_ID)+" ID:"+lieferant_ID, Toast.LENGTH_SHORT).show();
+                                add_new_liferant_value.setText("");
                                 dialogInterface.cancel();
                             }
                         });
                         alertDialogBuilder.setNeutralButton("Abbrechen", new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                                add_new_liferant_value.setText("");
+                                Toast.makeText(getContext(), "Abgebrochen durch Benutzer!", Toast.LENGTH_SHORT).show();
                                 dialogInterface.cancel();
                             }
                         });
@@ -946,7 +973,7 @@ public class Material extends Fragment {
                 alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        refresh_spinner_zulieferer();
+                        refresh_autocomplete_liste_zulieferer();
                         dialogInterface.cancel();
                     }
                 });
@@ -1141,7 +1168,7 @@ public class Material extends Fragment {
                         {
                             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                             intent.addCategory(Intent.CATEGORY_OPENABLE);
-                            intent.setType("image/*");
+                            intent.setType("json/*");
                             startActivityForResult(intent, 5);
                         }
                     });
@@ -1172,6 +1199,7 @@ public class Material extends Fragment {
         reset_date();
         reset_ls_nr();
         reset_artikel();
+        reset_autocomplete_liste_zulieferer();
         reset_menge();
         reset_notiz();
         reset_camera();
@@ -1180,6 +1208,14 @@ public class Material extends Fragment {
         create_imageset();
         r.lsnr_test_alert(r.lsnr_test());
 
+    }
+
+    private void reset_autocomplete_liste_zulieferer()
+    {
+        if(lieferant_lock_status ==false)
+        {
+            edit_zulieferer_name.setText("");
+        }
     }
 
     void refresh_artikel_autocomplete() {
@@ -1325,23 +1361,41 @@ public class Material extends Fragment {
 
     }
 
-    public void refresh_spinner_zulieferer() {
+    public void refresh_autocomplete_liste_zulieferer()
+    {
         material_database_ops mdo = new material_database_ops(getContext());
         //Spinner adapter
-        String[] zulieferer_liste_items = mdo.zulieferer_list_all();
+        String[] zulieferer_liste_items = mdo.zulieferer_list_all("DATE DESC");
         if (zulieferer_liste_items.length == 0) {
             zulieferer_liste_items = new String[]{"Keine Zulieferer"};
         }
 
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, zulieferer_liste_items);
-        Zulieferer_liste_main.setAdapter(spinnerArrayAdapter);
+        edit_zulieferer_name.setAdapter(get_zulieferer_adapter());
     }
+
+
+
+    public ArrayAdapter get_zulieferer_adapter()
+    {
+        material_database_ops mdo = new material_database_ops(getContext());
+        //Spinner adapter
+        String[] zulieferer_liste_items = mdo.zulieferer_list_all("NAME DESC");
+        if (zulieferer_liste_items.length == 0) {
+            zulieferer_liste_items = new String[]{"Keine Zulieferer"};
+        }
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, zulieferer_liste_items);
+
+        return spinnerArrayAdapter;
+    }
+
+
 
     public void refresh_spinner_zulieferer_settings()
     {
         material_database_ops mdo = new material_database_ops(getContext());
         //Spinner adapter
-        String[] zulieferer_liste_items = mdo.zulieferer_list_all();
+        String[] zulieferer_liste_items = mdo.zulieferer_list_all("NAME");
         if (zulieferer_liste_items.length == 0) {
             zulieferer_liste_items = new String[]{"Keine Zulieferer"};
         }
@@ -1428,6 +1482,9 @@ public class Material extends Fragment {
         lsnr_field.setText("");
         ls_nr_background.setBackgroundColor(getResources().getColor(R.color.hellgrün));
     }
+
+
+
 
     private void reset_artikel() {
         edit_artikel_name.setText("");
@@ -1523,7 +1580,7 @@ public class Material extends Fragment {
         String filename = "null";
 
         try {
-            String lieferant = Zulieferer_liste_main.getSelectedItem().toString();
+            String lieferant = edit_zulieferer_name.getText().toString();
             String ls_nr = String.valueOf(lsnr_field.getText());
             String date = (String) date_label.getText();
             date = date.replace(".", "");
@@ -1742,7 +1799,7 @@ public class Material extends Fragment {
         }
         public String get_zulieferer_name()
         {
-          return  Zulieferer_liste_main.getSelectedItem().toString();
+          return    edit_zulieferer_name.getText().toString();
         }
 
         public String get_selectet_projekt_id()
@@ -1782,7 +1839,6 @@ public class Material extends Fragment {
             {
                 bsf.info_msg( this.get_lsnr() + " von "+this.get_zulieferer_name()+" \n =>  In Datenbank gefunden!", getContext());
                 ls_nr_background.setBackgroundColor(getResources().getColor(R.color.camera_button));
-
             } else
             {
                 ls_nr_background.setBackgroundColor(getResources().getColor(R.color.hellgrün));
@@ -1792,18 +1848,24 @@ public class Material extends Fragment {
 
         public String get_id_zulieferer()
         {
-            String id_zulieferer = mdo.get_zulieferer_param(
-            new String[]{Zulieferer_liste_main.getSelectedItem().toString()},
-            "NAME =?",
-            new String[]{"ID"});
+            if (edit_zulieferer_name.getText().toString().isEmpty())
+            {
+                return "null";
+            }
+            else
+            {
+                String id = mdo.get_id_zulieferer(edit_zulieferer_name.getText().toString());
+                if(id =="null")
+                {
+                    mdo.add_zulieferer(edit_zulieferer_name.getText().toString());
+                    id = mdo.get_id_zulieferer(edit_zulieferer_name.getText().toString());
+                }
+                return id ;
 
-            return  id_zulieferer;
+            }
 
         }
     }
-
-
-
 
     void exmsg(String msg, Exception e)
     {

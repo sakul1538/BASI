@@ -69,16 +69,12 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
     @Override
     public ls_log_view_rcv_adapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
     {
-
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.material_log_entrys_listing_rcv_layout, parent, false);
         this.parent = parent;
          mdo = new material_database_ops(parent.getContext());
 
         return new ViewHolder(view);
     }
-
-
-
 
     @Override
     public void onBindViewHolder(@NonNull ls_log_view_rcv_adapter.ViewHolder holder, int position)
@@ -90,12 +86,12 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             data.put("ID",items[0]);
             data.put("PROJEKT_ID",items[1]);
             data.put("DATUM",bsf.convert_date(items[2],"format_database_to_readable"));
-            data.put("LSNR",items[3]);
-            data.put("ZULIEFERER_ID",items[4]);
-            data.put("ARTIKEL_ID",items[5]);
-            data.put("MENGE",items[6]);
-            data.put("EINHEIT",items [7]);
-            data.put("SRC",items[8]);
+            data.put("LSNR",bsf.NULLtest(items[3]));
+            data.put("ZULIEFERER_ID",bsf.NULLtest(items[4]));
+            data.put("ARTIKEL_ID",bsf.NULLtest(items[5]));
+            data.put("MENGE",bsf.NULLtest(items[6]));
+            data.put("EINHEIT",bsf.NULLtest(items[7]));
+            data.put("SRC",bsf.NULLtest(items[8]));
 
            if(items[9].equals("null"))
            {
@@ -503,7 +499,10 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
         ContentValues data= mdo.material_get_entry_id(id);
         String artikel_name ="";
+
+        //Menge
         menge.setText(data.get("MENGE").toString());
+
 
         //Artikel
         artikel.setAdapter(artikelAdapter);
@@ -512,7 +511,6 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
             {
-
                 String selected =  artikel.getText().toString();
                 int spos= selected.lastIndexOf("[");
                 int epos= selected.lastIndexOf("]");
@@ -523,15 +521,24 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
                 int index =adapter_einheiten.getPosition(einheit);
                 artikel_einheit.setSelection(index);
-
             }
         });
 
         try {
-            artikel_name = mdo.get_artikel_param(
-                    new String[]{data.get("MATERIAL_ID").toString()},
-                    "ID=?",
-                    new String[]{"NAME"});
+
+            if(data.get("MATERIAL_ID").toString().contains("null"))
+            {
+                artikel.setText("");
+
+
+            }
+            else
+            {
+                artikel_name = mdo.get_artikel_param(
+                        new String[]{data.get("MATERIAL_ID").toString()},
+                        "ID=?",
+                        new String[]{"NAME"});
+            }
 
         }catch (Exception e)
         {
@@ -547,7 +554,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         //Zulieferer
         String ls_zulieferere_name ="";
 
-        String[] ls_zulieferer_liste = mdo.zulieferer_list_all();
+        String[] ls_zulieferer_liste = mdo.zulieferer_list_all("DATE DESC");
         ArrayAdapter<String> ls_zulieferer_liste_adapter = new ArrayAdapter<String>(view.getContext(), android.R.layout.simple_dropdown_item_1line, ls_zulieferer_liste);
         ls_zulieferer.setAdapter(ls_zulieferer_liste_adapter);
 

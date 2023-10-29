@@ -158,6 +158,11 @@
     <string name="material_projekt_banner">Projekt</string>
     <string name="material_datum_ls_banner">Datum/LS Nr</string>
     <string name="material_zulieferer_banner">Zulieferer:</string>
+    <string name="material_zulieferer_connfig_banner">Zulieferer Bearbeiten</string>
+    <string name="material_add_zulieferer_banner">Zulieferer Hinzufügen</string>
+    <string name="material_backup_zulieferer_banner">Datenbank Backups</string>
+    <string name="material_backup_create_zulieferer_banner">Erstellen</string>
+    <string name="material_backup_restore_zulieferer_banner">Wiederherstellen</string>
     <string name="material_wievie_was_lbanner">Artikel/Menge/Einheit</string>
     <string name="material_einheit_lbanner">Einheit:</string>
     <string name="material_medien_banner">Medien/Dateien</string>
