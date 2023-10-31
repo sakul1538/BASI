@@ -175,7 +175,7 @@
                     android:layout_height="@dimen/buttons_1"
                     android:layout_weight="1"
                     android:background="#00FFFFFF"
-                    android:src="@drawable/baseline_lock_clock_24" />
+                    android:src="@drawable/baseline_lock_24" />
 
                 <ImageButton
                     android:id="@+id/imageButton37"

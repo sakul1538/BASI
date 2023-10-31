@@ -1,5 +1,6 @@
 package com.example.tabnav_test.material;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.ActivityNotFoundException;
@@ -25,13 +26,16 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.JsonReader;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -47,9 +51,14 @@ import com.example.tabnav_test.SQL_finals;
 import com.example.tabnav_test.material_artikel_adapter;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -59,7 +68,6 @@ import java.util.Calendar;
  * create an instance of this fragment.
  */
 public class Material extends Fragment {
-
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -82,6 +90,8 @@ public class Material extends Fragment {
     Uri photoURI = null;
     String photo_path = "null";
     String in_directory = "/";
+
+    long touchStartTime = 0;
 
     Boolean lieferant_lock_status = false;
     ImageButton settings_projekt_button;
@@ -320,6 +330,46 @@ public class Material extends Fragment {
                 }
 
                 break;
+
+            case 6: //Backup Zulieferer Restore
+
+                if (resultData != null)
+                {
+                    uri = resultData.getData();
+                    String source_path = uri.getPath();///document/primary:DCIM/Baustellen /testprojekt/Lieferscheine/Volken_NR_1223@25072023_ID_6547592956172734206.jpeg
+                    source_path = source_path.replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
+                    Log.d("BADO SOURCE PAHT BACKUP ",source_path);
+
+
+                    AlertDialog.Builder alertdialog = new AlertDialog.Builder(getContext());
+                    alertdialog.setTitle("Aktion bei vorhandenen Einträgen?");
+                    String finalSource_path = source_path;
+                    alertdialog.setPositiveButton("Überschreiben", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i)
+                        {
+
+                            mdo.restore_zulieferer(finalSource_path,getContext(),true);
+                            refresh_spinner_zulieferer_settings();
+                            dialogInterface.cancel();
+                        }
+                    });
+
+                    alertdialog.setNegativeButton("Behalten", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i)
+                        {
+                            mdo.restore_zulieferer(finalSource_path,getContext(),false);
+                            refresh_spinner_zulieferer_settings();
+                            dialogInterface.cancel();
+                        }
+                    });
+
+                    alertdialog.show();
+                }
+                break;
+
+
         }
     }
 
@@ -849,6 +899,7 @@ public class Material extends Fragment {
 
         //Zulieferer
         settings_zulieferer.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("ClickableViewAccessibility")
             @Override
             public void onClick(View view) {
                 LayoutInflater li = LayoutInflater.from(getActivity());
@@ -857,11 +908,77 @@ public class Material extends Fragment {
                 ImageButton add_zulieferer = promptsView.findViewById(R.id.imageButton49);
                 ImageButton update_zulieferer = promptsView.findViewById(R.id.imageButton50);
                 ImageButton del_zuliefere = promptsView.findViewById(R.id.imageButton51);
+
+                Button create_backup = promptsView.findViewById(R.id.lieferant_crate_backup);
+                Button restore_backup = promptsView.findViewById(R.id.lieferant_restore_backup);
                 zulieferer_liste = promptsView.findViewById(R.id.spinner5);
                 AutoCompleteTextView add_new_liferant_value = promptsView.findViewById(R.id.editText_add_lieferant);
                 add_new_liferant_value.setAdapter(get_zulieferer_adapter());
 
                 refresh_spinner_zulieferer_settings();
+
+                create_backup.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        String backup_root = mdo.get_projekt_root_paht()+"/Backups/";
+                            File f = new File(backup_root);
+                            f.mkdirs();
+                            try {
+                                f.createNewFile();
+                                String filename =mdo.get_selectet_projekt()+"backup_lieferanten@"+bsf.get_date_filename()+"_ID_"+bsf.gen_ID()+".json";
+
+                                FileWriter fw = new FileWriter(backup_root+filename);
+                                fw.write(mdo.create_backup_json_zulieferer());
+                                fw.close();
+
+                                AlertDialog.Builder create_backup_report_dialog  = new AlertDialog.Builder(getContext());
+                                create_backup_report_dialog.setTitle("Export Report");
+                                create_backup_report_dialog.setMessage("Backup gespeichert unter: \n\n"+backup_root+filename);
+                                create_backup_report_dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.cancel();
+                                    }
+                                });
+                                create_backup_report_dialog.setNegativeButton("URL Kopieren", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i)
+                                    {
+                                        bsf.copy_to_clipboard(backup_root+filename,getContext());
+                                    }
+                                });
+
+                                create_backup_report_dialog.show();
+
+                            } catch (IOException e)
+                            {
+                                Toast.makeText(getContext(), "Backup erstellen Fehlgeschlagen!:  \n"+e.getMessage().toString(), Toast.LENGTH_LONG).show();
+                            }
+                        }
+                });
+
+
+
+
+                restore_backup.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+
+                        Intent intent_restore_backup = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                        intent_restore_backup.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent_restore_backup.setType("application/json");
+                        startActivityForResult(intent_restore_backup, 6);
+
+                    }
+                });
+
+
+
+
 
                 add_zulieferer.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -931,38 +1048,86 @@ public class Material extends Fragment {
                     }
                 });
 
-                del_zuliefere.setOnClickListener(new View.OnClickListener() {
+                del_zuliefere.setOnTouchListener(new View.OnTouchListener()
+                {
                     @Override
-                    public void onClick(View view) {
-                        // f//inal Boolean confirm_value = false;
+                    public boolean onTouch(View view, MotionEvent motionEvent)
 
-                        String zulieferer_name = zulieferer_liste.getSelectedItem().toString();
+                    {
+                        switch (motionEvent.getAction())
+                        {
+                            case MotionEvent.ACTION_DOWN:
+                                // Speichern Sie den Zeitpunkt, wenn der Finger die Ansicht berührt hat
+                                touchStartTime = System.currentTimeMillis();
+                                return true;
 
-                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-                        alertDialogBuilder.setTitle("Bestätigen");
-                        alertDialogBuilder.setIcon(R.drawable.ic_baseline_info_24_blue);
-                        alertDialogBuilder.setMessage("Zulieferer " + zulieferer_name + "  wiklich löschen?").setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                material_database_ops mdo = new material_database_ops(getContext());
-                                mdo.zulieferer_delet(zulieferer_name);
-                                refresh_spinner_zulieferer_settings();
-                                //TODO Ordner im Verzeichnis auch löschen!
+                            case MotionEvent.ACTION_UP:
+                                // Berechnen Sie die Dauer des Drucks
+                                long pressDuration = System.currentTimeMillis() - touchStartTime;
 
-                                dialogInterface.cancel();
-                            }
-                        });
+                                // Überprüfen Sie, ob es sich um einen langen Druck handelt
+                                if (pressDuration >= 1000)
+                                {
 
-                        alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                                    alertDialogBuilder.setTitle("Bestätigen");
+                                    alertDialogBuilder.setIcon(R.drawable.ic_baseline_report_gmailerrorred_24);
 
-                                dialogInterface.cancel();
-                            }
-                        });
+                                    alertDialogBuilder.setMessage("ALLE Einträge Löschen?").setPositiveButton("ALLE Löschen", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i)
+                                        {
+                                            mdo.zulieferer_delet_all();
+                                            refresh_spinner_zulieferer_settings();
+                                            dialogInterface.cancel();
+                                        }
+                                    });
+                                    alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            dialogInterface.cancel();
+                                        }
+                                    });
 
-                        AlertDialog alertDialog = alertDialogBuilder.create();
-                        alertDialog.show();
+                                    AlertDialog alertDialog = alertDialogBuilder.create();
+                                    alertDialog.show();
+
+
+                                }
+                                else
+                                {
+                                    String zulieferer_name = zulieferer_liste.getSelectedItem().toString();
+
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                                    alertDialogBuilder.setTitle("Bestätigen");
+                                    alertDialogBuilder.setIcon(R.drawable.ic_baseline_info_24_blue);
+                                    alertDialogBuilder.setMessage("Zulieferer " + zulieferer_name + "  wiklich löschen?").setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            material_database_ops mdo = new material_database_ops(getContext());
+                                            mdo.zulieferer_delet(zulieferer_name);
+                                            refresh_spinner_zulieferer_settings();
+                                            //TODO Ordner im Verzeichnis auch löschen!
+
+                                            dialogInterface.cancel();
+                                        }
+                                    });
+
+                                    alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                                            dialogInterface.cancel();
+                                        }
+                                    });
+
+                                    AlertDialog alertDialog = alertDialogBuilder.create();
+                                    alertDialog.show();
+
+                                }
+                                return true;
+                        }
+                        return false;
                     }
                 });
 

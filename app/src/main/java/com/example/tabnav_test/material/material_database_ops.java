@@ -1,19 +1,38 @@
 package com.example.tabnav_test.material;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.icu.number.SimpleNotation;
+import android.icu.util.Output;
 import android.os.Environment;
+import android.util.JsonReader;
+import android.util.JsonWriter;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.SQL_finals;
 
+import org.json.JSONArray;
+import org.json.JSONStringer;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 
 public class material_database_ops extends SQLiteOpenHelper implements SQL_finals
 {
@@ -504,6 +523,97 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         return newRowId;
     }
 
+
+    public void restore_zulieferer(String source_path,Context  context,Boolean overwrite_mode)
+    {
+        InputStream in2 = null;
+        try {
+            in2 = new FileInputStream(new File(source_path));
+            try {
+                JsonReader reader = new JsonReader(new InputStreamReader(in2,"UTF-8"));
+
+                int insert_counter=0;
+                int update_counter=0;
+                int skipt_counter=0;
+
+                reader.beginArray();
+                while(reader.hasNext())
+                {
+                    reader.beginObject();
+                    ContentValues output_data = new ContentValues();
+                    while (reader.hasNext())
+                    {
+                        output_data.put(reader.nextName(),reader.nextString());
+                    }
+
+                    String[] selectionArgs = {output_data.get("NAME").toString()};
+                    //Auf Duplikate prüfen
+                    int  check_exist = this.find_similar(TB_MATERIAL_ZULIEFERER,selectionArgs,"NAME=?");
+                    SQLiteDatabase wdb = this.getWritableDatabase();
+
+                        if(check_exist == 0)
+                        {
+                            wdb.insert(TB_MATERIAL_ZULIEFERER,null,output_data);
+                            insert_counter++;
+                        }
+                        else
+                        {
+                            if (overwrite_mode == true)
+                            {
+                                String[] update_selectionArgs = { output_data.get("NAME").toString() };
+                                String where = "NAME=?";
+                                wdb.update(TB_MATERIAL_ZULIEFERER,output_data,where,update_selectionArgs);
+                                update_counter++;
+                            }
+                            else
+                            {
+                                skipt_counter++;
+                            }
+                            //Overwirte mode = false => Keine Aktion
+                        }
+                    reader.endObject();
+                }
+                reader.endArray();
+
+
+                String message_string = insert_counter +" Einträge Importiert \n"+update_counter +" Updates der Einträge \n"+ skipt_counter+" Einträge Übersprungen";
+
+                AlertDialog.Builder restore_info_dialog = new AlertDialog.Builder(context);
+                restore_info_dialog.setTitle("Import Report");
+                restore_info_dialog.setMessage(message_string);
+                restore_info_dialog.setPositiveButton("Kopieren", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public
+                    void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        bsf.copy_to_clipboard(message_string,context);
+                    }
+                });
+
+
+                restore_info_dialog.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+                restore_info_dialog.show();
+                Log.d("BASI Import:",message_string);
+
+            } catch (UnsupportedEncodingException e)
+            {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public String[] zulieferer_list_all(String order)
     {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -524,10 +634,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         return  strings;
 
     }
-
-
-
-
     public String get_id_zulieferer(String zulieferer_name)
     {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -552,6 +658,33 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
         return  id;
     }
+
+
+    public String create_backup_json_zulieferer()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = { "NAME","ID","DATE" };
+
+        Cursor cursor = db.query(TB_MATERIAL_ZULIEFERER,columns,null,null,null,null,"NAME DESC");
+        String strings ="[\n";
+
+        int i=0;
+        while (cursor.moveToNext())
+        {
+            strings +="{\n";
+            strings +="\"ID\":\""+cursor.getString(cursor.getColumnIndexOrThrow("ID"))+"\",\n";
+            strings +="\"NAME\":\""+cursor.getString(cursor.getColumnIndexOrThrow("NAME"))+"\",\n";
+            strings +="\"DATE\":\""+cursor.getString(cursor.getColumnIndexOrThrow("DATE"))+"\"},\n";
+
+        }
+        strings =strings.substring(0,strings.length()-2)+"]\n";
+        cursor.close();
+        db.close();
+
+        return  strings;
+    }
+
+
 
 
     public String get_zulieferer_param(String[] selectionArgs, String where,String[] colum )
@@ -603,6 +736,16 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
         db.delete(TB_MATERIAL_ZULIEFERER,where,selectionArgs);
     }
+
+    public void zulieferer_delet_all()
+    {
+        //TODO  auf Projekt mit Status 1 darf nicht gelöscht werden!
+        //TODO Bestätigen
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TB_MATERIAL_ZULIEFERER,null,null);
+    }
+
 
 
     //Artikel funktionen
@@ -788,7 +931,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
                 new String[]{"NAME"});
         return lieferant_name;
     }
-
 
 
 }

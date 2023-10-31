@@ -1,6 +1,8 @@
 package com.example.tabnav_test;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -553,7 +555,16 @@ public class Basic_funct {
         {
             return s;
         }
+}
+
+    public void copy_to_clipboard(String text,Context context)
+    {
+        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText(gen_ID(),text);
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(context, "Eintrag in die Zwischenablage kopiert!", Toast.LENGTH_SHORT).show();
     }
+
 }
 
 

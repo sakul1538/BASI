@@ -118,7 +118,8 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
             }
         }
 
-        holder.Image_view().setOnTouchListener(new View.OnTouchListener() {
+        holder.Image_view().setOnTouchListener(new View.OnTouchListener()
+        {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent)
             {
