@@ -25,27 +25,27 @@
                 android:layout_margin="5dp"
                 android:background="@color/green"
                 android:padding="5dp"
-                android:text="@string/material_zulieferer_connfig_banner"
+                android:text="@string/artikel_config_dialog_update_label"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
             <Spinner
                 android:id="@+id/spinner_artikel_settings"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:layout_margin="5dp"
                 android:padding="5dp" />
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="362dp"
                 android:layout_height="match_parent"
                 android:layout_margin="5dp"
                 android:orientation="horizontal"
                 android:padding="5dp">
 
                 <ImageButton
-                    android:id="@+id/imageButton50"
+                    android:id="@+id/imagebutton_artikel_update"
                     android:layout_width="@dimen/buttons_1"
                     android:layout_height="@dimen/buttons_1"
                     android:layout_gravity="center"
@@ -65,6 +65,7 @@
                     android:background="#00FFFFFF"
                     android:padding="5dp"
                     app:srcCompat="@drawable/baseline_delete_24" />
+
             </LinearLayout>
 
             <TextView
@@ -74,7 +75,7 @@
                 android:layout_margin="5dp"
                 android:background="@color/green"
                 android:padding="5dp"
-                android:text="@string/material_add_zulieferer_banner"
+                android:text="@string/artikel_config_dialog_add_label"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -85,11 +86,20 @@
                 android:orientation="horizontal">
 
                 <AutoCompleteTextView
-                    android:id="@+id/editText_add_lieferant"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/autoCompleteText_artikel_add"
+                    android:layout_width="280dp"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_weight="1"
                     android:text="@string/empty" />
+
+                <Spinner
+                    android:id="@+id/spinner_artikel_unit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="2"
+                    android:entries="@array/einheiten_array" />
 
                 <ImageButton
                     android:id="@+id/imageButton_artikel_add"
@@ -111,7 +121,7 @@
                 android:layout_margin="5dp"
                 android:background="@color/green"
                 android:padding="5dp"
-                android:text="@string/material_backup_zulieferer_banner"
+                android:text="@string/artikel_config_dialog_backup_label"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -127,7 +137,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
                     android:layout_weight="1"
-                    android:text="@string/material_backup_create_zulieferer_banner" />
+                    android:text="@string/artikel_config_dialog_backup_create" />
 
                 <Button
                     android:id="@+id/button_artikel_restore_backup"
@@ -135,7 +145,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
                     android:layout_weight="1"
-                    android:text="@string/material_backup_restore_zulieferer_banner" />
+                    android:text="@string/artikel_config_dialog_backup_restore" />
 
             </LinearLayout>
 

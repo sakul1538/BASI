@@ -67,7 +67,7 @@ public class material_artikel_adapter extends RecyclerView.Adapter<material_arti
                 View view_artikel = li.inflate(R.layout.material_artikel_change_dialog,parent, false);
 
                 EditText edit_artikel = view_artikel.findViewById(R.id.editTextText2_artikel);
-                Spinner spinner_einheit = view_artikel.findViewById(R.id.spinner6_einheit);
+                Spinner spinner_einheit = view_artikel.findViewById(R.id.spinner_artikel_einheit);
 
                 edit_artikel.setText(artikel);
 

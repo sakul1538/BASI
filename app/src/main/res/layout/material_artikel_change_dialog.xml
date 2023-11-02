@@ -34,7 +34,7 @@
             android:text="@string/empty" />
 
         <Spinner
-            android:id="@+id/spinner6_einheit"
+            android:id="@+id/spinner_artikel_einheit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"

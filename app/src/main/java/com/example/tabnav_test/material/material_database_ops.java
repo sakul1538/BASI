@@ -632,7 +632,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         db.close();
 
         return  strings;
-
     }
     public String get_id_zulieferer(String zulieferer_name)
     {
@@ -658,8 +657,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
         return  id;
     }
-
-
     public String create_backup_json_zulieferer()
     {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -683,10 +680,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
         return  strings;
     }
-
-
-
-
     public String get_zulieferer_param(String[] selectionArgs, String where,String[] colum )
     {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -708,9 +701,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
         return param;
     }
-
-
-
 
     public void update_zulieferer(String from_name, String to_name)
     {
@@ -736,7 +726,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
         db.delete(TB_MATERIAL_ZULIEFERER,where,selectionArgs);
     }
-
     public void zulieferer_delet_all()
     {
         //TODO  auf Projekt mit Status 1 darf nicht gelöscht werden!
@@ -767,6 +756,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
             data.put("NAME",artikel.trim());
             data.put("EINHEIT",einheit.trim());
             response = wdb.insert(TB_MATERIAL_TYP,null,data);
+
         }
 
         return  response;
@@ -793,6 +783,27 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
         return  strings;
     }
+
+
+    public String[] artikel_list_all_no_unit()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = { "NAME","EINHEIT" };
+
+        Cursor cursor = db.query(TB_MATERIAL_TYP,columns,null,null,null,null,"NAME ASC");
+        String[] strings = new String[cursor.getCount()];
+
+        int i=0;
+        while (cursor.moveToNext())
+        {
+            strings[i] =cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
+            i++;
+        }
+        cursor.close();
+        db.close();
+
+        return  strings;
+    }
     public void artikel_delet(String artikel_name,String artikel_einheit)
     {
         //TODO Bestätigen
@@ -806,6 +817,15 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         dbw.close();
 
 
+    }
+
+
+    public void artikel_delet_all()
+    {
+        //TODO Bestätigen
+        SQLiteDatabase dbw = this.getWritableDatabase();
+        int r =  dbw.delete(TB_MATERIAL_TYP,null,null);
+        dbw.close();
     }
         public String artikel_counter()
         {
@@ -822,7 +842,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
             return c;
         }
 
-    public long update_artikel(String artikel, String einheit, String artikel_to, String einheit_to)
+    public long update_artikel(String artikel_from, String einheit_from, String artikel_to, String einheit_to)
     {
 
         //FIXME Feedback, Fehler ausbügeln
@@ -831,9 +851,10 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         data.put("EINHEIT",einheit_to);
 
         SQLiteDatabase dbw = this.getWritableDatabase();
-        String[] selectionArgs = { artikel,einheit };
+        String[] selectionArgs = { artikel_from,einheit_from };
         String where = "NAME=? AND EINHEIT=?";
         long response =dbw.update(TB_MATERIAL_TYP,data,where,selectionArgs);
+        dbw.close();
 
         return  response;
     }
@@ -931,6 +952,35 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
                 new String[]{"NAME"});
         return lieferant_name;
     }
+
+
+    public String create_backup_artikel()
+    {
+            SQLiteDatabase db = this.getReadableDatabase();
+
+            String[] columns = { "ID","NAME","EINHEIT","FAV_FLAG" };
+
+            Cursor cursor = db.query(TB_MATERIAL_TYP,columns,null,null,null,null,"NAME DESC");
+            String strings ="[\n";
+
+            int i=0;
+            while (cursor.moveToNext())
+            {
+                strings +="{\n";
+                strings +="\"ID\":\""+cursor.getString(cursor.getColumnIndexOrThrow("ID"))+"\",\n";
+                strings +="\"NAME\":\""+cursor.getString(cursor.getColumnIndexOrThrow("NAME"))+"\",\n";
+                strings +="\"EINHEIT\":\""+cursor.getString(cursor.getColumnIndexOrThrow("EINHEIT"))+"\"},\n";
+                strings +="\"FAV_FLAG\":\""+cursor.getString(cursor.getColumnIndexOrThrow("FAV_FLAG"))+"\"},\n";
+
+            }
+            strings =strings.substring(0,strings.length()-2)+"]\n";
+            cursor.close();
+            db.close();
+
+            return  strings;
+    }
+
+
 
 
 }

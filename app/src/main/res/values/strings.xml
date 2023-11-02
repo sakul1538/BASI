@@ -182,6 +182,16 @@
 
 
 
+    <string name="artikel_config_dialog_update_label">Artikel Bearbeiten</string>
+    <string name="artikel_config_dialog_add_label">Artikel Hinzufügen</string>
+    <string name="artikel_config_dialog_backup_label">Datenbank Backups:</string>
+    <string name="artikel_config_dialog_backup_create">Erstellen</string>
+    <string name="artikel_config_dialog_backup_restore">Wiederherstellen</string>
+
+
+
+
+
     <string-array name="planets_array">
         <item>Mercury</item>
         <item>Venus</item>

@@ -11,14 +11,44 @@
         android:orientation="vertical">
 
         <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/editTextText"
+                android:layout_width="@dimen/Edit_text_2"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:inputType="text"
+                android:text="Name" />
+
+            <ImageButton
+                android:id="@+id/imageButton69"
+                android:layout_width="@dimen/buttons_1"
+                android:layout_height="@dimen/buttons_1"
+                android:src="@drawable/ic_baseline_search_24" />
+
+            <ImageButton
+                android:id="@+id/imageButton75"
+                android:layout_width="@dimen/buttons_1"
+                android:layout_height="@dimen/buttons_1"
+                android:layout_weight="1"
+                android:src="@drawable/ic_baseline_table_rows_24" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"/>
+            android:orientation="horizontal" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/material_artikel_liste"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
         </androidx.recyclerview.widget.RecyclerView>
 

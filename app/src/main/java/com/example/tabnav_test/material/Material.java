@@ -19,14 +19,12 @@ import android.os.Bundle;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.media.AudioAttributesImplBaseParcelizer;
 
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.JsonReader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -48,17 +46,12 @@ import android.widget.Toast;
 import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.R;
 import com.example.tabnav_test.SQL_finals;
-import com.example.tabnav_test.material_artikel_adapter;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -96,6 +89,7 @@ public class Material extends Fragment {
     Boolean lieferant_lock_status = false;
     ImageButton settings_projekt_button;
     ImageButton settings_zulieferer;
+
     ImageButton set_locksatus_zulieferer;
     ImageButton settings_artikel;
     ImageButton add_artikel;
@@ -136,6 +130,8 @@ public class Material extends Fragment {
     //Spinner
     Spinner projlist;
     Spinner zulieferer_liste;
+
+    Spinner spinner_artikel_settings ;
 
 
 
@@ -868,6 +864,242 @@ public class Material extends Fragment {
             @Override
             public void onClick(View view) {
                 LayoutInflater li = LayoutInflater.from(getActivity());
+                View view_artikel = li.inflate(R.layout.artikel_config_dialog, container, false);
+
+
+
+                //ImageButtons
+                ImageButton imagebutton_artikel_update = view_artikel.findViewById(R.id.imagebutton_artikel_update);
+                ImageButton imagebutton_artikel_delet = view_artikel.findViewById(R.id.imageButton_artikel_delet);
+                ImageButton imageButton_artikel_add = view_artikel.findViewById(R.id.imageButton_artikel_add);
+                Button button_artikel_crate_backup = view_artikel.findViewById(R.id.button_artikel_crate_backup);
+                Button button_artikel_restore_backup = view_artikel.findViewById(R.id.button_artikel_restore_backup);
+
+                //Spinners
+                Spinner spinner_artikel_unit  = view_artikel.findViewById(R.id.spinner_artikel_unit);
+                spinner_artikel_settings = view_artikel.findViewById(R.id.spinner_artikel_settings);
+
+                //Autocomplete
+                AutoCompleteTextView autoCompleteText_artikel_add = view_artikel.findViewById(R.id.autoCompleteText_artikel_add);
+                material_database_ops mdo = new material_database_ops(getContext());
+                String[] artikel = mdo.artikel_list_all_no_unit();
+                ArrayAdapter<String> artikelAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, artikel);
+                autoCompleteText_artikel_add.setAdapter(artikelAdapter);
+
+                refresh_spinner_artikel_settings();
+
+
+                button_artikel_crate_backup.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+
+                        /*OUTPUT von createBackup nicht korrekt,
+                        Dateispeicherung funktioniert aber.
+                        */
+                        r.create_backup(mdo.create_backup_artikel());
+                    }
+                });
+
+                imageButton_artikel_add.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+
+                        try {
+                            String new_artikel = autoCompleteText_artikel_add.getText().toString().trim();
+                            String new_einheit = spinner_artikel_unit.getSelectedItem().toString();
+                            mdo.add_artikel_to_list(new_artikel,new_einheit);
+                            refresh_spinner_artikel_settings();
+                            autoCompleteText_artikel_add.setText("");
+                            Toast.makeText(getContext(), "Artikel\n "+new_artikel +" "+new_einheit +" hinzugefügt!",Toast.LENGTH_SHORT).show();
+
+                        }catch (Exception e )
+                        {
+                            Toast.makeText(getContext(), "Fehler:\n"+e.getMessage().toString(),Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                });
+
+
+
+                imagebutton_artikel_delet.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View view, MotionEvent motionEvent)
+                    {
+                        switch (motionEvent.getAction())
+                        {
+                            case MotionEvent.ACTION_DOWN:
+                                // Speichern Sie den Zeitpunkt, wenn der Finger die Ansicht berührt hat
+                                touchStartTime = System.currentTimeMillis();
+                                return true;
+
+                            case MotionEvent.ACTION_UP:
+                                // Berechnen Sie die Dauer des Drucks
+                                long pressDuration = System.currentTimeMillis() - touchStartTime;
+
+                                // Überprüfen Sie, ob es sich um einen langen Druck handelt
+                                if (pressDuration >= 1000)
+                                {
+
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                                    alertDialogBuilder.setTitle("Bestätigen");
+                                    alertDialogBuilder.setIcon(R.drawable.ic_baseline_report_gmailerrorred_24);
+
+                                    alertDialogBuilder.setMessage("ALLE Einträge Löschen?").setPositiveButton("ALLE Löschen", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i)
+                                        {
+
+                                            mdo.artikel_delet_all();
+                                            refresh_spinner_artikel_settings();
+                                            dialogInterface.cancel();
+                                        }
+                                    });
+                                    alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            dialogInterface.cancel();
+                                        }
+                                    });
+
+                                    AlertDialog alertDialog = alertDialogBuilder.create();
+                                    alertDialog.show();
+
+                                }
+                                else
+                                {
+                                    String selected = spinner_artikel_settings.getSelectedItem().toString();
+                                    int spos = selected.lastIndexOf("[");
+                                    int epos = selected.lastIndexOf("]");
+
+                                   String artikel = selected.substring(0, spos).trim();
+                                   String einheit = selected.substring(spos + 1, epos).trim();
+
+
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                                    alertDialogBuilder.setTitle("Bestätigen");
+                                    alertDialogBuilder.setIcon(R.drawable.ic_baseline_info_24_blue);
+                                    alertDialogBuilder.setMessage("Artikel " +spinner_artikel_settings.getSelectedItem().toString() + "  wiklich löschen?").setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i)
+                                        {
+                                            mdo.artikel_delet(artikel,einheit);
+                                            refresh_spinner_artikel_settings();
+                                            //TODO Ordner im Verzeichnis auch löschen!*/
+
+
+                                            dialogInterface.cancel();
+                                        }
+                                    });
+
+                                    alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                                            dialogInterface.cancel();
+                                        }
+                                    });
+
+                                    AlertDialog alertDialog = alertDialogBuilder.create();
+                                    alertDialog.show();
+
+                                }
+                                return true;
+                        }
+                        return false;
+
+                    }
+                });
+
+                imagebutton_artikel_update.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+
+                        LayoutInflater li = LayoutInflater.from(getActivity());
+                        View update_artikel = li.inflate(R.layout.material_artikel_change_dialog, container, false);
+
+                        EditText editTextText2_artikel = update_artikel.findViewById(R.id.editTextText2_artikel);
+                        Spinner spinner_artikel_einheit = update_artikel.findViewById(R.id.spinner_artikel_einheit);
+
+                        String artikel = "";
+                        String  einheit ="";
+                        try {
+
+                            String selected = spinner_artikel_settings.getSelectedItem().toString();
+                            int spos = selected.lastIndexOf("[");
+                            int epos = selected.lastIndexOf("]");
+
+                            artikel = selected.substring(0, spos).trim();
+                            einheit = selected.substring(spos + 1, epos).trim();
+
+                            editTextText2_artikel.setText(artikel);
+
+                            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(view.getContext(), R.array.einheiten_array, android.R.layout.simple_spinner_item);
+                            int index = adapter.getPosition(einheit);
+                            spinner_artikel_einheit.setSelection(index);
+
+                        } catch (Exception e) {
+
+                            throw new RuntimeException(e);
+                        }
+
+                        AlertDialog.Builder update_artikel_dialog = new AlertDialog.Builder(getContext());
+                        // set prompts.xml to alertdialog builder
+                        update_artikel_dialog.setView(update_artikel);
+                        update_artikel_dialog.setTitle("Artikel ändern");
+
+                        String finalArtikel = artikel;
+                        String finalEinheit = einheit;
+                        update_artikel_dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                                String artikel_new =editTextText2_artikel.getText().toString().trim();
+                                String eiheit_new = spinner_artikel_einheit.getSelectedItem().toString();
+                                mdo.update_artikel(finalArtikel, finalEinheit,artikel_new,eiheit_new);
+                                refresh_spinner_artikel_settings();
+                                dialogInterface.cancel();
+                            }
+                        });
+
+                        update_artikel_dialog.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                                dialogInterface.cancel();
+                            }
+                        });
+                        update_artikel_dialog.show();
+                    }
+                });
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                // set prompts.xml to alertdialog builder
+                alertDialogBuilder.setView(view_artikel);
+                alertDialogBuilder.setTitle("Artikelverwaltung");
+                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //refresh_artikel_autocomplete();
+                        dialogInterface.cancel();
+                    }
+                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+            }
+        });
+
+
+
+        //Alte version
+        /*settings_artikel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LayoutInflater li = LayoutInflater.from(getActivity());
                 View view_artikel = li.inflate(R.layout.material_type_conf, container, false);
 
                 RecyclerView matieral_artikel = view_artikel.findViewById(R.id.material_artikel_liste);
@@ -895,7 +1127,7 @@ public class Material extends Fragment {
                 AlertDialog alertDialog = alertDialogBuilder.create();
                 alertDialog.show();
             }
-        });
+        });*/
 
         //Zulieferer
         settings_zulieferer.setOnClickListener(new View.OnClickListener() {
@@ -905,13 +1137,13 @@ public class Material extends Fragment {
                 LayoutInflater li = LayoutInflater.from(getActivity());
                 View promptsView = li.inflate(R.layout.lieferanten_config_dialog, container, false);
 
-                ImageButton add_zulieferer = promptsView.findViewById(R.id.imageButton49);
+                ImageButton add_zulieferer = promptsView.findViewById(R.id.imageButton_artikel_add);
                 ImageButton update_zulieferer = promptsView.findViewById(R.id.imageButton50);
-                ImageButton del_zuliefere = promptsView.findViewById(R.id.imageButton51);
+                ImageButton del_zuliefere = promptsView.findViewById(R.id.imageButton_artikel_delet);
 
-                Button create_backup = promptsView.findViewById(R.id.lieferant_crate_backup);
-                Button restore_backup = promptsView.findViewById(R.id.lieferant_restore_backup);
-                zulieferer_liste = promptsView.findViewById(R.id.spinner5);
+                Button create_backup = promptsView.findViewById(R.id.button_artikel_crate_backup);
+                Button restore_backup = promptsView.findViewById(R.id.button_artikel_restore_backup);
+                zulieferer_liste = promptsView.findViewById(R.id.spinner_artikel_settings);
                 AutoCompleteTextView add_new_liferant_value = promptsView.findViewById(R.id.editText_add_lieferant);
                 add_new_liferant_value.setAdapter(get_zulieferer_adapter());
 
@@ -1569,6 +1801,19 @@ public class Material extends Fragment {
 
     }
 
+    public void refresh_spinner_artikel_settings()
+    {
+        material_database_ops mdo = new material_database_ops(getContext());
+        //Spinner adapter
+        String[] zulieferer_liste_items = mdo.artikel_list_all();
+        if (zulieferer_liste_items.length == 0) {
+            zulieferer_liste_items = new String[]{"Keine Artikel"};
+        }
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, zulieferer_liste_items);
+        spinner_artikel_settings.setAdapter(spinnerArrayAdapter);
+    }
+
+
     public String[] divider(String value) {
         String[] item_parts = value.split("\\[");
         item_parts[1] = item_parts[1].replace("]", "");
@@ -2029,6 +2274,45 @@ public class Material extends Fragment {
 
             }
 
+        }
+
+        public void create_backup(String data)
+        {
+            String filename =mdo.get_selectet_projekt()+"backup_artikel@"+bsf.get_date_filename()+"_ID_"+bsf.gen_ID()+".json";
+
+            String backup_root = mdo.get_projekt_root_paht()+"/Backups/";
+            File f = new File(backup_root);
+            f.mkdirs();
+            try {
+                f.createNewFile();
+
+                FileWriter fw = new FileWriter(backup_root+filename);
+                fw.write(data);
+                fw.close();
+
+                AlertDialog.Builder create_backup_report_dialog  = new AlertDialog.Builder(getContext());
+                create_backup_report_dialog.setTitle("Export Report");
+                create_backup_report_dialog.setMessage("Backup gespeichert unter: \n\n"+backup_root+filename);
+                create_backup_report_dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+                create_backup_report_dialog.setNegativeButton("URL Kopieren", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        bsf.copy_to_clipboard(backup_root+filename,getContext());
+                    }
+                });
+
+                create_backup_report_dialog.show();
+
+            } catch (IOException e)
+            {
+                Toast.makeText(getContext(), "Backup erstellen Fehlgeschlagen!:  \n"+e.getMessage().toString(), Toast.LENGTH_LONG).show();
+            }
         }
     }
 
