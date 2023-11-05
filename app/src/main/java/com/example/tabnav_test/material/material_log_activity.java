@@ -145,7 +145,6 @@ public class material_log_activity extends AppCompatActivity
         slide_adapter = new material_log_slidePagerAdapter(this);
 
 
-
         viewpager.setAdapter(slide_adapter);
         viewpager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -163,7 +162,7 @@ public class material_log_activity extends AppCompatActivity
             public void onTabSelected(TabLayout.Tab tab)
             {
                viewpager.setCurrentItem(tab.getPosition());
-               Log.d("TAB NR", String.valueOf(tab.getPosition()));
+             //  Log.d("TAB NR", String.valueOf(tab.getPosition()));
             }
 
             @Override

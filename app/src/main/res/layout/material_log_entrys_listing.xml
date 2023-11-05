@@ -26,14 +26,16 @@
             android:padding="5dp">
 
             <LinearLayout
+                android:id="@+id/select_date_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left|center_vertical"
+                android:layout_gravity="center"
                 android:layout_margin="5dp"
                 android:layout_weight="0"
                 android:foregroundGravity="left"
-                android:gravity="center|left"
-                android:orientation="horizontal">
+                android:gravity="center|center_vertical"
+                android:orientation="horizontal"
+                tools:visibility="visible">
 
                 <ImageButton
                     android:id="@+id/imageButton72"
@@ -70,7 +72,7 @@
                 android:id="@+id/imageButton35"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
+                android:layout_gravity="center|end"
                 android:layout_margin="5dp"
                 android:layout_weight="0"
                 android:background="#00FFFFFF"
@@ -78,10 +80,21 @@
                 app:srcCompat="@drawable/ic_baseline_calendar_month_24" />
 
             <ImageButton
+                android:id="@+id/imageButton53"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|end"
+                android:layout_margin="5dp"
+                android:layout_weight="0"
+                android:background="#00FFFFFF"
+                android:padding="5dp"
+                app:srcCompat="@drawable/ic_baseline_sync_24" />
+
+            <ImageButton
                 android:id="@+id/imageButton74"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
+                android:layout_gravity="center|end"
                 android:layout_margin="5dp"
                 android:layout_weight="0"
                 android:background="#00FFFFFF"
@@ -92,7 +105,7 @@
                 android:id="@+id/imageButton36"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
+                android:layout_gravity="center|end"
                 android:layout_margin="5dp"
                 android:layout_weight="0"
                 android:background="#00FFFFFF"

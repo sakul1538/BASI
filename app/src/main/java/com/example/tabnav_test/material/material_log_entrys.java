@@ -1,6 +1,5 @@
 package com.example.tabnav_test.material;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
@@ -12,12 +11,15 @@ import android.os.Environment;
 import android.util.JsonReader;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
+import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,7 +31,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.R;
-import com.google.android.material.progressindicator.BaseProgressIndicator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,10 +40,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 
 public class material_log_entrys extends Fragment
 {
      public RecyclerView ls_log_view_rcv;
+    TextView date_select;
 
     private ls_log_view_rcv_adapter lslogrcv;
     public material_log_entrys()
@@ -103,44 +108,6 @@ public class material_log_entrys extends Fragment
                 }
 
                 break;
-
-            case 2: //create backup
-
-                Uri  uri_create_backup = data.getData();
-                Log.d("BASI backup_paht", data.getData().getPath());
-
-                String source_path_create_backup = uri_create_backup.getPath();//tree/primary:DCIM/Baustellen /CBB E03
-                String backup_file_import_url_create_backup = source_path_create_backup.replace("/tree/primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
-
-                Log.d("BASI backup_paht",backup_file_import_url_create_backup);
-
-
-                String[] entrys = mdo.get_current_projekt_entrys();
-
-                String data_loop="[";
-                for(String i:entrys )
-                {
-                    data_loop +="{";
-                    String[] extract = i.split(",");
-                    String temp_loop ="";
-
-                    for(String e: extract)
-                    {
-                        String [] nr = e.split(":");
-                        temp_loop += "\""+nr[0]+"\":\""+nr[1]+"\",";
-                    }
-                    data_loop +=temp_loop.substring(0,temp_loop.length()-1)+"},";
-
-                }
-                data_loop =data_loop.substring(0,data_loop.length()-1)+"]";
-                Log.d("BASI Json",data_loop);
-
-
-                String filename= mdo.get_selectet_projekt()+"dataset_backup@"+bsf.get_date_filename()+".json";
-               Log.d("BASI",backup_file_import_url_create_backup+"/"+filename);
-               file_save(backup_file_import_url_create_backup+"/"+filename,data_loop);
-
-                break;
         }
 
     }
@@ -174,6 +141,10 @@ public class material_log_entrys extends Fragment
         //ImageButton
         ImageButton search_in = view.findViewById(R.id.imageButton74);
         ImageButton action_menu = view.findViewById(R.id.imageButton36);
+        ImageButton reload_dataset = view.findViewById(R.id.imageButton53);
+        ImageButton date_calender_visibility = view.findViewById(R.id.imageButton35);
+        ImageButton date_calender_shift_back = view.findViewById(R.id.imageButton72);
+        ImageButton date_calender_shift_forward = view.findViewById(R.id.imageButton73);
 
 
         //RecyclerView
@@ -183,21 +154,146 @@ public class material_log_entrys extends Fragment
         ls_log_view_rcv.setAdapter(lslogrcv);
         ls_log_view_rcv.setLayoutManager( new LinearLayoutManager(getContext()));
 
+        //TextView
+
+        date_select = view.findViewById(R.id.textView53);
+
+
+        //Layouts
+        LinearLayout select_date_layout = view.findViewById(R.id.select_date_layout);
+        select_date_layout.setVisibility(View.GONE);
+        date_calender_shift_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                date_select.setText(bsf.time_day_shift(date_select.getText().toString(),"",-1));
+                date_search_refresh_dataset();
+            }
+        });
+
+        date_calender_shift_forward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                date_select.setText(bsf.time_day_shift(date_select.getText().toString(),"",1));
+                date_search_refresh_dataset();
+            }
+        });
+
+        date_select.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                DatePickerDialog datePickerDialog = new DatePickerDialog(getContext());
+                datePickerDialog.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.set(i, i1, i2);
+
+
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+
+                        String dateString = dateFormat.format(calendar.getTime());
+
+
+                        date_select.setText(dateString);
+                        date_search_refresh_dataset();
+
+
+                    }
+                });
+                datePickerDialog.show();
+            }
+        });
+
+        date_calender_visibility.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                if(select_date_layout.getVisibility() == View.VISIBLE)
+                {
+                    select_date_layout.setVisibility(View.GONE);
+                    try {
+                        lslogrcv.refresh_dataset(getContext());
+                    } catch (Exception e) {
+                      bsf.exeptiontoast(e,getContext());
+                    }
+                }
+                else
+                {
+                    select_date_layout.setVisibility(View.VISIBLE);
+                    date_select.setText(bsf.date_refresh_rev2());
+                    date_search_refresh_dataset();
+                }
+
+            }
+        });
+        
+        reload_dataset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+
+                try {
+                    lslogrcv.refresh_dataset(getContext());
+                    Toast.makeText(getContext(), "Alle Einträge neu geladen!", Toast.LENGTH_SHORT).show();
+                    select_date_layout.setVisibility(View.GONE);
+                } catch (Exception e) {
+                   bsf.exeptiontoast(e,getContext());
+                }
+            }
+        });
+
 
         search_in.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
-
                 LayoutInflater li = LayoutInflater.from(getContext());
                 View search_in_dialog = li.inflate(R.layout.material_log_entrys_search_dialog,container,false);
 
                 //TextView's
                 TextView date = search_in_dialog.findViewById(R.id.material_log_search_datum_field);
 
-                date.setText(bsf.date_refresh_rev2());
+                //Checkboxen
+                CheckBox material_log_search_lsnr_field_check = search_in_dialog.findViewById(R.id.material_log_search_lsnr_field_check);
+                CheckBox material_log_search_lieferant_field_check = search_in_dialog.findViewById(R.id.material_log_search_lieferant_field_check);
+                CheckBox material_log_search_datum_field_check = search_in_dialog.findViewById(R.id.material_log_search_datum_field_check);
+                CheckBox material_log_search_artikel_field_check = search_in_dialog.findViewById(R.id.material_log_search_artikel_field_check);
 
+                AutoCompleteTextView material_log_search_lsnr_field = search_in_dialog.findViewById(R.id.material_log_search_lsnr_field) ;
+                AutoCompleteTextView material_log_search_lieferant_field = search_in_dialog.findViewById(R.id.material_log_search_lieferant_field) ;
+                AutoCompleteTextView material_log_search_artikel_field = search_in_dialog.findViewById(R.id.material_log_search_artikel_field) ;
+
+               material_log_search_lsnr_field.setAdapter(bsf.get_autocomplete_adapter(mdo.get_entry_lsnr_list_all(),getContext()));
+               material_log_search_lieferant_field.setAdapter(bsf.get_autocomplete_adapter(mdo.zulieferer_list_all("NAME DESC"),getContext()));
+               material_log_search_artikel_field.setAdapter(bsf.get_autocomplete_adapter(mdo.artikel_list_all(),getContext()));
+
+
+                date.setText(bsf.date_refresh_rev2());
+                date.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext());
+                        datePickerDialog.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker datePicker, int i, int i1, int i2)
+                            {
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.set(i, i1, i2);
+
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+                                String dateString = dateFormat.format(calendar.getTime());
+                                date.setText(dateString);
+                            }
+                        });
+                        datePickerDialog.show();
+                    }
+                });
                 AlertDialog.Builder search_dialog = new AlertDialog.Builder(getContext());
                 search_dialog.setView(search_in_dialog);
                 search_dialog.setTitle("Suche");
@@ -207,19 +303,74 @@ public class material_log_entrys extends Fragment
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
-                     dialogInterface.cancel();
+                        ArrayList select_args= new ArrayList();
+                        ArrayList where= new ArrayList();
+
+
+                        try {
+                            if(material_log_search_lsnr_field_check.isChecked())
+                            {
+                                select_args.add(material_log_search_lsnr_field.getText().toString());
+                                where.add("LSNR=? ");
+                            }
+
+                            if(material_log_search_lieferant_field_check.isChecked())
+                            {
+
+                                select_args.add(mdo.get_id_zulieferer(material_log_search_lieferant_field.getText().toString()));
+                                where.add("LIEFERANT_ID=?");
+                            }
+
+                            if(material_log_search_datum_field_check.isChecked())
+                            {
+                                select_args.add(bsf.convert_date(date.getText().toString(),"format_database"));
+                                where.add("DATUM=?");
+                            }
+                            if(material_log_search_artikel_field_check.isChecked())
+                              {
+                                 String[] raw_input =  material_log_search_artikel_field.getText().toString().split("\\[");
+                                 String artikel = raw_input[0].trim();
+                                 String einheit = raw_input[1].substring(0,raw_input[1].length()-1);
+                                 String []selectinArgs = new String[]{artikel,einheit};
+                                 select_args.add(mdo.get_artikel_param(selectinArgs,"NAME=? AND EINHEIT=?",new String[]{"ID"}));
+                                 where.add("MATERIAL_ID=?");
+
+                              }
+
+                            select_args.add(mdo.get_selectet_projekt_id());
+                            where.add("PROJEKT_ID=?");
+                        } catch (Exception e)
+                        {
+                            bsf.exeptiontoast(e,getContext());
+                        }
+
+                        try {
+                            String []  matches = mdo.material_log_search(where,select_args);
+                            lslogrcv.refresh_dataset_from_array(matches,getContext());
+                        } catch (Exception e)
+                        {
+                            bsf.exeptiontoast(e,getContext());
+                        }
+
+                        dialogInterface.cancel();
                     }
                 });
+
 
                 search_dialog.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
+                        try {
+                            lslogrcv.refresh_dataset(getContext());
+                        } catch (Exception e)
+                        {
+                           bsf.exeptiontoast(e,getContext());
+                        }
                         dialogInterface.cancel();
                     }
                 });
-                search_dialog.show();
-            }
+                search_dialog.show();             }
         });
 
 
@@ -287,29 +438,48 @@ public class material_log_entrys extends Fragment
             }
         });
 
-
-
-
-
         return view;
     }
 
     private void backup(String direction)
     {
         material_database_ops mdo = new material_database_ops(getContext());
+        Basic_funct bsf  = new Basic_funct();
 
-        String paht= mdo.get_projekt_root_paht()+Material.ls_media_directory_name+"/";
+        String paht= mdo.get_projekt_root_paht()+Material.backup_dir+"DATASETS/";
         String filename="untitled.json";
 
         switch (direction)
         {
             case "create":
+                File dir = new File(paht);
+                if(dir.exists()==false)
+                {
+                    dir.mkdirs();
+                }
 
-                Intent intent_create_backup = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                startActivityForResult(intent_create_backup, 2);
+                String[] entrys = mdo.get_current_projekt_entrys();
 
+                String data_loop="[";
+                for(String i:entrys )
+                {
+                    data_loop +="{";
+                    String[] extract = i.split(",");
+                    String temp_loop ="";
 
-                Toast.makeText(getContext(), direction, Toast.LENGTH_SHORT).show();
+                    for(String e: extract)
+                    {
+                        String [] nr = e.split(":");
+                        temp_loop += "\""+nr[0]+"\":\""+nr[1]+"\",";
+                    }
+                    data_loop +=temp_loop.substring(0,temp_loop.length()-1)+"},";
+
+                }
+                data_loop =data_loop.substring(0,data_loop.length()-1)+"]";
+
+                String file_name= mdo.get_selectet_projekt()+"dataset_backup@"+bsf.get_date_filename()+"_ID_"+bsf.gen_UUID()+".json";
+                file_save(paht+file_name,data_loop);
+
                 break;
             case "restore":
 
@@ -329,8 +499,8 @@ public class material_log_entrys extends Fragment
     {
         material_database_ops mdo = new material_database_ops(getContext());
         String[] data = mdo.get_current_projekt_entrys();
+        String paht="";
 
-        String paht= mdo.get_projekt_root_paht()+Material.ls_media_directory_name+"/"+  mdo.get_selectet_projekt().split(",")[0];
         String filename="untitled.txt";
 
         Basic_funct bsf = new Basic_funct();
@@ -338,6 +508,13 @@ public class material_log_entrys extends Fragment
         switch (format_type)
         {
             case "json":
+
+                paht= mdo.get_projekt_root_paht()+Material.backup_dir+"JSON/";
+                File dir = new File(paht);
+                if(dir.exists() == false )
+                {
+                    dir.mkdirs();
+                }
 
                 String data_loop="[";
                 for(String i:data )
@@ -358,11 +535,19 @@ public class material_log_entrys extends Fragment
                 Log.d("BASI Json",data_loop);
 
 
-                filename= "dataset_ls@"+bsf.get_date_filename()+".json";
+                filename=   mdo.get_selectet_projekt().split(",")[0]+"dataset_ls@"+bsf.get_date_filename()+".json";
+
                 file_save(paht+filename,data_loop);
                 break;
 
             case "csv":
+
+                paht= mdo.get_projekt_root_paht()+Material.backup_dir+"CSV/";
+                dir = new File(paht);
+                if(dir.exists() == false )
+                {
+                    dir.mkdirs();
+                }
 
                 String string_loop ="ID,DATUM,LIEFERSCHEIN NR,LIEFERANT, ARTIKEL,MENGE,EINHEIT,NOTIZ\n"; //Colum names
 
@@ -416,9 +601,8 @@ public class material_log_entrys extends Fragment
                         }
                     }
                 }
-                filename= "dataset_ls@"+bsf.get_date_filename()+".csv";
+                filename=  mdo.get_selectet_projekt().split(",")[0]+"dataset_ls@"+bsf.get_date_filename()+".csv";
                 file_save(paht+filename,string_loop);
-
                 break;
             default:
                 Toast.makeText(getContext(), "Nicht Impementiert", Toast.LENGTH_SHORT).show();
@@ -487,9 +671,22 @@ public class material_log_entrys extends Fragment
             Toast.makeText(getContext(),"Export  Erfolgreich als Datei "+filename, Toast.LENGTH_SHORT).show();
         } catch (IOException e)
         {
-
             Toast.makeText(getContext(),"Export  Fehlgeschlagen\n"+e.getMessage().toString(), Toast.LENGTH_SHORT).show();
         }
     }
+
+    private void date_search_refresh_dataset()
+    {
+        Basic_funct bsf =new Basic_funct();
+        material_database_ops mdo = new material_database_ops(getContext());
+        try {
+            lslogrcv.refresh_dataset_from_array(mdo.material_log_search_date(date_select.getText().toString()),getContext());
+        } catch (Exception e) {
+            bsf.exeptiontoast(e,getContext());
+        }
+
+    }
+
+
 
 }

@@ -272,16 +272,6 @@
                     android:src="@drawable/ic_baseline_cancel_24" />
 
                 <ImageButton
-                    android:id="@+id/imageButton53"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:layout_weight="0"
-                    android:background="#00FFFFFF"
-                    android:padding="5dp"
-                    android:src="@drawable/ic_baseline_library_add_24" />
-
-                <ImageButton
                     android:id="@+id/imageButton39"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

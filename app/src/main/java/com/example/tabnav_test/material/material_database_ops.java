@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -33,6 +34,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class material_database_ops extends SQLiteOpenHelper implements SQL_finals
 {
@@ -458,6 +461,23 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         return  value;
     }
 
+    public String get_selectet_projekt_id()
+    {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] selectionArgs = {"1"};
+        String where = "SELECT_FLAG=?";
+
+        Cursor cursor = db.query(TB_MATERIAL_PROJEKTE,null,where,selectionArgs,null,null,null);
+        String id ="null";
+        cursor.moveToFirst();
+        id=cursor.getString(cursor.getColumnIndexOrThrow("ID"));
+        cursor.close();
+        db.close();
+
+        return  id;
+    }
+
     public String get_selectet_projekt_root_data()
     {
 
@@ -804,6 +824,23 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
         return  strings;
     }
+
+    public String get_artikel_id(String artikel,String einheit)
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String where = "NAME=? AND EINHEIT=?";
+        String[] selection_args ={artikel,einheit};
+
+        Cursor cursor = db.query(TB_MATERIAL_TYP,null,where,selection_args,null,null,null);
+        cursor.moveToNext();
+
+        String id =cursor.getString(cursor.getColumnIndexOrThrow("ID"));
+
+        cursor.close();
+        db.close();
+
+        return  id;
+    }
     public void artikel_delet(String artikel_name,String artikel_einheit)
     {
         //TODO Bestätigen
@@ -969,7 +1006,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
                 strings +="{\n";
                 strings +="\"ID\":\""+cursor.getString(cursor.getColumnIndexOrThrow("ID"))+"\",\n";
                 strings +="\"NAME\":\""+cursor.getString(cursor.getColumnIndexOrThrow("NAME"))+"\",\n";
-                strings +="\"EINHEIT\":\""+cursor.getString(cursor.getColumnIndexOrThrow("EINHEIT"))+"\"},\n";
+                strings +="\"EINHEIT\":\""+cursor.getString(cursor.getColumnIndexOrThrow("EINHEIT"))+"\",\n";
                 strings +="\"FAV_FLAG\":\""+cursor.getString(cursor.getColumnIndexOrThrow("FAV_FLAG"))+"\"},\n";
 
             }
@@ -979,6 +1016,215 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
             return  strings;
     }
+
+
+    public void restore_artikel(String source_path,Context  context,Boolean overwrite_mode)
+    {
+        InputStream in2 = null;
+        try {
+            in2 = new FileInputStream(new File(source_path));
+            try {
+                JsonReader reader = new JsonReader(new InputStreamReader(in2,"UTF-8"));
+
+                int insert_counter=0;
+                int update_counter=0;
+                int skipt_counter=0;
+
+                reader.beginArray();
+                while(reader.hasNext())
+                {
+                    reader.beginObject();
+                    ContentValues output_data = new ContentValues();
+                    while (reader.hasNext())
+                    {
+                        output_data.put(reader.nextName(),reader.nextString());
+                    }
+
+                    String[] selectionArgs = {output_data.get("NAME").toString()};
+                    //Auf Duplikate prüfen
+                    int  check_exist = this.find_similar(TB_MATERIAL_TYP,selectionArgs,"NAME=?");
+                    SQLiteDatabase wdb = this.getWritableDatabase();
+
+                    if(check_exist == 0)
+                    {
+                        wdb.insert(TB_MATERIAL_TYP,null,output_data);
+                        insert_counter++;
+                    }
+                    else
+                    {
+                        if (overwrite_mode == true)
+                        {
+                            String[] update_selectionArgs = { output_data.get("NAME").toString() };
+                            String where = "NAME=?";
+                            wdb.update(TB_MATERIAL_TYP,output_data,where,update_selectionArgs);
+                            update_counter++;
+                        }
+                        else
+                        {
+                            skipt_counter++;
+                        }
+                        //Overwirte mode = false => Keine Aktion
+                    }
+                    reader.endObject();
+                }
+                reader.endArray();
+
+
+                String message_string = insert_counter +" Einträge Importiert \n"+update_counter +" Updates der Einträge \n"+ skipt_counter+" Einträge Übersprungen";
+
+                AlertDialog.Builder restore_info_dialog = new AlertDialog.Builder(context);
+                restore_info_dialog.setTitle("Import Report");
+                restore_info_dialog.setMessage(message_string);
+                restore_info_dialog.setPositiveButton("Kopieren", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public
+                    void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        bsf.copy_to_clipboard(message_string,context);
+                    }
+                });
+
+
+                restore_info_dialog.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+                restore_info_dialog.show();
+
+                Log.d("BASI Import:",message_string);
+
+            } catch (UnsupportedEncodingException e)
+            {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String[] get_entry_lsnr_list_all()
+    {
+        String[] selectionArgs = { this.get_selectet_projekt_id()};
+        String[] columns = { "LSNR"};
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+
+        Cursor cursor = db.query(TB_MATERIAL_LOG,columns,"PROJEKT_ID=?",selectionArgs,"LSNR",null,"LSNR ASC");
+        String[] strings = new String[cursor.getCount()];
+
+        int i=0;
+        while (cursor.moveToNext())
+        {
+            strings[i] =cursor.getString(cursor.getColumnIndexOrThrow("LSNR"));
+            Log.d("ID",strings[i]);
+            i++;
+        }
+        cursor.close();
+        db.close();
+
+        return  strings;
+
+    }
+
+    public String[] material_log_search(ArrayList where,ArrayList select_args)
+    {
+
+        Iterator<String> where_list =where.iterator();
+        String where_string="";
+        while(where_list.hasNext())
+        {
+            where_string += where_list.next()+ " AND ";
+        }
+        where_string = where_string.substring(0,where_string.lastIndexOf("AND")) ;
+
+
+        Iterator<String> arg_list =select_args.iterator();
+        String []arg_array=new String[select_args.size()];
+        int c =0;
+        while(arg_list.hasNext())
+        {
+            arg_array[c] = arg_list.next().toString();
+            c++;
+        }
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TB_MATERIAL_LOG,null,where_string,arg_array,null,null,"DATUM ASC,LSNR, LIEFERANT_ID");
+        String[] strings = new String[cursor.getCount()];
+
+        int i=0;
+        while (cursor.moveToNext())
+        {
+            strings[i] =cursor.getString(cursor.getColumnIndexOrThrow("ID"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("PROJEKT_ID"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("DATUM"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("LSNR"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("LIEFERANT_ID"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("MATERIAL_ID"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("MENGE"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("EINHEIT_ID"));
+            try {
+                strings[i] +=","+bsf.URLencode(cursor.getString(cursor.getColumnIndexOrThrow("SRC")));
+            }catch (Exception e)
+            {
+                strings[i] +="null,";
+            }
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("NOTIZ"));
+            i++;
+        }
+        cursor.close();
+        db.close();
+        return  strings;
+
+    }
+
+
+    public String[] material_log_search_date(String date)
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TB_MATERIAL_LOG,null,"DATUM=?",new String[]{bsf.convert_date(date,"format_database")},null,null,"DATUM ASC,LSNR, LIEFERANT_ID");
+        String[] strings = new String[cursor.getCount()];
+
+        int i=0;
+        while (cursor.moveToNext())
+        {
+            strings[i] =cursor.getString(cursor.getColumnIndexOrThrow("ID"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("PROJEKT_ID"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("DATUM"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("LSNR"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("LIEFERANT_ID"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("MATERIAL_ID"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("MENGE"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("EINHEIT_ID"));
+            try {
+                strings[i] +=","+bsf.URLencode(cursor.getString(cursor.getColumnIndexOrThrow("SRC")));
+            }catch (Exception e)
+            {
+                strings[i] +="null,";
+            }
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("NOTIZ"));
+            i++;
+        }
+        cursor.close();
+        db.close();
+
+        return  strings;
+
+    }
+
+
+
+
 
 
 

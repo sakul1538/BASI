@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.example.tabnav_test.material.construction_fragment;
 import com.example.tabnav_test.material.material_log_activity;
 import com.example.tabnav_test.material.material_log_entrys;
 
@@ -28,15 +29,15 @@ public class material_log_slidePagerAdapter  extends FragmentStateAdapter
 
                     break;
             case 1:
-                fragment = new FirstFragment();
+                fragment = new construction_fragment();
                 break;
             case 2:
-                fragment = new FirstFragment();
+                fragment = new construction_fragment();
                 break;
 
             default:
 
-                fragment = new FirstFragment();
+                fragment = new construction_fragment();
 
         }
 

@@ -428,6 +428,12 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         localDataSet = mdo.material_entrys_list();
         notifyDataSetChanged();
     }
+    public void refresh_dataset_from_array(String[] dataset,Context context)
+{
+    localDataSet = dataset;
+    notifyDataSetChanged();
+}
+
 
     public void delet_dialog(String artikel_name,ContentValues data)
     {

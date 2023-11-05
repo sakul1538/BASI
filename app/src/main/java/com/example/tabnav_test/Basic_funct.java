@@ -3,10 +3,8 @@ package com.example.tabnav_test;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -14,9 +12,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
-
-import androidx.annotation.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,7 +29,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.Random;
 import java.util.UUID;
 
@@ -565,6 +561,16 @@ public class Basic_funct {
         Toast.makeText(context, "Eintrag in die Zwischenablage kopiert!", Toast.LENGTH_SHORT).show();
     }
 
+    public ArrayAdapter get_autocomplete_adapter(String [] data, Context context)
+    {
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, data);
+        return  adapter;
+    }
+    public void exeptiontoast(Exception e, Context context)
+    {
+        Toast.makeText(context, "Fehler:\n"+e.getMessage(), Toast.LENGTH_LONG).show();
+    }
 }
+
 
 

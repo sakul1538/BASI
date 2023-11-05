@@ -29,12 +29,10 @@
                     android:layout_margin="5dp"
                     android:text="@string/matieral_lsnr_label" />
 
-                <EditText
+                <AutoCompleteTextView
                     android:id="@+id/material_log_search_lsnr_field"
-                    android:layout_width="@dimen/Edit_text_1"
-                    android:layout_height="100px"
-                    android:layout_margin="5dp"
-                    android:ems="10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="@string/empty" />
 
                 <CheckBox

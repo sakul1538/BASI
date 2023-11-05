@@ -42,13 +42,15 @@
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/material_log_tab_summary" />
+                android:text="@string/material_log_tab_summary"
+                tools:visibility="visible" />
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/tabItem2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/material_log_tab_import_export" />
+                android:text="@string/material_log_tab_import_export"
+                tools:visibility="visible" />
 
         </com.google.android.material.tabs.TabLayout>
 

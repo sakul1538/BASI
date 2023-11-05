@@ -71,6 +71,9 @@ public class Material extends Fragment {
     private static final int foto_preview_h = 800; // höhe
     public static final String ls_media_directory_name = "/Lieferscheine"; // höhe
     private static final String ls_media_directory_name_temp = "/Lieferscheine/temp"; // höhe
+    public static final String backup_dir ="/Backups&Exports/"; // höhe
+    private static final String backup_artikel = "BASI_Backupfile_artikel"; // höhe
+    private static final String backup_lieferanten = "BASI_Backupfile_lieferanten"; // höhe
     private static final String TAG = "BASI"; // höhe
     private static final String TAKE_IMAGE_REFRESH_MODE = "refresh"; // höhe
     private static final String TAKE_IMAGE_NEW_MODE = "new"; // höhe
@@ -365,6 +368,47 @@ public class Material extends Fragment {
                 }
                 break;
 
+            case 7: //Backup Artikel Restore
+
+
+                if (resultData != null)
+                {
+                    uri = resultData.getData();
+                    String source_path = uri.getPath();///document/primary:DCIM/Baustellen /testprojekt/Lieferscheine/Volken_NR_1223@25072023_ID_6547592956172734206.jpeg
+                    source_path = source_path.replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
+                    Log.d("BADO SOURCE PAHT BACKUP ",source_path);
+
+
+                    AlertDialog.Builder alertdialog = new AlertDialog.Builder(getContext());
+                    alertdialog.setTitle("Aktion bei vorhandenen Einträgen?");
+                    String finalSource_path = source_path;
+                    alertdialog.setPositiveButton("Überschreiben", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i)
+                        {
+
+                           mdo.restore_artikel(finalSource_path,getContext(),true);
+                            refresh_spinner_artikel_settings();
+                            dialogInterface.cancel();
+                        }
+                    });
+
+                    alertdialog.setNegativeButton("Behalten", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i)
+                        {
+                          mdo.restore_artikel(finalSource_path,getContext(),false);
+                            refresh_spinner_artikel_settings();
+                            dialogInterface.cancel();
+                        }
+                    });
+
+                    alertdialog.show();
+                }
+
+                break;
+
+
 
         }
     }
@@ -456,7 +500,6 @@ public class Material extends Fragment {
         settings_projekt_button = view.findViewById(R.id.imageButton34);
         settings_artikel = view.findViewById(R.id.imageButton39);
 
-        add_artikel = view.findViewById(R.id.imageButton53);
         reset_artikel = view.findViewById(R.id.reset_artikel);
         reset_zulieferer = view.findViewById(R.id.reset_zulieferer);
         reset_LS = view.findViewById(R.id.reset_LS);
@@ -819,30 +862,6 @@ public class Material extends Fragment {
             }
         });
 
-        add_artikel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                try {
-                    material_database_ops mdo = new material_database_ops(getContext());
-                    long response = mdo.add_artikel_to_list(edit_artikel_name.getText().toString(), spinner_einheiten.getSelectedItem().toString());
-                    if (response > 0) {
-                        bsf.succes_msg(edit_artikel_name.getText().toString() + " wurde geschpeichert!", view.getContext());
-                    } else {
-                        bsf.error_msg(edit_artikel_name.getText().toString() + " konnte nicht hinzügefügt werden, da schon ein Eintrag existiert!", view.getContext());
-                    }
-                } catch (Exception e) {
-                    exmsg("110620231140", e);
-                }
-
-                try {
-                    refresh_artikel_autocomplete();
-                } catch (Exception e) {
-                    exmsg("110620231105A", e);
-                }
-            }
-        });
-
         edit_artikel_name.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -888,16 +907,24 @@ public class Material extends Fragment {
 
                 refresh_spinner_artikel_settings();
 
-
-                button_artikel_crate_backup.setOnClickListener(new View.OnClickListener() {
+                button_artikel_restore_backup.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view)
                     {
+                        Intent intent_restore_backup = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                        intent_restore_backup.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent_restore_backup.setType("application/json");
+                        startActivityForResult(intent_restore_backup, 7);
 
-                        /*OUTPUT von createBackup nicht korrekt,
-                        Dateispeicherung funktioniert aber.
-                        */
-                        r.create_backup(mdo.create_backup_artikel());
+                    }
+                });
+
+
+              button_artikel_crate_backup.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        r.create_backup(mdo.create_backup_artikel(),backup_artikel);
                     }
                 });
 
@@ -1152,47 +1179,12 @@ public class Material extends Fragment {
                 create_backup.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
+
                     public void onClick(View view)
                     {
-                        String backup_root = mdo.get_projekt_root_paht()+"/Backups/";
-                            File f = new File(backup_root);
-                            f.mkdirs();
-                            try {
-                                f.createNewFile();
-                                String filename =mdo.get_selectet_projekt()+"backup_lieferanten@"+bsf.get_date_filename()+"_ID_"+bsf.gen_ID()+".json";
-
-                                FileWriter fw = new FileWriter(backup_root+filename);
-                                fw.write(mdo.create_backup_json_zulieferer());
-                                fw.close();
-
-                                AlertDialog.Builder create_backup_report_dialog  = new AlertDialog.Builder(getContext());
-                                create_backup_report_dialog.setTitle("Export Report");
-                                create_backup_report_dialog.setMessage("Backup gespeichert unter: \n\n"+backup_root+filename);
-                                create_backup_report_dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        dialogInterface.cancel();
-                                    }
-                                });
-                                create_backup_report_dialog.setNegativeButton("URL Kopieren", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i)
-                                    {
-                                        bsf.copy_to_clipboard(backup_root+filename,getContext());
-                                    }
-                                });
-
-                                create_backup_report_dialog.show();
-
-                            } catch (IOException e)
-                            {
-                                Toast.makeText(getContext(), "Backup erstellen Fehlgeschlagen!:  \n"+e.getMessage().toString(), Toast.LENGTH_LONG).show();
-                            }
+                            r.create_backup(mdo.create_backup_json_zulieferer(),backup_lieferanten);
                         }
                 });
-
-
-
 
                 restore_backup.setOnClickListener(new View.OnClickListener()
                 {
@@ -1207,10 +1199,6 @@ public class Material extends Fragment {
 
                     }
                 });
-
-
-
-
 
                 add_zulieferer.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -2276,11 +2264,11 @@ public class Material extends Fragment {
 
         }
 
-        public void create_backup(String data)
+        public void create_backup(String data,String type)
         {
-            String filename =mdo.get_selectet_projekt()+"backup_artikel@"+bsf.get_date_filename()+"_ID_"+bsf.gen_ID()+".json";
+            String filename =type+"@"+bsf.get_date_filename()+"_ID_"+String.valueOf(System.currentTimeMillis())+".json";
 
-            String backup_root = mdo.get_projekt_root_paht()+"/Backups/";
+            String backup_root = mdo.get_projekt_root_paht()+backup_dir+"Artikel&Lieferanten/";
             File f = new File(backup_root);
             f.mkdirs();
             try {
