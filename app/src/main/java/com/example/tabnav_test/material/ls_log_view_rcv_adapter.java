@@ -93,16 +93,22 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             data.put("EINHEIT",bsf.NULLtest(items[7]));
             data.put("SRC",bsf.NULLtest(items[8]));
 
-           if(items[9].equals("null"))
-           {
-               data.put("NOTIZ","");
-           }
-           else
-           {
-               data.put("NOTIZ",items[9]);
-           }
+        try {
+            if(items[9].equals("null") || items[9].isEmpty())
+            {
+                data.put("NOTIZ","");
+            }
+            else
+            {
+                data.put("NOTIZ",bsf.URLdecode(items[9]));
+            }
+        } catch (Exception e)
+        {
+            data.put("NOTIZ","");
 
-            String artikel_name = mdo.get_artikel_param(
+        }
+
+        String artikel_name = mdo.get_artikel_param(
                     new String[]{data.get("ARTIKEL_ID").toString()},
                     "ID=?",
                     new String[]{"NAME"});
@@ -675,7 +681,8 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                 }
         });
         ls_nr.setText(data.get("LSNR").toString());
-        ls_note.setText(data.get("NOTIZ").toString());
+
+        ls_note.setText(bsf.URLdecode(data.get("NOTIZ").toString()));
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(parent.getContext());
         // set prompts.xml to alertdialog builder
@@ -685,33 +692,38 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         alertDialogBuilder.setIcon(R.drawable.ic_baseline_mode_24);
         alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i)
-            {
-                    ContentValues data_new = new ContentValues();
+            public void onClick(DialogInterface dialogInterface, int i) {
+                ContentValues data_new = new ContentValues();
 
-                    data_new.put("ID" ,data.get("ID").toString());
+                data_new.put("ID", data.get("ID").toString());
 
-                    String selectet_projekt_data = mdo.get_selectet_projekt();
-                    String selectet_projekt_id = selectet_projekt_data.substring(selectet_projekt_data.lastIndexOf("[")+1,selectet_projekt_data.lastIndexOf("]"));
+                String selectet_projekt_data = mdo.get_selectet_projekt();
+                String selectet_projekt_id = selectet_projekt_data.substring(selectet_projekt_data.lastIndexOf("[") + 1, selectet_projekt_data.lastIndexOf("]"));
 
-                    data_new.put("PROJEKT_ID",selectet_projekt_id);
-                    data_new.put("DATUM",bsf.convert_date(ls_date.getText().toString(),"format_database"));
-                    data_new.put("LSNR",ls_nr.getText().toString());
+                data_new.put("PROJEKT_ID", selectet_projekt_id);
+                data_new.put("DATUM", bsf.convert_date(ls_date.getText().toString(), "format_database"));
+                data_new.put("LSNR", ls_nr.getText().toString());
 
 
-                    String ls_zulieferere_id = mdo.get_zulieferer_param(
-                                        new String[]{ ls_zulieferer.getText().toString()}, "NAME=?",new String[]{"ID"});
-                    data_new.put("LIEFERANT_ID",ls_zulieferere_id);
+                String ls_zulieferere_id = mdo.get_zulieferer_param(
+                        new String[]{ls_zulieferer.getText().toString()}, "NAME=?", new String[]{"ID"});
+                data_new.put("LIEFERANT_ID", ls_zulieferere_id);
 
-                    mdo.add_artikel_to_list(artikel.getText().toString(),artikel_einheit.getSelectedItem().toString());
+                mdo.add_artikel_to_list(artikel.getText().toString(), artikel_einheit.getSelectedItem().toString());
 
-                    String artikel_id = mdo.get_artikel_param(new String[]  {artikel.getText().toString().trim(),artikel_einheit.getSelectedItem().toString().trim()},"NAME=? AND EINHEIT=?",new String[]{"ID"});
-                    Log.d("BASI Artikel: ",artikel_id.toString());
-                    data_new.put("MATERIAL_ID",artikel_id);
+                String artikel_id = mdo.get_artikel_param(new String[]{artikel.getText().toString().trim(), artikel_einheit.getSelectedItem().toString().trim()}, "NAME=? AND EINHEIT=?", new String[]{"ID"});
+                Log.d("BASI Artikel: ", artikel_id.toString());
+                data_new.put("MATERIAL_ID", artikel_id);
 
-                    data_new.put("MENGE",menge.getText().toString());
-                    data_new.put("EINHEIT_ID",artikel_einheit.getSelectedItem().toString());
-                    data_new.put("NOTIZ",ls_note.getText().toString());
+                data_new.put("MENGE", menge.getText().toString());
+                data_new.put("EINHEIT_ID", artikel_einheit.getSelectedItem().toString());
+                if (ls_note.getText().toString().isEmpty())
+                {
+                    data_new.put("NOTIZ","null");
+                } else
+                {
+                    data_new.put("NOTIZ", bsf.URLencode(ls_note.getText().toString()));
+                }
 
                     colision_test(selectet_projekt_id,ls_nr.getText().toString(),ls_zulieferere_id);
 

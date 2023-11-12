@@ -51,7 +51,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
     public void onCreate(SQLiteDatabase sqLiteDatabase)
     {
 
-
     }
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1)

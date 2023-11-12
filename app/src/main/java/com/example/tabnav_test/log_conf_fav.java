@@ -33,8 +33,6 @@ public class log_conf_fav extends AppCompatActivity
         rcv1.setAdapter(lca);
 
         rcv1.setLayoutManager( new LinearLayoutManager(log_conf_fav.this));
-
-
     }
 
 }

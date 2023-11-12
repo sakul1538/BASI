@@ -43,6 +43,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:title="csv" />
+                    <item
+                        android:id="@+id/export_pdf"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:title="pdf" />
                 </menu>
             </item>
             <item

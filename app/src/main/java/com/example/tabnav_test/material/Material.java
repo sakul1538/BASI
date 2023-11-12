@@ -52,6 +52,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -729,7 +730,7 @@ public class Material extends Fragment {
                     if (notiz == "" || notiz.isEmpty()) {
                         data.put("NOTIZ", "null");
                     } else {
-                        data.put("NOTIZ", notiz);
+                        data.put("NOTIZ",bsf.URLencode(notiz));
                     }
 
                     data.put("SRC", "null"); //Fixme anpassen !!!
