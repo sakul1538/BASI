@@ -11,6 +11,7 @@
     <string name="kamera_label_date">Datum:</string>
     <string name="kamera_label_media">Medien:</string>
 
+
     <string name="dialog_start_game">Starten</string>
     <string name="cancel">BEENDEN</string>
     <string name="abort">Abbrechen</string>
@@ -72,6 +73,8 @@
     <string name="reset_kat">Kategorie</string>
     <string name="reset_all">Alles</string>
     <string name="fav_global">Global</string>
+
+
 
     <string name="Maschinen_label">Maschine:</string>
     <string name="Maschinen_label_stundne">Zählerstand:</string>
@@ -188,6 +191,12 @@
     <string name="artikel_config_dialog_backup_create">Erstellen</string>
     <string name="artikel_config_dialog_backup_restore">Wiederherstellen</string>
 
+
+    <string name="favorite_strings_connfig_banner">Gespeicherte Favoriten Bearbeiten</string>
+    <string name="favorite_strings_connfig_add_banner">Neue Favoriten Hinzufügen</string>
+    <string name="favorite_strings_update_banner">Wert:</string>
+    <string name="favorite_strings_global_banner">Global</string>
+    <string name="favorite_strings_lokal_banner">Lokal</string>
 
 
 

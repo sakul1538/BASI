@@ -310,7 +310,7 @@ public class Log_data extends AppCompatActivity
                 //Kategorie
 
 
-                String items[] = spinnerops.getallcategorys(RROJ_NR);
+                String items[] = spinnerops.getallcategorys();
 
                 ArrayAdapter<String> log_category_items = new ArrayAdapter<String>(Log_data.this, android.R.layout.simple_dropdown_item_1line, items);
                 log_search_filter_category.setAdapter(log_category_items);

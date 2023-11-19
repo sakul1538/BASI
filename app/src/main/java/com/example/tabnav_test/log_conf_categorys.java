@@ -24,7 +24,7 @@ public class log_conf_categorys extends AppCompatActivity
 
         log_fav log_categorys = new log_fav(log_conf_categorys.this);
 
-        String[] t =log_categorys.getallcategorys(RROJ_NR);
+        String[] t =log_categorys.getallcategorys();
 
         log_categorys_settings_adapter lca = new log_categorys_settings_adapter(t);
         rcv1.setAdapter(lca);

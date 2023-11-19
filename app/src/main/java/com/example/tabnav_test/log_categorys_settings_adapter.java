@@ -139,7 +139,7 @@ public class log_categorys_settings_adapter extends Adapter<log_categorys_settin
                             int response =spinnerops.deletlogcategory(RROJ_NR,localDataSet[posi]);
                             if(response >0)
                             {
-                                localDataSet = spinnerops.getallcategorys(RROJ_NR); //Array Aktualisieren
+                                localDataSet = spinnerops.getallcategorys(); //Array Aktualisieren
                                 notifyItemRemoved(posi);
                                 notifyItemRangeChanged(posi,localDataSet.length);
                             }

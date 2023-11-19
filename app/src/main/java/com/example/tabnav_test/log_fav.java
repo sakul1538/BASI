@@ -11,6 +11,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompatSideChannelService;
 
+import com.example.tabnav_test.material.material_database_ops;
+
 import java.util.Arrays;
 
 
@@ -157,88 +159,24 @@ public class log_fav extends SQLiteOpenHelper implements SQL_finals
 
     }
 
-    public long addOne(String proj_id, String key, String value)
+    public long log_add_category(String value)
     {
         long newRowId = -1;
         try
         {
             SQLiteDatabase db = this.getWritableDatabase();
-            String[] selectionArgs = { proj_id,key,value };
-            String[] projection = {"NAME"};
-            where = "ID=? AND NAME=? AND VALUE=?";
+            String[] where_args = {"ITHEM_CATEGORY_LOG",value };
+            where = "NAME=? AND VALUE=?";
+            String[] colum = {"NAME"};
 
-            Cursor cursor = db.query(TB_NAME_LOG_CONF,projection,where,selectionArgs,null,null,null);
-
-            // Create a new map of values, where column names are the keys
-            if ( cursor.getCount()==0)
-            {
-                ContentValues values = new ContentValues();
-                values.put("ID", proj_id);
-                values.put("NAME", key);
-                values.put("VALUE", value);
-
-// Insert the new row, returning the primary key value of the new row
-                newRowId = db.insert(TB_NAME_LOG_CONF,null,values);
-            }
-            else
-            {
-                Toast.makeText(context, "Eintrag existiert schon", Toast.LENGTH_SHORT).show();
-            }
-            cursor.close();
-
-        }catch (Exception e)
-        {
-            exmsg("0502020231144",e);
-        }
-
-
-        return newRowId;
-
-    }
-
-
-
-    public String[] getall(String proj_id)
-    {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String[] selectionArgs = {proj_id,"ITHEM_CATEGORY"};
-        where = "ID=? AND NAME=?";
-        int i=0;
-
-        Cursor cursor = db.query(TB_NAME_LOG_CONF,null,where,selectionArgs,null,null,null);
-        String[] strings = new String[cursor.getCount()];
-
-        while (cursor.moveToNext())
-        {
-            String value = cursor.getString(cursor.getColumnIndexOrThrow("VALUE"));
-            strings[i]=value;
-            i++;
-            Log.d("Wert",value);
-        }
-        cursor.close();
-
-
-        return  strings;
-    }
-
-    public long log_add_category(String proj_id, String value)
-    {
-        long newRowId = -1;
-        try
-        {
-            SQLiteDatabase db = this.getWritableDatabase();
-            String[] selectionArgs = { proj_id,"ITHEM_CATEGORY",value };
-            String[] projection = {"NAME"};
-            where = "ID=? AND NAME=? AND VALUE=?";
-
-            Cursor cursor = db.query(TB_NAME_LOG_CONF,projection,where,selectionArgs,null,null,null);
+            Cursor cursor = db.query(TB_NAME_LOG_CONF,colum,where,where_args,null,null,null);
 
             // Create a new map of values, where column names are the keys
             if ( cursor.getCount()==0)
             {
                 ContentValues values = new ContentValues();
-                values.put("ID", proj_id);
-                values.put("NAME", "ITHEM_CATEGORY");
+                values.put("ID", "0");
+                values.put("NAME", "ITHEM_CATEGORY_LOG");
                 values.put("VALUE", value);
 
 // Insert the new row, returning the primary key value of the new row
@@ -251,20 +189,19 @@ public class log_fav extends SQLiteOpenHelper implements SQL_finals
             Toast.makeText(context,e.getMessage().toString(),Toast.LENGTH_LONG).show();
         }
 
-
         return newRowId;
 
     }
 
 
-    public String[] getallcategorys(String proj_id)
+    public String[] getallcategorys()
     {
         SQLiteDatabase db = this.getReadableDatabase();
-        String[] selectionArgs = {proj_id,"ITHEM_CATEGORY"};
+        String[] where_args = {"0","ITHEM_CATEGORY_LOG"};
         where = "ID=? AND NAME=?";
         int i=1;
 
-        Cursor cursor = db.query(TB_NAME_LOG_CONF,null,where,selectionArgs,null,null,null);
+        Cursor cursor = db.query(TB_NAME_LOG_CONF,null,where,where_args,null,null,null);
         String[] strings = new String[cursor.getCount()+1];
         strings[0]="None";
         while (cursor.moveToNext())
@@ -285,11 +222,11 @@ public class log_fav extends SQLiteOpenHelper implements SQL_finals
     public String[] getalllogfav(String proj_id)
     {
         SQLiteDatabase db = this.getReadableDatabase();
-        String[] selectionArgs = {proj_id,"ITHEM_FAV","ITHEM_FAV_GLOBAL"};
+        String[] where_args = {"","FAVORITE_STRING"};
         where = "ID=? AND NAME=? OR NAME=?";
         int i=0;
 
-        Cursor cursor = db.query(TB_NAME_LOG_CONF,null,where,selectionArgs,null,null,null);
+        Cursor cursor = db.query(TB_NAME_LOG_CONF,null,where,where_args,null,null,null);
         String[] strings = new String[cursor.getCount()];
 
         while (cursor.moveToNext())
@@ -494,38 +431,6 @@ public class log_fav extends SQLiteOpenHelper implements SQL_finals
         }
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public int deletlogcategory(String proj_id, String name)
     {

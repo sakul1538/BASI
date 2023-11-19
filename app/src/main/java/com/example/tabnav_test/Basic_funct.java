@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -538,6 +539,50 @@ public class Basic_funct {
         return output;
     }
 
+    public void save_file(String path,String filename,String write_data,Context context)
+    {
+        Basic_funct bsf =new Basic_funct();
+        File f = new File(path);
+        f.mkdirs();
+        try {
+            f.createNewFile();
+
+            FileWriter fw = new FileWriter(path+filename);
+            fw.write(write_data);
+            fw.close();
+
+            AlertDialog.Builder create_backup_report_dialog  = new AlertDialog.Builder(context);
+            create_backup_report_dialog.setTitle("Export Report");
+            create_backup_report_dialog.setMessage("Backup gespeichert unter: \n\n"+path+filename);
+            create_backup_report_dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.cancel();
+                }
+            });
+            create_backup_report_dialog.setNegativeButton("URL Kopieren", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i)
+                {
+                    bsf.copy_to_clipboard(path+filename,context);
+                }
+            });
+
+            create_backup_report_dialog.show();
+
+        } catch (IOException e)
+        {
+            Toast.makeText(context, "Backup erstellen Fehlgeschlagen!:  \n"+e.getMessage().toString(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+
+
+
+
+
+
     public void log_output_arraylist(ArrayList arraylist)
     {
 
@@ -642,7 +687,7 @@ public class Basic_funct {
 
         // after adding all attributes to our
         // PDF file we will be finishing our page.
-        pdfDocument.finishPage(myPage);
+        pdfDocument.finishPage(myPage);c
 
         // below line is used to set the name of
         // our PDF file and its path.

@@ -28,6 +28,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.WindowCompat;
@@ -97,6 +98,7 @@ public class material_log_activity extends AppCompatActivity
 
                 else
                 {
+                    Toast.makeText(getApplicationContext(), "Error:\n" + uri, Toast.LENGTH_SHORT).show();
                     source_file_path ="";
                 }
                 break;
@@ -118,11 +120,10 @@ public class material_log_activity extends AppCompatActivity
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-
                 }
-
                 else
                 {
+                    bsfi.error_msg("Error:\n" + uri,getApplicationContext());
                     source_file_path ="";
                 }
 

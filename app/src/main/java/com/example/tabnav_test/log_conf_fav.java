@@ -8,6 +8,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.tabnav_test.config_favorite_strings.config_fav_ops;
 import com.example.tabnav_test.databinding.ActivityLogConfFavBinding;
 
 public class log_conf_fav extends AppCompatActivity
@@ -27,7 +28,10 @@ public class log_conf_fav extends AppCompatActivity
 
         log_fav getfav = new log_fav(getApplicationContext());
 
-        String[] t =getfav.getalllogfav("0");
+        config_fav_ops cfops = new config_fav_ops(getApplicationContext());
+
+
+        String[] t =cfops.favorite_strings_list(false);
 
         log_favorite_settings_adapter lca = new log_favorite_settings_adapter(t);
         rcv1.setAdapter(lca);

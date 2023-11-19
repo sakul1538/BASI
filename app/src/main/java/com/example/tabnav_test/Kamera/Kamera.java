@@ -44,6 +44,8 @@ import android.widget.Toast;
 
 import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.R;
+import com.example.tabnav_test.config_favorite_strings.config_fav;
+import com.example.tabnav_test.config_favorite_strings.config_fav_ops;
 import com.example.tabnav_test.log_fav;
 
 import java.io.File;
@@ -85,6 +87,7 @@ public class Kamera<onActivityResult> extends Fragment
     ImageView camera_photo  = null;
     ImageButton camera_reset_form  = null;
     ImageButton camera_delet_image  = null;
+    ImageButton config_fav  = null;
 
 
     EditText name= null;
@@ -136,7 +139,7 @@ public class Kamera<onActivityResult> extends Fragment
     public void onResume()
     {
         super.onResume();
-        kamera_tag_field_value.setAdapter(refresh_fav_auto_complete());
+        refresh_fav_auto_complete();
     }
 
     @Override
@@ -180,13 +183,22 @@ public class Kamera<onActivityResult> extends Fragment
         camera_photo = view.findViewById(R.id.imageView3);
         camera_reset_form = view.findViewById(R.id.imageButton32);
         camera_delet_image = view.findViewById(R.id.delet_image);
-
+        config_fav = view.findViewById(R.id.config_tag);
 
         spinner = view.findViewById(R.id.spinner4);
         spinnerops = new kamera_spinner(getContext());
         refresh_spinner();
 
-        kamera_tag_field_value.setAdapter(refresh_fav_auto_complete());
+        kamera_tag_field_value.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(b==true)
+                {
+                    refresh_fav_auto_complete();
+                }
+            }
+        });
+
         tag_visibility(View.GONE);
         preview_camera_visibility(View.GONE);
 
@@ -223,6 +235,17 @@ public class Kamera<onActivityResult> extends Fragment
 
             }
         });*/
+
+
+        config_fav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                config_fav favorites = new config_fav(getContext());
+                favorites.show_dialog(container);
+                kamera_tag_field_value.clearFocus();
+            }
+        });
 
         tag.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -393,23 +416,9 @@ public class Kamera<onActivityResult> extends Fragment
             @Override
             public void onClick(View view)
             {
-                log_fav logfav = new log_fav(getContext());
-                int resonse = (int) logfav.addOne(RROJ_NR, "ITHEM_FAV", kamera_tag_field_value.getText().toString());
-
-                if (resonse == -1)
-                {
-
-                    Toast.makeText(getContext(), "Eintrag konnte nicht erstellt werden!", Toast.LENGTH_LONG).show();
-
-                    kamera_tag_field_value.setAdapter(refresh_fav_auto_complete());
-
-
-                } else {
-                    Toast.makeText(getContext(), "Neuer Eintrag wurde erstellt!" + resonse, Toast.LENGTH_LONG).show();
-
-                   // refresh_fav();
-
-                }
+                config_fav_ops cfops = new config_fav_ops(getContext());
+                cfops.add_favorite_string( kamera_tag_field_value.getText().toString());
+                refresh_fav_auto_complete();
             }
         });
 
@@ -483,6 +492,7 @@ public class Kamera<onActivityResult> extends Fragment
             kamera_reset_tag.setVisibility(visibility);
             kamera_switch_tag_onoff.setVisibility(visibility);
             kamera_switch_tag_onoff.setChecked(false);
+            config_fav.setVisibility(visibility);
     }
 
     private void preview_camera_visibility(int visibility)
@@ -490,6 +500,7 @@ public class Kamera<onActivityResult> extends Fragment
             camera_photo.setVisibility(visibility);
             camera_delet_image.setVisibility(visibility);
             media_label.setVisibility(visibility);
+
     }
 
     @Override
@@ -738,7 +749,6 @@ public class Kamera<onActivityResult> extends Fragment
                     }
 
                 }
-
 
                 break;
             default:
@@ -1027,14 +1037,11 @@ public class Kamera<onActivityResult> extends Fragment
     }
 
 
-    public ArrayAdapter refresh_fav_auto_complete()
+    public void refresh_fav_auto_complete()
     {
-        log_fav logfav = new log_fav(getContext());
-        String[] favs = logfav.getalllogfav(RROJ_NR);
-        ArrayAdapter<String> favArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, favs);
-
-        return  favArrayAdapter;
-
+        config_fav_ops cfop = new config_fav_ops(getContext());
+        ArrayAdapter<String> favArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, cfop.favorite_strings_list(false));
+        kamera_tag_field_value.setAdapter(favArrayAdapter);
     }
 
     private void exmsg(String msg,Exception e)

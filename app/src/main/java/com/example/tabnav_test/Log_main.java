@@ -31,6 +31,10 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.tabnav_test.config_favorite_strings.config_fav;
+import com.example.tabnav_test.config_favorite_strings.config_fav_ops;
+import com.example.tabnav_test.material.material_database_ops;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -184,10 +188,17 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
         //Layouts
 
         date_time_bg = (LinearLayout) view.findViewById(R.id.log_date_time_background);
-
-        refresh_fav();
         refresh_spinner();
 
+        acTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(b==true)
+                {
+                    refresh_fav();
+                }
+            }
+        });
 
         time.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -257,31 +268,9 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
             @Override
             public void onClick(View view)
             {
-                if(acTextView.getText().toString().equals("") == false)
-                {
-                    try {
-
-                        int resonse = (int) spinnerops.addOne(RROJ_NR, ITHEM_FAV, acTextView.getText().toString());
-
-                        if (resonse == -1)
-                        {
-                            bsf.error_msg("Eintrag konnte nicht erstellt werden!\n-> Interner Fehler oder schon vorhanden",context);
-                        } else
-                        {
-                            bsf.succes_msg("Neuer Eintrag \""+acTextView.getText().toString()+"\" wurde erstellt!",context);
-                            refresh_fav();
-                        }
-                    } catch (Exception e)
-                    {
-                        exmsg("050220231117",e);
-                        bsf.error_msg("Fehler:"+e.getMessage().toString(),context);
-
-                    }
-                }
-                else
-                {
-                    bsf.error_msg("Notiz ist leer!",context);
-                }
+                config_fav_ops cfops = new config_fav_ops(getContext());
+                cfops.add_favorite_string(acTextView.getText().toString());
+                refresh_fav();
             }
         });
 
@@ -352,13 +341,18 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
             public void onClick(View view)
             {
                 try {
-                    Intent fav_settings = new Intent(getContext(), log_conf_fav.class);
-                    startActivity(fav_settings);
+                    config_fav favorites = new config_fav(getContext());
+                    favorites.show_dialog(container);
+                    acTextView.clearFocus();
+
+                   /* Intent fav_settings = new Intent(getContext(), log_conf_fav.class);
+                    startActivity(fav_settings);*/
                 } catch (Exception e)
                 {
                     exmsg("050220231101",e);
                     bsf.error_msg("Fehler:"+e.getMessage().toString(),context);
                 }
+
             }
         });
 
@@ -427,8 +421,10 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
+                        material_database_ops mdo= new material_database_ops(context);
                         try {
-                            long resonse =  spinnerops.log_add_category(RROJ_NR,log_add_category_name.getText().toString());
+
+                            long resonse =  spinnerops.log_add_category(log_add_category_name.getText().toString());
 
                             if(resonse == -1)
                             {
@@ -487,14 +483,12 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
     {
 
         try {
-            String[] kat_nativ = spinnerops.getallcategorys(RROJ_NR);
 
-            // Log.d("Adresse",kat_nativ[0]);
+            String[] kat_nativ = spinnerops.getallcategorys();
 
             ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, kat_nativ);
 
-            //   ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item,items);
-            //spinnerArrayAdapter.setDropDownViewResource(R.layout.kamera_spinner_list);
+
 
             kategory.setAdapter(spinnerArrayAdapter);
         } catch (Exception e)
@@ -534,10 +528,9 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
 
     private void refresh_fav()
     {
-
         try {
-            String[] favs = spinnerops.getalllogfav(RROJ_NR);
-            ArrayAdapter<String> favArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, favs);
+           config_fav_ops cfops = new config_fav_ops(getContext());
+            ArrayAdapter<String> favArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, cfops.favorite_strings_list(false));
             acTextView.setThreshold(1);
             acTextView.setAdapter(favArrayAdapter);
         } catch (Exception e)

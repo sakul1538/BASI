@@ -299,15 +299,12 @@
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
 
-                <EditText
+                <AutoCompleteTextView
                     android:id="@+id/ls_note_field"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="5dp"
                     android:layout_weight="1"
-                    android:ems="10"
-                    android:inputType="text"
+                    android:layout_margin="5dp"
                     android:padding="5dp"
                     android:text="@string/empty" />
 
@@ -320,7 +317,26 @@
                     android:background="#00FFFFFF"
                     android:padding="5dp"
                     android:src="@drawable/ic_baseline_cancel_24" />
+                <ImageButton
+                    android:id="@+id/ls_note_add_fav_string"
+                    android:layout_width="@dimen/buttons_1"
+                    android:layout_height="@dimen/buttons_1"
+                    android:layout_gravity="center"
+                    android:layout_margin="5dp"
+                    android:background="#00FFFFFF"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_baseline_star_24" />
+                <ImageButton
+                    android:id="@+id/ls_note_fav_string_config"
+                    android:layout_width="@dimen/buttons_1"
+                    android:layout_height="@dimen/buttons_1"
+                    android:layout_gravity="center"
+                    android:layout_margin="5dp"
+                    android:background="#00FFFFFF"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_baseline_settings_24" />
             </LinearLayout>
+
 
             <TextView
                 android:id="@+id/textView56"

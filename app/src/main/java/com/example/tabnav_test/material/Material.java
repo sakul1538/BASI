@@ -46,6 +46,8 @@ import android.widget.Toast;
 import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.R;
 import com.example.tabnav_test.SQL_finals;
+import com.example.tabnav_test.config_favorite_strings.config_fav;
+import com.example.tabnav_test.config_favorite_strings.config_fav_ops;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -100,6 +102,8 @@ public class Material extends Fragment {
     ImageButton reset_artikel;
     ImageButton reset_zulieferer;
     ImageButton ls_note_reset;
+    ImageButton ls_note_add_fav_string;
+    ImageButton ls_note_fav_string_config;
     ImageButton ls_take_photo;
     ImageButton ls_delet_foto;
     ImageButton reset_form;
@@ -122,7 +126,7 @@ public class Material extends Fragment {
     EditText dirname;
     EditText menge;
 
-    EditText note_field;
+    AutoCompleteTextView note_field;
 
     EditText lsnr_field;
 
@@ -243,30 +247,40 @@ public class Material extends Fragment {
                 if (resultData != null) {
                     uri = resultData.getData(); //Url von der Datei, die Kopiert werden soll
                     String source_uri = uri.getPath();
-                    Log.d("BASI",source_uri);
-                    source_uri = source_uri.replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
-                    String destinationPath = "";
-                    String filename = create_media_filename(".pdf");
+                    Log.d("BASI", source_uri);
+                    if (source_uri.contains("/document/document:"))
+                    {
+                        Toast.makeText(getContext(), "Error:\n" + source_uri, Toast.LENGTH_SHORT).show();
+                    } else
+                    {
 
-                    if (filename != "null") {
-                        try {
-                            destinationPath = in_directory + "/" + filename; //Verzeichniss und Dateiname verbinden
-                            File source = new File(source_uri);
-                            File destination = new File(destinationPath);
 
+                        source_uri = source_uri.replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
+                        String destinationPath = "";
+                        String filename = create_media_filename(".pdf");
+
+                        if (filename != "null") {
                             try {
-                                bsf.copyFileUsingStream(source, destination); //Kopieren von-zu
-                                create_imageset();
-                                media_visibilitiy(View.VISIBLE);
-                                media_shift("r");
+                                destinationPath = in_directory + "/" + filename; //Verzeichniss und Dateiname verbinden
+                                File source = new File(source_uri);
+                                File destination = new File(destinationPath);
 
-                            } catch (IOException e) {
-                                exmsg("250720231849", e);
+                                try {
+                                    bsf.copyFileUsingStream(source, destination); //Kopieren von-zu
+                                    create_imageset();
+                                    media_visibilitiy(View.VISIBLE);
+                                    media_shift("r");
+
+                                } catch (IOException e) {
+                                    bsf.exeptiontoast(e, getContext());
+                                    exmsg("250720231849", e);
+
+                                }
+
+                            } catch (Exception e) {
+                                exmsg("270720231227", e);
+                                bsf.exeptiontoast(e, getContext());
                             }
-
-                        } catch (Exception e) {
-                            exmsg("270720231227", e);
-                            Toast.makeText(getContext(), "PDF import Fehlgeschlagen! \n" + e, Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -496,6 +510,7 @@ public class Material extends Fragment {
         edit_zulieferer_name = view.findViewById(R.id.autocomplete_zulieferer_name);
 
 
+
         //ImageButtons
         settings_zulieferer = view.findViewById(R.id.imageButton37);
         settings_projekt_button = view.findViewById(R.id.imageButton34);
@@ -504,9 +519,16 @@ public class Material extends Fragment {
         reset_artikel = view.findViewById(R.id.reset_artikel);
         reset_zulieferer = view.findViewById(R.id.reset_zulieferer);
         reset_LS = view.findViewById(R.id.reset_LS);
-        ls_note_reset = view.findViewById(R.id.ls_note_reset);
-        menge = view.findViewById(R.id.editTextNumberDecimal4_menge);
+
         note_field = view.findViewById(R.id.ls_note_field);
+        ls_note_reset = view.findViewById(R.id.ls_note_reset);
+        ls_note_add_fav_string = view.findViewById(R.id.ls_note_add_fav_string);
+        ls_note_fav_string_config = view.findViewById(R.id.ls_note_fav_string_config);
+
+        menge = view.findViewById(R.id.editTextNumberDecimal4_menge);
+
+
+
         ls_take_photo = view.findViewById(R.id.ls_shot_foto);
         refresh_date = view.findViewById(R.id.imageButton35_refresh_date);
         reset_form = view.findViewById(R.id.imageButton44_reset_form);
@@ -521,6 +543,7 @@ public class Material extends Fragment {
 
 
 
+
         //EditText
         lsnr_field = view.findViewById(R.id.edittext_LS_ID);
 
@@ -531,6 +554,32 @@ public class Material extends Fragment {
         date_background = view.findViewById(R.id.date_background);
         ls_nr_background = view.findViewById(R.id.ls_nr_bg);
         zulieferer_backgound = view.findViewById(R.id.zulieferer_background);
+
+
+        note_field.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b)
+            {
+                if(b==true)
+                {
+                    refresh_fav_auto_complete();
+                }
+            }
+        });
+
+        ls_note_fav_string_config.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                note_field.clearFocus();
+                config_fav favorites = new config_fav(getContext());
+                favorites.show_dialog(container);
+
+
+            }
+        });
+
+
 
 
         try {
@@ -844,6 +893,15 @@ public class Material extends Fragment {
             @Override
             public void onClick(View view) {
                 reset_notiz();
+            }
+        });
+
+        ls_note_add_fav_string.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+               config_fav_ops cfop = new config_fav_ops(getContext());
+               cfop.add_favorite_string(note_field.getText().toString());
             }
         });
 
@@ -1610,6 +1668,13 @@ public class Material extends Fragment {
         String[] artikel = mdo.artikel_list_all();
         ArrayAdapter<String> artikelAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, artikel);
         edit_artikel_name.setAdapter(artikelAdapter);
+    }
+
+    public void refresh_fav_auto_complete()
+    {
+        config_fav_ops cfop = new config_fav_ops(getContext());
+        ArrayAdapter<String> favArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, cfop.favorite_strings_list(false));
+        note_field.setAdapter(favArrayAdapter);
     }
 
     public void add_projekt(ViewGroup container) {

@@ -463,16 +463,24 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
     public String get_selectet_projekt_id()
     {
 
-        SQLiteDatabase db = this.getReadableDatabase();
-        String[] selectionArgs = {"1"};
-        String where = "SELECT_FLAG=?";
+        String id = null;
+        try {
+            SQLiteDatabase db = this.getReadableDatabase();
+            String[] selectionArgs = {"1"};
+            String where = "SELECT_FLAG=?";
 
-        Cursor cursor = db.query(TB_MATERIAL_PROJEKTE,null,where,selectionArgs,null,null,null);
-        String id ="null";
-        cursor.moveToFirst();
-        id=cursor.getString(cursor.getColumnIndexOrThrow("ID"));
-        cursor.close();
-        db.close();
+            Cursor cursor = db.query(TB_MATERIAL_PROJEKTE,null,where,selectionArgs,null,null,null);
+            id = "null";
+            cursor.moveToFirst();
+            id=cursor.getString(cursor.getColumnIndexOrThrow("ID"));
+            cursor.close();
+            db.close();
+        } catch (IllegalArgumentException e)
+        {
+            id="0";
+            bsf.error_msg("Kein ausgewähltes Projekt gefunden! \n return=0\n"+e.getMessage().toString(),context);
+            throw new RuntimeException(e);
+        }
 
         return  id;
     }
