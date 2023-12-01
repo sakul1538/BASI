@@ -23,6 +23,14 @@
     <string name="settings_Projekt_name">Prjektbezeichng:</string>
     <string name="settings_Projekt_path">Stammordner:</string>
     <string name="settings_Projekt_bilder_path">Stammorder Bider:</string>
+    <string name="settings_Projekt_bilder_backup_banner">Backup</string>
+    <string name="settings_Projekt_bilder_backup_create">Erstellen</string>
+    <string name="settings_Projekt_bilder_backup_restor">Wiederherstellen</string>
+    <string name="settings_Projekt_dialog_title">Projekte verwalten</string>
+    <string name="settings_Projekt_dialog_current_selected_title">Aktuelles Projekt</string>
+    <string name="settings_Projekt_dialog_selected_title">Projekt Auswählen</string>
+
+
 
 
     <string name="date_label">"Datum "</string>
@@ -162,6 +170,7 @@
     <string name="material_datum_ls_banner">Datum/LS Nr</string>
     <string name="material_zulieferer_banner">Zulieferer:</string>
     <string name="material_zulieferer_connfig_banner">Zulieferer Bearbeiten</string>
+    <string name="material_zulieferer_update_alert_text">Achtung: Vorhandene Medien (Bilder,Pdfs) werden beim ändern es Namens NICHT automatisch angepasst!\n\n => Sie müssen Manuel angepasst werden!</string>
     <string name="material_add_zulieferer_banner">Zulieferer Hinzufügen</string>
     <string name="material_backup_zulieferer_banner">Datenbank Backups</string>
     <string name="material_backup_create_zulieferer_banner">Erstellen</string>
@@ -182,8 +191,6 @@
     <string name="matieral_lsnr_label">Lieferschein Nr:</string>
     <string name="matieral_note_label">Bemerkungen:</string>
     <string name="matieral_artikel_label">Artikel:</string>
-
-
 
     <string name="artikel_config_dialog_update_label">Artikel Bearbeiten</string>
     <string name="artikel_config_dialog_add_label">Artikel Hinzufügen</string>

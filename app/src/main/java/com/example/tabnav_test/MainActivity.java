@@ -26,8 +26,11 @@ import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import com.example.tabnav_test.Import_Export.Backup;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+
+import java.io.FileNotFoundException;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -42,7 +45,24 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
-        //Log.d("BASI", String.valueOf(requestCode));
+        Log.d("BASI","MainActivity:"+ String.valueOf(requestCode));
+        switch(requestCode)
+        {
+            case 1: //button_favorite_strings_restore_backup
+                Log.d("BASI",data.getData().getPath());
+                Backup backup = new Backup(getApplicationContext());
+                try {
+                    backup.restore_backup(SQL_finals.TB_NAME_LOG_CONF,data.getData().getPath(),false);
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+
+
+        }
+
+
+
     }
 
     @Override

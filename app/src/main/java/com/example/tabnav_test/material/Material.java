@@ -44,10 +44,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tabnav_test.Basic_funct;
+import com.example.tabnav_test.Import_Export.Backup;
 import com.example.tabnav_test.R;
 import com.example.tabnav_test.SQL_finals;
 import com.example.tabnav_test.config_favorite_strings.config_fav;
 import com.example.tabnav_test.config_favorite_strings.config_fav_ops;
+
+import org.json.JSONException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -75,8 +78,10 @@ public class Material extends Fragment {
     public static final String ls_media_directory_name = "/Lieferscheine"; // höhe
     private static final String ls_media_directory_name_temp = "/Lieferscheine/temp"; // höhe
     public static final String backup_dir ="/Backups&Exports/"; // höhe
-    private static final String backup_artikel = "BASI_Backupfile_artikel"; // höhe
-    private static final String backup_lieferanten = "BASI_Backupfile_lieferanten"; // höhe
+    public static final String backup_dir_app ="/Backups&Exports/APP/"; // höhe
+    public static final String backup_dir_BASI ="/DCIM/BASI/APP/BACKUPS/";
+    private static final String backup_artikel = "ARTIKEL"; // höheAPP
+    private static final String backup_lieferanten = "LIEFERANTEN"; // höhe
     private static final String TAG = "BASI"; // höhe
     private static final String TAKE_IMAGE_REFRESH_MODE = "refresh"; // höhe
     private static final String TAKE_IMAGE_NEW_MODE = "new"; // höhe
@@ -385,7 +390,6 @@ public class Material extends Fragment {
 
             case 7: //Backup Artikel Restore
 
-
                 if (resultData != null)
                 {
                     uri = resultData.getData();
@@ -402,7 +406,14 @@ public class Material extends Fragment {
                         public void onClick(DialogInterface dialogInterface, int i)
                         {
 
-                           mdo.restore_artikel(finalSource_path,getContext(),true);
+                           //mdo.restore_artikel(finalSource_path,getContext(),true);
+
+                            Backup backup = new Backup(getContext());
+                            try {
+                                backup.restore_backup(SQL_finals.TB_MATERIAL_TYP,finalSource_path,true);
+                            } catch (FileNotFoundException e) {
+                                throw new RuntimeException(e);
+                            }
                             refresh_spinner_artikel_settings();
                             dialogInterface.cancel();
                         }
@@ -412,7 +423,8 @@ public class Material extends Fragment {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i)
                         {
-                          mdo.restore_artikel(finalSource_path,getContext(),false);
+
+                          //mdo.restore_artikel(finalSource_path,getContext(),false);
                             refresh_spinner_artikel_settings();
                             dialogInterface.cancel();
                         }
@@ -422,6 +434,9 @@ public class Material extends Fragment {
                 }
 
                 break;
+
+            default:
+                Log.d("BASI RQ:", String.valueOf(requestCode));
 
 
 
@@ -1309,7 +1324,7 @@ public class Material extends Fragment {
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
                         // set prompts.xml to alertdialog builder
                         alertDialogBuilder.setView(input_view);
-                        alertDialogBuilder.setTitle("Zulieferer hinzufügen");
+                        alertDialogBuilder.setTitle("Zulieferer ändern");
 
                         alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
@@ -1437,6 +1452,34 @@ public class Material extends Fragment {
                 ImageButton add = promptsView.findViewById(R.id.imageButton48);
                 ImageButton delet_item = promptsView.findViewById(R.id.imageButton47);
                 ImageButton update_item = promptsView.findViewById(R.id.imageButton46);
+                Button backup_create = promptsView.findViewById(R.id.backup_create);
+
+                //Buttons
+                Button select_projekt_button = promptsView.findViewById(R.id.select_projekt_button);
+
+                TextView current_selectet= promptsView.findViewById(R.id.current_selectet);
+
+                current_selectet.setText(mdo.get_selectet_projekt());
+                select_projekt_button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        String selected_item = String.valueOf(projlist.getSelectedItem());
+                        String[] item_part = divider(selected_item);
+                        Log.d("BASI", item_part[0]);
+                        Log.d("BASI", item_part[1]);
+                        material_database_ops mdo = new material_database_ops(getContext());
+                        mdo.select_projekt(item_part[1]);
+                        refresh_projekt_label();
+                        current_selectet.setText(mdo.get_selectet_projekt());
+                        try {
+                            set_media_directory(ls_media_directory_name_temp);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+
+                    }
+                });
 
                 update_item.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -1489,7 +1532,6 @@ public class Material extends Fragment {
                     }
                 });
 
-
                 add.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -1497,8 +1539,31 @@ public class Material extends Fragment {
                         refresh_spinner();
                     }
                 });
-
                 //Spinner
+
+                backup_create.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        Backup backup = new Backup(getContext());
+                        String path = Environment.getExternalStorageDirectory()+backup_dir_BASI; ///storage/emulated/0
+
+                        String filename = "BASI_BACKUP_PROJEKTE@" +bsf.get_date_filename()+".json";
+
+                        File dir= new File(path);
+                        dir.mkdirs();
+
+                        try {
+                            backup.create_backup(SQL_finals.TB_MATERIAL_PROJEKTE,null,null,null,path,filename);
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        Log.d("BASI",path);
+
+
+                    }
+                });
+                //ImageButton backup_restore = promptsView.findViewById(R.id.imageButton46);
 
                 refresh_spinner();
 
@@ -1506,22 +1571,10 @@ public class Material extends Fragment {
                 // set prompts.xml to alertdialog builder
                 alertDialogBuilder.setView(promptsView);
                 alertDialogBuilder.setTitle("Projektbowser");
-                alertDialogBuilder.setPositiveButton("Projekt auswählen", new DialogInterface.OnClickListener() {
+                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        String selected_item = String.valueOf(projlist.getSelectedItem());
-                        String[] item_part = divider(selected_item);
-                        Log.d("BASI", item_part[0]);
-                        Log.d("BASI", item_part[1]);
-                        material_database_ops mdo = new material_database_ops(getContext());
-                        mdo.select_projekt(item_part[1]);
-                        refresh_projekt_label();
                         dialogInterface.cancel();
-                        try {
-                            set_media_directory(ls_media_directory_name_temp);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
                     }
                 });
                 alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
@@ -1534,6 +1587,9 @@ public class Material extends Fragment {
 
             }
         });
+
+
+
         return view;
     }
 
@@ -2332,9 +2388,9 @@ public class Material extends Fragment {
 
         public void create_backup(String data,String type)
         {
-            String filename =type+"@"+bsf.get_date_filename()+"_ID_"+String.valueOf(System.currentTimeMillis())+".json";
+            String filename =mdo.get_selectet_projekt()+type+"@"+bsf.get_date_filename()+".json";
 
-            String backup_root = mdo.get_projekt_root_paht()+backup_dir+"Artikel&Lieferanten/";
+            String backup_root = mdo.get_projekt_root_paht()+backup_dir_app;
             File f = new File(backup_root);
             f.mkdirs();
             try {

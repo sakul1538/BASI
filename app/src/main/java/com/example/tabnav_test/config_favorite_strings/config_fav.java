@@ -1,9 +1,13 @@
 package com.example.tabnav_test.config_favorite_strings;
 
+import static androidx.core.app.ActivityCompat.startActivityForResult;
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +24,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Switch;
+
+import androidx.appcompat.view.menu.ActionMenuItemView;
 
 import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.Import_Export.Backup;
@@ -78,8 +84,8 @@ public class config_fav
             {
                 Backup backup = new Backup(context);
                 material_database_ops mdo = new material_database_ops(context);
-                String path= mdo.get_projekt_root_paht()+backup_dir;///storage/emulated/0/DCIM/Baustellen /CBB E03/Backups&Exports/
-                String filename = mdo.get_selectet_projekt()+SQL_finals.TB_NAME_LOG_CONF+"@"+bsf.get_date_filename()+"_ID_"+System.currentTimeMillis()+".json";
+                String path= mdo.get_projekt_root_paht()+backup_dir+"APP/";///storage/emulated/0/DCIM/Baustellen /CBB E03/Backups&Exports/
+                String filename = mdo.get_selectet_projekt()+"FAVORITE_STRINGS"+"@"+bsf.get_date_filename()+".json";
                 try {
                     String[] where_args = {mdo.get_selectet_projekt_id(),"0","FAVORITE_STRING"};
                     String  where = "(ID=? OR ID=?) AND NAME=?";
@@ -89,6 +95,21 @@ public class config_fav
                 }
             }
         });
+
+
+        button_favorite_strings_restore_backup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                Intent intent_restore_backup = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent_restore_backup.addCategory(Intent.CATEGORY_OPENABLE);
+                intent_restore_backup.setType("application/json");
+                ((Activity) context).startActivityForResult(intent_restore_backup, 1);
+
+
+            }
+        });
+
         imageButton_favorite_strings_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)

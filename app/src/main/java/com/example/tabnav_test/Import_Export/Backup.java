@@ -3,11 +3,15 @@ package com.example.tabnav_test.Import_Export;
 import static com.example.tabnav_test.material.Material.backup_dir;
 
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
+import android.util.JsonReader;
+import android.util.Log;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.Toast;
 
@@ -22,14 +26,22 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Scanner;
 
 public class Backup extends SQLiteOpenHelper implements SQL_finals
 {
     Context context;
 
-    public static final String backup_dir ="/Backups&Exports/";
 
     public Backup(@Nullable Context context)
     {
@@ -109,6 +121,71 @@ public class Backup extends SQLiteOpenHelper implements SQL_finals
         {
             Toast.makeText(context, "Backup erstellen Fehlgeschlagen!:  \n"+e.getMessage().toString(), Toast.LENGTH_LONG).show();
         }
+    }
+    public void restore_backup(String table,String filename, Boolean overwrite) throws FileNotFoundException {
+        Log.d("TABLE",table);
+        Log.d("Overwrite",overwrite.toString());
+
+        String source_path = filename.replace("/document/primary:", Environment.getExternalStorageDirectory().toString()+"/");
+        Log.d("filename",filename);
+        SQLiteDatabase dbw = this.getWritableDatabase();
+        SQLiteDatabase dbr = this.getReadableDatabase();
+
+        Cursor cursor = dbr.query(table,null,null,null,null,null,null);
+        String []colums = cursor.getColumnNames();
+        String where ="";
+        for(String c : colums)
+        {
+            where+= c+"=? AND ";
+        }
+        where = where.substring(0,where.lastIndexOf("AND"));
+
+        Log.d("BASI WHERE",where);
+
+        material_database_ops mdo = new material_database_ops(context);
+
+        InputStream in2 = null;
+        try {
+            in2 = new FileInputStream(new File(source_path));
+            try {
+                JsonReader reader = new JsonReader(new InputStreamReader(in2,"UTF-8"));
+                reader.beginArray();
+                while(reader.hasNext())
+                {
+                    reader.beginObject();
+                    ContentValues output_data = new ContentValues();
+                    String args_string= "";
+
+                    while (reader.hasNext())
+                    {
+                        String name =reader.nextName();
+                        String value =reader.nextString();
+                        args_string+=value+",";
+                        output_data.put(name,value);
+                    }
+                    String[] where_args = args_string.split(",");
+
+                    Cursor find_similar = dbr.query(table,null,where,where_args,null,null,null);
+                    if(find_similar.getCount()==0)
+                    {
+                        dbw.insert(table,null,output_data);
+                    }
+                    reader.endObject();
+                }
+                reader.endArray();
+
+            } catch (UnsupportedEncodingException e)
+            {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
 }

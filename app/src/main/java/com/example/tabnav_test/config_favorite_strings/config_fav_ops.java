@@ -87,7 +87,6 @@ public class config_fav_ops extends SQLiteOpenHelper implements SQL_finals
             if(global_status==true)
             {
                 data_new.put("ID","0");
-
             }else
             {
                 data_new.put("ID",mdo.get_selectet_projekt_id().toString());

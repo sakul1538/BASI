@@ -1092,7 +1092,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
                     }
                 });
 
-
                 restore_info_dialog.setNegativeButton("OK", new DialogInterface.OnClickListener() {
                     @Override
 
