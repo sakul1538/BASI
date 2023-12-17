@@ -5,15 +5,9 @@ import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Typeface;
-import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.print.PrintAttributes;
-import android.print.pdf.PrintedPdfDocument;
 import android.util.JsonReader;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,7 +35,6 @@ import com.example.tabnav_test.R;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -232,7 +224,7 @@ public class material_log_entrys extends Fragment
                 else
                 {
                     select_date_layout.setVisibility(View.VISIBLE);
-                    date_select.setText(bsf.date_refresh_rev2());
+                    date_select.setText(bsf.date_refresh());
                     date_search_refresh_dataset();
                 }
 
@@ -281,7 +273,7 @@ public class material_log_entrys extends Fragment
                material_log_search_artikel_field.setAdapter(bsf.get_autocomplete_adapter(mdo.artikel_list_all(),getContext()));
 
 
-                date.setText(bsf.date_refresh_rev2());
+                date.setText(bsf.date_refresh());
                 date.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view)
@@ -489,7 +481,7 @@ public class material_log_entrys extends Fragment
                 }
                data_loop =data_loop.substring(0,data_loop.length()-1)+"]";
 
-               String file_name= mdo.get_selectet_projekt()+"dataset_backup@"+bsf.get_date_filename()+"_ID_"+bsf.gen_UUID()+".json";
+               String file_name= mdo.get_selectet_projekt()+"dataset_backup@"+bsf.get_date_for_filename()+"_ID_"+bsf.gen_UUID()+".json";
                 file_save(paht+file_name,data_loop);
 
                 break;
@@ -555,7 +547,7 @@ public class material_log_entrys extends Fragment
                 Log.d("BASI Json",data_loop);
 
 
-                filename=   mdo.get_selectet_projekt().split(",")[0]+"dataset_ls@"+bsf.get_date_filename()+".json";
+                filename=   mdo.get_selectet_projekt().split(",")[0]+"dataset_ls@"+bsf.get_date_for_filename()+".json";
 
                 file_save(paht+filename,data_loop);
                 break;
@@ -621,7 +613,7 @@ public class material_log_entrys extends Fragment
                         }
                     }
                 }
-                filename=  mdo.get_selectet_projekt().split(",")[0]+"dataset_ls@"+bsf.get_date_filename()+".csv";
+                filename=  mdo.get_selectet_projekt().split(",")[0]+"dataset_ls@"+bsf.get_date_for_filename()+".csv";
                 file_save(paht+filename,string_loop);
                 break;
 

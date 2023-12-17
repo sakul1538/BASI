@@ -1,5 +1,7 @@
 package com.example.tabnav_test;
 
+import static java.util.Calendar.DAY_OF_MONTH;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,6 +13,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -18,14 +21,21 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.NotificationCompatSideChannelService;
 
+import com.example.tabnav_test.material.material_database_ops;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.Random;
 
 public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
@@ -57,7 +67,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
             try
             {
                 data.put("ID", bsf.gen_ID());
-                data.put("DATE", bsf.date_refresh());
+                data.put("DATE", bsf.date_refresh_database());
                 data.put("TIME", bsf.time_refresh());
 
                 SQLiteDatabase rdb = this.getReadableDatabase();
@@ -429,7 +439,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
         data.put("ID", bsf.gen_ID());
         data.put("PROJ_NR",bsf.PROJ_NR);
         data.put("MASCH_ID",id);
-        data.put("DATE",bsf.date_refresh());
+        data.put("DATE",bsf.date_refresh_database());
         data.put("TIME",bsf.time_refresh());
         data.put("TIME",bsf.time_refresh());
         data.put("NR",nr);
@@ -535,7 +545,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
                 data += "," + cursor.getString(cursor.getColumnIndexOrThrow("NR"));
                 data += "," + cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
                 data += "," + cursor.getString(cursor.getColumnIndexOrThrow("COUNTER"));
-                data += ", ";//Leer da erstes element
+                data += ",0 ";//Leer da erstes element
 
                 Double last_counter_value = Double.valueOf(cursor.getString(cursor.getColumnIndexOrThrow("COUNTER")));
 
@@ -557,7 +567,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
                         Double counter_diff = current_counter_value - last_counter_value;
                         last_counter_value = current_counter_value;
                         data += ",+" + counter_diff.toString();
-                        Log.d("BASI", data);
+                        //Log.d("BASI", data);
 
                         data_array[c] = data;
                         c++;
@@ -567,8 +577,6 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
             }
              db.close();
             return  data_array;
-
-
 
     }
 
@@ -926,7 +934,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
            String r = String.valueOf(rm.nextInt());
            r = r.substring(r.length()-1);
 
-           calendar.add(Calendar.DAY_OF_MONTH, Integer.parseInt(r));
+           calendar.add(DAY_OF_MONTH, Integer.parseInt(r));
            data.put("DATE", dateFormat.format(calendar.getTime()).toString());
            data.put("TIME", bsf.time_refresh());
            data.put("NR", cv.get("NR").toString());
@@ -958,6 +966,101 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
     {
         Log.e("Exception: m_database_ops ->","ID: "+msg+" Message:" +e.getMessage().toString());
         e.printStackTrace();
+    }
+
+    public void export_complete_csv(Context context)
+    {
+       Context context3 = context;
+
+     SQLiteDatabase  rdb = getReadableDatabase();
+     Cursor maschinen_ids = rdb.query(TB_NAME_MASCHINEN_ITEMS, new String[]{"ID"},null,null,null,null,null);
+     ArrayList<String> id = new ArrayList<>();
+     ArrayList<String> datablock = new ArrayList<>();
+     ArrayList<String> data_output = new ArrayList<>();
+     Basic_funct bsf = new Basic_funct();
+
+     if(maschinen_ids.getCount() !=0)
+     {
+         while (maschinen_ids.moveToNext())
+         {
+             id.add(maschinen_ids.getString(maschinen_ids.getColumnIndexOrThrow("ID")));
+         }
+         data_output.add("DATUM,ZEIT,NAME,NR,ZÄHLERSTAND,STUNDEN\n");
+
+         Iterator<String> ids = id.iterator();
+
+         while (ids.hasNext())
+         {
+             String curr_id = ids.next();
+             String[] data = this.get_log_entrys_byid(curr_id);
+             for (String d : data)
+             {
+                 Log.d("DATA",d);
+                 String[] col = d.split(",");
+
+                 String date = col[2];
+                 String time = col[3];
+                 String nr  = col[4];
+                 String name  = col[5];
+                 String counter  = col[6];
+                 String counter_diff  = col[7];
+                 datablock.add(date+","+time+","+name+","+nr+","+counter+","+counter_diff+"\n");
+
+             }
+         }
+         Collections.sort(datablock);
+         data_output.addAll(datablock);
+         Iterator<String> output = data_output.iterator();
+         String file_write_string ="";
+
+         while(output.hasNext())
+         {
+             file_write_string += output.next();
+
+         }
+        Log.d("CSV",file_write_string);
+         material_database_ops mdo  = new material_database_ops(context2);
+
+         String path = mdo.get_projekt_root_paht().toString()+ static_finals.export_dir_csv;
+         Log.d("BASI_ppaht",path);
+         String filename= "maschinen_report@"+bsf.get_date_for_filename()+".csv";
+         write_csv(path,filename,file_write_string);
+
+         File dir = new File(path);
+         dir.mkdirs();
+         File f = new File(dir+filename);
+         if(f.exists())
+         {
+             f.delete();
+         }
+         FileWriter fw = null;
+         try {
+             fw = new FileWriter(path+filename);
+             fw.write(file_write_string);
+             fw.close();
+
+             Toast toast= Toast.makeText(context2,
+                     "Export CSV Datei unter: \n"+path+filename, Toast.LENGTH_LONG);
+             toast.setGravity(Gravity.CENTER,0,0);
+             toast.show();
+
+         } catch (IOException e) {
+             Toast.makeText(context2, "Export CSV Datei Fehlgeschladen: \n"+e.getMessage().toString(), Toast.LENGTH_LONG).show();
+             throw new RuntimeException(e);
+         }
+     }
+
+     else
+     {
+         bsf.error_msg("Keine Maschine gefunden\n",context3);
+     }
+
+    }
+
+    private  void write_csv(String path, String filename,String file_write_string)
+    {
+
+
     }
 }
 

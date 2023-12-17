@@ -20,13 +20,19 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.media.MicrophoneInfo;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tabnav_test.Import_Export.Backup;
+
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -34,12 +40,34 @@ import java.io.FileNotFoundException;
 
 public class MainActivity extends AppCompatActivity
 {
+    // ----------------------------------------------------------------- Variablen
+    // ----------------------------------------------------------------- Variablen  String, char
+    // ----------------------------------------------------------------- Variablen 	byte,short,int,long,float,double
+    // ----------------------------------------------------------------- Variablen 	Boolean
+    // ----------------------------------------------------------------- Instanzen
+    ScreenSlidePagerAdapter adapter;
 
+    // ----------------------------------------------------------------- TextView
+    // ----------------------------------------------------------------- AutoCompleteTextView
+    // ----------------------------------------------------------------- EditText
+    // ----------------------------------------------------------------- Button
+    // ----------------------------------------------------------------- ImageButtons
+    // ----------------------------------------------------------------- ImageView
+    // ----------------------------------------------------------------- ListView
+    // ----------------------------------------------------------------- RecyclerView
+    // ----------------------------------------------------------------- Spinner
+    // ----------------------------------------------------------------- CheckBox
+    // ----------------------------------------------------------------- RadioButton
+    // ----------------------------------------------------------------- Switch
+    // ----------------------------------------------------------------- SeekBar
+    // ----------------------------------------------------------------- ProgressBar
+    // ----------------------------------------------------------------- Switch
+    // ----------------------------------------------------------------- ScrollView
+    ScrollView scroll_main;
+    // ----------------------------------------------------------------- Layouts
     TabLayout tabLayout;
     ViewPager2 viewPager2;
-
-    ScreenSlidePagerAdapter adapter;
-    ScrollView scroll_main;
+    // ----------------------------------------------------------------- END
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
@@ -57,11 +85,13 @@ public class MainActivity extends AppCompatActivity
                     throw new RuntimeException(e);
                 }
                 break;
-
-
         }
+    }
 
-
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
 
     }
 
@@ -70,22 +100,66 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         Context context = getApplicationContext();
+        db_ops dbo= new db_ops(getApplicationContext());
+        dbo.init();
 
+        // ----------------------------------------------------------------- Variablen
+        // ----------------------------------------------------------------- Variablen  String, char
+        // ----------------------------------------------------------------- Variablen 	byte,short,int,long,float,double
+        // ----------------------------------------------------------------- Variablen 	Boolean
+        // ----------------------------------------------------------------- Instanzen
+        projekt_ops projekt = new projekt_ops(getApplicationContext());
+        adapter = new ScreenSlidePagerAdapter(this);
 
-        // assigning ID of the toolbar to a variable
-        // using toolbar as ActionBar
-
-        viewPager2 =(ViewPager2) findViewById(R.id.viewPager1);
-        //scroll_main =(ScrollView) findViewById(R.id.scroll_view_main);
-
-
-
+        // ----------------------------------------------------------------- TextView
+        TextView current_projekt = findViewById(R.id.textView91);
+        // ----------------------------------------------------------------- AutoCompleteTextView
+        // ----------------------------------------------------------------- EditText
+        // ----------------------------------------------------------------- Button
+        // ----------------------------------------------------------------- ImageButtons
+        ImageButton app_settings = findViewById(R.id.imageButton49);
+        // ----------------------------------------------------------------- ImageView
+        // ----------------------------------------------------------------- ListView
+        // ----------------------------------------------------------------- RecyclerView
+        // ----------------------------------------------------------------- Spinner
+        // ----------------------------------------------------------------- CheckBox
+        // ----------------------------------------------------------------- RadioButton
+        // ----------------------------------------------------------------- Switch
+        // ----------------------------------------------------------------- SeekBar
+        // ----------------------------------------------------------------- ProgressBar
+        // ----------------------------------------------------------------- Switch
+        // ----------------------------------------------------------------- ScrollView
+        // ----------------------------------------------------------------- Layouts
         CoordinatorLayout clay = (CoordinatorLayout) findViewById(R.id.colay_main);
         tabLayout = (TabLayout) findViewById((R.id.tabLayout3));
-        adapter = new ScreenSlidePagerAdapter(this);
+
+        viewPager2 =(ViewPager2) findViewById(R.id.viewPager1);
         viewPager2.setAdapter(adapter);
+        // ----------------------------------------------------------------- END
+
+       //init
+        try {
+            current_projekt.setText(projekt.get_selectet_projekt());
+        } catch (Exception e)
+        {
+            current_projekt.setText("");
+            Toast.makeText(getApplicationContext(),"Error\n"+e.getMessage().toString(),Toast.LENGTH_LONG).show();
+            throw new RuntimeException(e);
+        }
+
+        app_settings.setOnClickListener(new View.OnClickListener()
+
+        {
+            @Override
+            public void onClick(View view)
+            {
+                app_settings_menu(view);
+
+            }
+        });
+
+       // scroll_main =(ScrollView) findViewById(R.id.scroll_view_main);
 
         viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -105,51 +179,6 @@ public class MainActivity extends AppCompatActivity
             public void onTabSelected(TabLayout.Tab tab)
             {
                 viewPager2.setCurrentItem(tab.getPosition());
-               //scroll_main.scrollTo(0,0);
-
-
-                Log.d("POSI", String.valueOf(tab.getPosition()));
-              /*  switch (tab.getPosition())
-                {
-                    case 0:
-                       tabLayout.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.Cornfield_5));
-                        //viewPager2.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.Cornfield_5));
-                      //  clay.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.Cornfield_5));
-
-                        break;
-
-                    case 1:
-                        tabLayout.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.Cornfield_2));
-                      //  viewPager2.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.Cornfield_2));
-                        //clay.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.Cornfield_2));
-                        break;
-
-                    case 2:
-                        tabLayout.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.Cornfield_3));
-                      //  viewPager2.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.Cornfield_3));
-                      //  clay.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.Cornfield_3));
-                         break;
-
-                    case 3:
-                        tabLayout.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.Greenjungle_2));
-                        break;
-                    case 4:
-                        tabLayout.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.Greenjungle_1));
-                        break;
-
-
-
-                }
-
-               */
-
-
-
-
-
-
-
-
             }
 
             @Override
@@ -161,7 +190,14 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+    }
 
+    private void app_settings_menu(View view)
+    {
+        PopupMenu popup = new PopupMenu(getApplicationContext(),view);
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.settings_app_menu, popup.getMenu());
+        popup.show();
 
     }
 }

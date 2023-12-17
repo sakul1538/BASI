@@ -2,10 +2,7 @@ package com.example.tabnav_test;
 
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,20 +12,11 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
-
-import com.example.tabnav_test.material.Material;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,7 +48,7 @@ public class Basic_func_img extends Basic_funct
         paint.setTextSize(50);
 
 
-        String timestamp = this.date_refresh() + "  " + this.time_refresh() + " " + text_stamp;
+        String timestamp = this.date_refresh_database() + "  " + this.time_refresh() + " " + text_stamp;
 
         Canvas canvas = new Canvas(bMapScaled);
 

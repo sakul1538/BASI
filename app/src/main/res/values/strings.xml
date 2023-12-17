@@ -3,6 +3,9 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <string name="settings_app_item1">Projektverwaltung</string>
+
+
     <string name="kamera_dir">Speicherort: </string>
     <string name="kamera_dir_group">Mit Subordner </string>
     <string name="kamera_tag">Tag: </string>

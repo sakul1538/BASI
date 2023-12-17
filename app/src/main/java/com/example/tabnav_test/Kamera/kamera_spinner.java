@@ -27,6 +27,7 @@ public class kamera_spinner<ID> extends SQLiteOpenHelper implements db_controlls
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase)
     {
+        /*
         sqLiteDatabase.execSQL("CREATE TABLE "+TB_NAME_KAMERA_CONF+" (ID TEXT,NAME TEXT,DIR TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE "+TB_NAME_LOG_CONF+" (ID TEXT,NAME TEXT,VALUE TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE "+PROJ_LOG+" (ID TEXT,PROJ_NR TEXT,DATE TEXT,TIME TEXT,CATEGORY TEXT,NOTE TEXT,FAV_FLAG TEXT,CHECK_FLAG TEXT,UPLOAD_FLAG)");
@@ -36,7 +37,10 @@ public class kamera_spinner<ID> extends SQLiteOpenHelper implements db_controlls
         sqLiteDatabase.execSQL("CREATE TABLE "+TB_MATERIAL_ZULIEFERER+" (ID TEXT,NAME TEXT,DATE TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE "+TB_MATERIAL_TYP+" (ID TEXT,NAME TEXT,EINHEIT TEXT,FAV_FLAG TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE "+TB_MATERIAL_LOG+" (ID TEXT,PROJEKT_ID TEXT,DATUM TEXT,LSNR TEXT,LIEFERANT_ID TEXT,MATERIAL_ID TEXT,MENGE TEXT,EINHEIT_ID TEXT,SRC TEXT,NOTIZ TEXT)");
+    */
     }
+
+
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1)

@@ -1,14 +1,7 @@
 package com.example.tabnav_test;
 
-import static android.content.ContentValues.TAG;
-
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.ActivityResultRegistry;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.PathUtils;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,17 +10,12 @@ import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.FileUtils;
 import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -40,16 +28,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
 public class m_log_main extends AppCompatActivity
@@ -223,7 +208,7 @@ public class m_log_main extends AppCompatActivity
 
         try
         {
-            selectet_date.setText(bsf.date_refresh_rev2());
+            selectet_date.setText(bsf.date_refresh());
         }
         catch (Exception e)
         {
@@ -362,6 +347,7 @@ public class m_log_main extends AppCompatActivity
                         {
                                 case R.id.export_backup:
                                     try {
+
                                         datalist = bsf.to_ArrayList(mdo.get_log_entrys_byid(masch_id));
                                         export_backup(datalist);
                                     }catch (Exception e)
@@ -494,11 +480,11 @@ public class m_log_main extends AppCompatActivity
             head.put("NR",nr);
             head.put("TABLENAME",SQL_finals.TB_NAME_MASCHINEN_ENTRYS);
             head.put("SIZE",datalist.size());
-            head.put("CREATED",bsf.date_refresh_rev2()+" "+bsf.time_refresh());
+            head.put("CREATED",bsf.date_refresh()+" "+bsf.time_refresh());
             data.add(String.valueOf(head));
             data.addAll(datalist);
 
-            String date = bsf.get_date_filename();
+            String date = bsf.get_date_for_filename();
 
             String filename = "Backup_" + name + "[" + nr + "]_id_" + masch_id + "@" + date;
             Share share = new Share();
@@ -545,7 +531,7 @@ public class m_log_main extends AppCompatActivity
                 data.add(bsf.convert_date(row[2],"format_database_to_readable") + "," + row[3] + "," + row[6] + "," + row[7]);
             }
 
-            String date = bsf.get_date_filename();
+            String date = bsf.get_date_for_filename();
 
             String filename = "log_" + name + "[" + nr + "]_id_" + masch_id + "@" + date;
             share = new Share();
@@ -590,7 +576,7 @@ public class m_log_main extends AppCompatActivity
                 data.add(bsf.convert_date(row[2],"format_database_to_readable") + "\t" + row[3] + "\t" + row[6] + "\t\t" + row[7]);
             }
 
-            String date = bsf.get_date_filename();
+            String date = bsf.get_date_for_filename();
 
             String filename = "log_" + name + "[" + nr + "]_id_" + masch_id + "@" + date;
             share = new Share();

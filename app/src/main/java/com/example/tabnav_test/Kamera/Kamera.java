@@ -1,6 +1,5 @@
 package com.example.tabnav_test.Kamera;
 
-
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
@@ -19,11 +18,10 @@ import android.os.Bundle;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.telephony.mbms.MbmsErrors;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,39 +44,46 @@ import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.R;
 import com.example.tabnav_test.config_favorite_strings.config_fav;
 import com.example.tabnav_test.config_favorite_strings.config_fav_ops;
-import com.example.tabnav_test.log_fav;
+import com.example.tabnav_test.db_ops;
+import com.example.tabnav_test.static_finals;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link Kamera#newInstance} factory method to
- * create an instance of this fragment.
- */
-// FIXME: 10.01.23  Kamera stürzt ab, wenn "Tag" aktiviert aber Text feld Leer
+
 
 public class Kamera<onActivityResult> extends Fragment
 {
+    // FIXME: 10.01.23  Kamera stürzt ab, wenn "Tag" aktiviert aber Text feld Leer
 
-    String currentPhotoPath;
+    // ----------------------------------------------------------------- Variablen
     Uri photoURI=null;
-
-
-
-    static final int REQUEST_IMAGE_CAPTURE = 2;
+    private Intent data;
+    // ----------------------------------------------------------------- Variablen String, char
+    String currentPhotoPath;
     static final String RROJ_NR="0";
-
-    ImageButton kamera_reset_tag;
-    Switch kamera_switch_tag_onoff;
-    AutoCompleteTextView kamera_tag_field_value;
-
-
+    // ----------------------------------------------------------------- Variablen byte,short,int,long,float,double
+    private int requestCode;
+    private int resultCode;
+    // ----------------------------------------------------------------- Variablen Boolean
+    // ----------------------------------------------------------------- Instanzen
+    // ----------------------------------------------------------------- TextView
     TextView curr_date;
-    ImageButton curr_date_refresh_button;
+    TextView tag;
+    TextView media_label;
+    TextView save_paht_set;
 
+    // ----------------------------------------------------------------- AutoCompleteTextView
+    AutoCompleteTextView kamera_tag_field_value;
+    // ----------------------------------------------------------------- EditText
+    EditText name= null;
+    EditText dir = null;
+    // ----------------------------------------------------------------- Button
+    // ----------------------------------------------------------------- ImageButtons
+    ImageButton kamera_reset_tag;
+    ImageButton curr_date_refresh_button;
     ImageButton take_picture = null;
     ImageButton adddir_delet = null;
     ImageButton adddir_modify = null;
@@ -89,44 +94,30 @@ public class Kamera<onActivityResult> extends Fragment
     ImageButton camera_delet_image  = null;
     ImageButton config_fav  = null;
 
-
-    EditText name= null;
-    EditText dir = null;
-    TextView pfadtemp = null;
-    TextView tag;
-    TextView media_label;
-
-    TextView save_paht_set;
-    ImageView previewImageView = null;
-
-    private int requestCode;
-    private int resultCode;
-    private Intent data;
+    // ----------------------------------------------------------------- ImageView
+    // ----------------------------------------------------------------- ListView
+    // ----------------------------------------------------------------- RecyclerView
+    // ----------------------------------------------------------------- Spinner
     Spinner spinner;
     kamera_spinner spinnerops;
-
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-
-
-    // TODO: Rename and change types of parameters
-
-
+// ----------------------------------------------------------------- CheckBox
+// ----------------------------------------------------------------- RadioButton
+// ----------------------------------------------------------------- Switch
+    Switch kamera_switch_tag_onoff;
+// ----------------------------------------------------------------- SeekBar
+// ----------------------------------------------------------------- ProgressBar
+// ----------------------------------------------------------------- Switch
+// ----------------------------------------------------------------- ScrollView
+// ----------------------------------------------------------------- Layouts
+    LinearLayout date_bg;
+    LinearLayout tag_bg;
+// ----------------------------------------------------------------- END
+u
     public Kamera()
     {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment Kamera.
-     */
-    // TODO: Rename and change types and number of parameters
     public static Kamera newInstance(String param1, String param2)
     {
         Kamera fragment = new Kamera();
@@ -141,41 +132,46 @@ public class Kamera<onActivityResult> extends Fragment
         super.onResume();
         refresh_fav_auto_complete();
     }
-
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
+
     }
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
-
         View view = inflater.inflate(R.layout.fragment_kamera, container, false);
 
-        kamera_reset_tag = (ImageButton) view.findViewById(R.id.kamera_reset_tag_button);
-        kamera_switch_tag_onoff = (Switch) view.findViewById(R.id.kamera_switch_tag_onoff);
-        kamera_tag_field_value = (AutoCompleteTextView) view.findViewById(R.id.kamera_tag_field_value);
-        kamera_tag_add_fav = (ImageButton) view.findViewById(R.id.tag_add_to_fav);
-        LinearLayout tag_bg = (LinearLayout) view.findViewById(R.id.tag_background);
-        LinearLayout date_bg = (LinearLayout) view.findViewById(R.id.date_background);
 
+        // ----------------------------------------------------------------- Variablen
 
+        // ----------------------------------------------------------------- Variablen  String, char
+        // ----------------------------------------------------------------- Variablen 	byte,short,int,long,float,double
+        // ----------------------------------------------------------------- Variablen 	Boolean
+        // ----------------------------------------------------------------- Instanzen
+        Basic_funct bsf =new  Basic_funct();
+        spinnerops = new kamera_spinner(getContext());
 
-
-        curr_date_refresh_button =(ImageButton) view.findViewById(R.id.kamera_date_refresh_button);
-
+        // ----------------------------------------------------------------- TextView
         curr_date =(TextView) view.findViewById(R.id.kamera_date);
         tag =(TextView) view.findViewById(R.id.textView32);
         media_label =(TextView) view.findViewById(R.id.textView66);
         save_paht_set =(TextView) view.findViewById(R.id.textView4);
 
-
+        // ----------------------------------------------------------------- AutoCompleteTextView
+        kamera_tag_field_value = (AutoCompleteTextView) view.findViewById(R.id.kamera_tag_field_value);
+        // ----------------------------------------------------------------- EditText
+        // ----------------------------------------------------------------- Button
+        // ----------------------------------------------------------------- ImageButtons
+        kamera_reset_tag = (ImageButton) view.findViewById(R.id.kamera_reset_tag_button);
+        kamera_tag_add_fav = (ImageButton) view.findViewById(R.id.tag_add_to_fav);
+        kamera_tag_add_fav = (ImageButton) view.findViewById(R.id.tag_add_to_fav);
+        kamera_tag_add_fav = (ImageButton) view.findViewById(R.id.tag_add_to_fav);
+        curr_date_refresh_button =(ImageButton) view.findViewById(R.id.kamera_date_refresh_button);
         take_picture = view.findViewById(R.id.imageButton11);
         adddir = view.findViewById(R.id.imageButton7);
         adddir_delet = view.findViewById(R.id.imageButton10);
@@ -184,12 +180,31 @@ public class Kamera<onActivityResult> extends Fragment
         camera_reset_form = view.findViewById(R.id.imageButton32);
         camera_delet_image = view.findViewById(R.id.delet_image);
         config_fav = view.findViewById(R.id.config_tag);
-
+        // ----------------------------------------------------------------- ImageView
+        // ----------------------------------------------------------------- ListView
+        // ----------------------------------------------------------------- RecyclerView
+        // ----------------------------------------------------------------- Spinner
         spinner = view.findViewById(R.id.spinner4);
-        spinnerops = new kamera_spinner(getContext());
-        refresh_spinner();
+        // ----------------------------------------------------------------- CheckBox
+        // ----------------------------------------------------------------- RadioButton
+        // ----------------------------------------------------------------- Switch
+        kamera_switch_tag_onoff = (Switch) view.findViewById(R.id.kamera_switch_tag_onoff);
+        // ----------------------------------------------------------------- SeekBar
+        // ----------------------------------------------------------------- ProgressBar
+        // ----------------------------------------------------------------- Switch
+        // ----------------------------------------------------------------- ScrollView
+        // ----------------------------------------------------------------- Layouts
+        tag_bg = (LinearLayout) view.findViewById(R.id.tag_background);
+        date_bg = (LinearLayout) view.findViewById(R.id.date_background);
+        // ----------------------------------------------------------------- END
 
-        kamera_tag_field_value.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        //Init
+        refresh_spinner();
+        tag_visibility(View.GONE);
+        preview_camera_visibility(View.GONE);
+
+        kamera_tag_field_value.setOnFocusChangeListener(new View.OnFocusChangeListener()
+        {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if(b==true)
@@ -198,44 +213,6 @@ public class Kamera<onActivityResult> extends Fragment
                 }
             }
         });
-
-        tag_visibility(View.GONE);
-        preview_camera_visibility(View.GONE);
-
-        /*save_paht_set.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)
-            {
-
-                View kamera_save_path_view = getLayoutInflater().inflate(R.layout.kamera_save_path_config_dialog, null);
-
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-
-                // set prompts.xml to alertdialog builder
-                alertDialogBuilder.setView(kamera_save_path_view);
-
-                alertDialogBuilder.setTitle("Speicherpfade");
-
-                RecyclerView path_list_rcv = kamera_save_path_view.findViewById(R.id.save_paht_rcv);
-
-                path_list_rcv_adapter plrcva = new  path_list_rcv_adapter(getContext());
-                path_list_rcv.setAdapter(plrcva);
-                path_list_rcv.setLayoutManager(new LinearLayoutManager(getContext()));
-
-                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i)
-                    {
-                        dialogInterface.cancel();
-                    }
-                });
-
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
-
-            }
-        });*/
-
 
         config_fav.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -255,15 +232,15 @@ public class Kamera<onActivityResult> extends Fragment
                 {
                     tag_visibility(View.GONE);
                 }
-                    else
-                    {
-                        tag_visibility(View.VISIBLE);
-
+                else
+                {
+                    tag_visibility(View.VISIBLE);
                 }
-
             }
         });
 
+
+        //---------------------------------------------------------
         adddir_modify.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -288,6 +265,7 @@ public class Kamera<onActivityResult> extends Fragment
 
         adddir.setOnClickListener(new View.OnClickListener()
         {
+
             @Override
             public void onClick(View view)
             {
@@ -295,16 +273,15 @@ public class Kamera<onActivityResult> extends Fragment
             }
         });
 
+        //---------------------------------------------------------
+
 
         take_picture.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
-
             {
-
                String[] responde = spinnerops.getOne(RROJ_NR, String.valueOf(spinner.getSelectedItem()));
-
 
                String date = curr_date.getText().toString();
                 date = date.replace(".", "");
@@ -314,9 +291,7 @@ public class Kamera<onActivityResult> extends Fragment
 
                 } else
                     dispatchTakePictureIntent(responde[1], responde[0], false, "", date); //Path
-
             }
-
         });
 
         camera_delet_image.setOnClickListener(new View.OnClickListener() {
@@ -371,14 +346,11 @@ public class Kamera<onActivityResult> extends Fragment
             {
 
                 try {
-                    Basic_funct bsf = new Basic_funct();
-
-                    curr_date.setText(bsf.date_refresh_rev2());
-                    date_bg.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.hellgrün));
-
+                    curr_date.setText(bsf.date_refresh());
+                    tag_background(static_finals.un_mark_color);
+                    date_background(static_finals.un_mark_color);
                     spinner.setSelection(0);
                     kamera_tag_field_value.setText("");
-                    tag_bg.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.hellgrün));
                     camera_photo.setImageResource(0);
                     kamera_switch_tag_onoff.setChecked(false);
                     preview_camera_visibility(View.GONE);
@@ -400,13 +372,12 @@ public class Kamera<onActivityResult> extends Fragment
 
                 if (kamera_switch_tag_onoff.isChecked() == true)
                 {
-                    tag_bg.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.orange));
+                    tag_background(static_finals.mark_color);
                 }
 
                 if (kamera_switch_tag_onoff.isChecked() == false)
                 {
-                    tag_bg.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.hellgrün));
-
+                    tag_background(static_finals.un_mark_color);
                 }
             }
         });
@@ -426,7 +397,6 @@ public class Kamera<onActivityResult> extends Fragment
             @Override
             public void onClick(View view)
             {
-
                 kamera_tag_field_value.setText("");
                 kamera_switch_tag_onoff.setChecked(false);
             }
@@ -436,13 +406,8 @@ public class Kamera<onActivityResult> extends Fragment
             @Override
             public void onClick(View view)
             {
-                Calendar calendar = Calendar.getInstance();
-                SimpleDateFormat datumformat = new SimpleDateFormat("dd.MM.yyyy");
-                String date = datumformat.format(calendar.getTime());
-
-                curr_date.setText(date);
-
-                date_bg.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.hellgrün));
+                curr_date.setText(bsf.date_refresh());
+                date_background(static_finals.un_mark_color);
             }
         });
 
@@ -452,23 +417,18 @@ public class Kamera<onActivityResult> extends Fragment
             public void onClick(View view)
             {
                 DatePickerDialog dpd = new DatePickerDialog(getContext());
-
                 dpd.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker datePicker, int i, int i1, int i2)
                     {
                         Calendar calendar = Calendar.getInstance();
                         calendar.set(i,i1 , i2);
-
-
                         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
 
                         String dateString = dateFormat.format(calendar.getTime());
-
-
                         curr_date.setText(dateString);
+                        date_background(static_finals.mark_color);
 
-                        date_bg.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.orange));
                     }
                 });
 
@@ -479,9 +439,20 @@ public class Kamera<onActivityResult> extends Fragment
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat datumformat = new SimpleDateFormat("dd.MM.yyyy");
         String date = datumformat.format(calendar.getTime()); // Inflate the layout for this fragment
-        curr_date.setText(date);
+        curr_date.setText(bsf.date_refresh());
+        date_background(static_finals.un_mark_color);
 
         return view;
+    }
+
+    private void tag_background(int markColor)
+    {
+        tag_bg.setBackgroundColor(ContextCompat.getColor(getContext(),markColor));
+    }
+
+    private void date_background(int markColor)
+    {
+        date_bg.setBackgroundColor(ContextCompat.getColor(getContext(),markColor));
     }
 
     private void tag_visibility(int visibility)
@@ -500,7 +471,6 @@ public class Kamera<onActivityResult> extends Fragment
             camera_photo.setVisibility(visibility);
             camera_delet_image.setVisibility(visibility);
             media_label.setVisibility(visibility);
-
     }
 
     @Override
@@ -632,7 +602,15 @@ public class Kamera<onActivityResult> extends Fragment
 
                         int width= exif.getAttributeInt(ExifInterface.TAG_PIXEL_X_DIMENSION,0);
                         int height= exif.getAttributeInt(ExifInterface.TAG_PIXEL_Y_DIMENSION,0);
+
+                        if(width==0 || height ==0)
+                        {
+                            width=bMap.getWidth();
+                            height =bMap.getHeight();
+                        }
                         Matrix matrix = new Matrix();
+
+                        //Fixme 04.12.2023 Stndartwerte für width/height,falls keine exif daten vornhanden sind = Erzeugt sonst gelegentlich eine Exception!
 
                         switch (rotation)
                         {
@@ -1037,11 +1015,12 @@ public class Kamera<onActivityResult> extends Fragment
     }
 
 
-    public void refresh_fav_auto_complete()
+    private void refresh_fav_auto_complete()
     {
         config_fav_ops cfop = new config_fav_ops(getContext());
         ArrayAdapter<String> favArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, cfop.favorite_strings_list(false));
         kamera_tag_field_value.setAdapter(favArrayAdapter);
+
     }
 
     private void exmsg(String msg,Exception e)

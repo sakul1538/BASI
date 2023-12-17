@@ -36,7 +36,8 @@ public class config_fav_ops extends SQLiteOpenHelper implements SQL_finals
     }
 
     @Override
-    public void onCreate(SQLiteDatabase sqLiteDatabase) {
+    public void onCreate(SQLiteDatabase sqLiteDatabase)
+    {
 
     }
 

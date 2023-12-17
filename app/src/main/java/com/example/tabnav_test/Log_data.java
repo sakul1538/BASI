@@ -180,8 +180,8 @@ public class Log_data extends AppCompatActivity
 
 
 
-                date_from.setText(bsf.date_refresh().toString());
-                date_to.setText(bsf.date_refresh().toString());
+                date_from.setText(bsf.date_refresh_database().toString());
+                date_to.setText(bsf.date_refresh_database().toString());
 
 
                 Spinner log_search_filter_category = (Spinner) promptsView.findViewById(R.id.log_search_category_field);
@@ -196,8 +196,8 @@ public class Log_data extends AppCompatActivity
                         log_filter_radio_check_true.setChecked(false);
                         log_filter_radio_check_false.setChecked(false);
                         log_filter_check_fav_state.setChecked(false);
-                        date_from.setText(bsf.date_refresh().toString());
-                        date_to.setText(bsf.date_refresh().toString());
+                        date_from.setText(bsf.date_refresh_database().toString());
+                        date_to.setText(bsf.date_refresh_database().toString());
                         log_search_filter_category.setSelection(0);
 
                         String date_from_value = null;
@@ -301,8 +301,8 @@ public class Log_data extends AppCompatActivity
                 date_refresh.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        date_from.setText(bsf.date_refresh().toString());
-                        date_to.setText(bsf.date_refresh().toString());
+                        date_from.setText(bsf.date_refresh_database().toString());
+                        date_to.setText(bsf.date_refresh_database().toString());
 
                     }
                 });

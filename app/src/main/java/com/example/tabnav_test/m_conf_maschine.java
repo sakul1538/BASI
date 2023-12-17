@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -36,20 +35,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
-import androidx.core.content.res.TypedArrayUtils;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Set;
 
 
 // TODO: 11.01.23 Bei neue Maschine Registieren, prüfen ob in datenbank schon vorhanden (NAME, NUMMER)
@@ -181,7 +174,7 @@ public class m_conf_maschine extends AppCompatActivity {
         m_conf_date_maschine_curr_date = (TextView) findViewById(R.id.m_conf_date_maschine_curr_date);
 
 
-        m_conf_date_maschine_curr_date.setText(bsf.date_refresh_rev2());// FIXME: 08.01.23
+        m_conf_date_maschine_curr_date.setText(bsf.date_refresh());// FIXME: 08.01.23
 
         m_rcv = (RecyclerView) findViewById(R.id.m_rcv);
 
@@ -472,6 +465,16 @@ public class m_conf_maschine extends AppCompatActivity {
 
                                 break;
 
+                            case R.id.menu_maschine_export_csv:
+
+                                m_database_ops mdops = new m_database_ops(context);
+
+                                mdops.export_complete_csv(context);
+
+                                break;
+
+
+
                             default:
 
                                 Toast.makeText(m_conf_maschine.this, "Nicht Implementiert", Toast.LENGTH_SHORT).show();
@@ -648,7 +651,7 @@ public class m_conf_maschine extends AppCompatActivity {
                 else
                 {
                     m_conf_date_maschine_dialog.setVisibility(View.VISIBLE);
-                    m_conf_date_maschine_curr_date.setText(bsf.date_refresh_rev2());
+                    m_conf_date_maschine_curr_date.setText(bsf.date_refresh());
                     reset();
 
                 }

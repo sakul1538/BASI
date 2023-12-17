@@ -19,7 +19,6 @@ import android.os.Bundle;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import androidx.media.AudioAttributesImplBaseParcelizer;
 
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
@@ -57,16 +56,17 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import com.example.tabnav_test.static_finals;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link Material#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Material extends Fragment {
+public class Material extends Fragment implements static_finals
+{
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -77,8 +77,8 @@ public class Material extends Fragment {
     private static final int foto_preview_h = 800; // höhe
     public static final String ls_media_directory_name = "/Lieferscheine"; // höhe
     private static final String ls_media_directory_name_temp = "/Lieferscheine/temp"; // höhe
-    public static final String backup_dir ="/Backups&Exports/"; // höhe
-    public static final String backup_dir_app ="/Backups&Exports/APP/"; // höhe
+    public static final String backup_dir =static_finals.backup_and_export_dir; //"/Backups&Exports/Backups/"// höhe
+    public static final String backup_dir_app ="/Backups&Exports/APP/"; //App Allgemein
     public static final String backup_dir_BASI ="/DCIM/BASI/APP/BACKUPS/";
     private static final String backup_artikel = "ARTIKEL"; // höheAPP
     private static final String backup_lieferanten = "LIEFERANTEN"; // höhe
@@ -183,7 +183,6 @@ public class Material extends Fragment {
 
     public Material()
     {
-
         // Required empty public constructor
     }
 
@@ -389,9 +388,9 @@ public class Material extends Fragment {
                 break;
 
             case 7: //Backup Artikel Restore
-
                 if (resultData != null)
                 {
+
                     uri = resultData.getData();
                     String source_path = uri.getPath();///document/primary:DCIM/Baustellen /testprojekt/Lieferscheine/Volken_NR_1223@25072023_ID_6547592956172734206.jpeg
                     source_path = source_path.replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
@@ -406,11 +405,10 @@ public class Material extends Fragment {
                         public void onClick(DialogInterface dialogInterface, int i)
                         {
 
-                           //mdo.restore_artikel(finalSource_path,getContext(),true);
-
                             Backup backup = new Backup(getContext());
                             try {
                                 backup.restore_backup(SQL_finals.TB_MATERIAL_TYP,finalSource_path,true);
+
                             } catch (FileNotFoundException e) {
                                 throw new RuntimeException(e);
                             }
@@ -435,11 +433,60 @@ public class Material extends Fragment {
 
                 break;
 
+            case 8: //restore Projekte
+
+                if (resultData != null)
+                {
+
+                    uri = resultData.getData();
+                    String source_path = uri.getPath();///document/primary:DCIM/Baustellen /testprojekt/Lieferscheine/Volken_NR_1223@25072023_ID_6547592956172734206.jpeg
+                    source_path = source_path.replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
+                    Log.d("BADO SOURCE PAHT BACKUP ",source_path);
+
+                    AlertDialog.Builder alertdialog = new AlertDialog.Builder(getContext());
+                    alertdialog.setTitle("Aktion bei vorhandenen Einträgen?");
+                    String finalSource_path = source_path;
+                    Backup backup = new Backup(getContext());
+                    alertdialog.setPositiveButton("Überschreiben", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i)
+                        {
+
+
+                            try {
+                                backup.restore_backup(SQL_finals.TB_MATERIAL_PROJEKTE,finalSource_path,true);
+                                refresh_spinner();
+                            } catch (FileNotFoundException e)
+                            {
+                                throw new RuntimeException(e);
+                            }
+                            dialogInterface.cancel();
+                        }
+                    });
+
+                    alertdialog.setNegativeButton("Behalten", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i)
+                        {
+                            try {
+                                backup.restore_backup(SQL_finals.TB_MATERIAL_PROJEKTE,finalSource_path,false);
+                                refresh_spinner();
+                            } catch (FileNotFoundException e) {
+                                throw new RuntimeException(e);
+                            }
+
+                            dialogInterface.cancel();
+                        }
+                    });
+
+                    alertdialog.show();
+                }
+
+                break;
+
+
             default:
                 Log.d("BASI RQ:", String.valueOf(requestCode));
-
-
-
         }
     }
 
@@ -511,6 +558,7 @@ public class Material extends Fragment {
         //Instanzen
 
         mdo = new material_database_ops(getContext());
+        mdo.test_exist_projects();
 
         //TextView
         projekt_label = view.findViewById(R.id.textView58);
@@ -594,21 +642,18 @@ public class Material extends Fragment {
             }
         });
 
-
-
-
         try {
             refresh_artikel_autocomplete();
-            refresh_projekt_label();
-            refresh_autocomplete_liste_zulieferer();
-            set_media_directory(ls_media_directory_name_temp);
-            clean_temp_dir();
-            create_imageset();
+           refresh_projekt_label();
+          // refresh_autocomplete_liste_zulieferer();
+          // set_media_directory(ls_media_directory_name_temp);
+        //  clean_temp_dir();
+         //create_imageset();
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        reset_complete();
+       // reset_complete();
 
 
         lsnr_field.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -862,7 +907,7 @@ public class Material extends Fragment {
             }
         });
 
-        date_label.setText(bsf.date_refresh_rev2());
+        date_label.setText(bsf.date_refresh());
 
         date_label.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1442,9 +1487,11 @@ public class Material extends Fragment {
         });
 
 
-        settings_projekt_button.setOnClickListener(new View.OnClickListener() {
+        settings_projekt_button.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view)
+            {
                 LayoutInflater li = LayoutInflater.from(getActivity());
                 View promptsView = li.inflate(R.layout.material_choose_proj_dialog, container, false);
 
@@ -1453,6 +1500,7 @@ public class Material extends Fragment {
                 ImageButton delet_item = promptsView.findViewById(R.id.imageButton47);
                 ImageButton update_item = promptsView.findViewById(R.id.imageButton46);
                 Button backup_create = promptsView.findViewById(R.id.backup_create);
+                Button backup_restore = promptsView.findViewById(R.id.backup_restore);
 
                 //Buttons
                 Button select_projekt_button = promptsView.findViewById(R.id.select_projekt_button);
@@ -1511,7 +1559,7 @@ public class Material extends Fragment {
 
                                 Toast.makeText(getContext(), String.valueOf(r), Toast.LENGTH_SHORT).show();
                                 refresh_spinner();
-                                refresh_artikel_autocomplete();
+                                //refresh_artikel_autocomplete();
 
 
                                 dialogInterface.cancel();
@@ -1546,9 +1594,9 @@ public class Material extends Fragment {
                     public void onClick(View view)
                     {
                         Backup backup = new Backup(getContext());
-                        String path = Environment.getExternalStorageDirectory()+backup_dir_BASI; ///storage/emulated/0
+                        String path = Environment.getExternalStorageDirectory()+static_finals.backup_dir_json; ///storage/emulated/0
 
-                        String filename = "BASI_BACKUP_PROJEKTE@" +bsf.get_date_filename()+".json";
+                        String filename = "BASI_BACKUP_PROJEKTE@" +bsf.get_date_for_filename()+".json";
 
                         File dir= new File(path);
                         dir.mkdirs();
@@ -1560,10 +1608,23 @@ public class Material extends Fragment {
                         }
                         Log.d("BASI",path);
 
+                    }
+                });
+
+                backup_restore.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setType("application/json");
+                        startActivityForResult(intent, 8);
 
                     }
                 });
-                //ImageButton backup_restore = promptsView.findViewById(R.id.imageButton46);
+
+
 
                 refresh_spinner();
 
@@ -1668,7 +1729,7 @@ public class Material extends Fragment {
                         {
                             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                             intent.addCategory(Intent.CATEGORY_OPENABLE);
-                            intent.setType("json/*");
+                            intent.setType("application/json");
                             startActivityForResult(intent, 5);
                         }
                     });
@@ -1695,18 +1756,23 @@ public class Material extends Fragment {
         }
     }
 
-    private void reset_complete() {
-        reset_date();
-        reset_ls_nr();
-        reset_artikel();
-        reset_autocomplete_liste_zulieferer();
-        reset_menge();
-        reset_notiz();
-        reset_camera();
-        media_visibilitiy(View.GONE);
-        clean_temp_dir();
-        create_imageset();
-        r.lsnr_test_alert(r.lsnr_test());
+    private void reset_complete()
+    {
+        try {
+            reset_date();
+            reset_ls_nr();
+            reset_artikel();
+            reset_autocomplete_liste_zulieferer();
+            reset_menge();
+            reset_notiz();
+            reset_camera();
+            media_visibilitiy(View.GONE);
+            clean_temp_dir();
+            create_imageset();
+            r.lsnr_test_alert(r.lsnr_test());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
@@ -1718,12 +1784,20 @@ public class Material extends Fragment {
         }
     }
 
-    void refresh_artikel_autocomplete() {
+    void refresh_artikel_autocomplete()
+    {
+        Log.d("BASI:hallo","t");
+        try {
+            material_database_ops mdo = new material_database_ops(getContext());
+            String[] artikel = mdo.artikel_list_all();
+            if(artikel.length>0)
+            { ArrayAdapter<String> artikelAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, artikel);
+                edit_artikel_name.setAdapter(artikelAdapter);}
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
 
-        material_database_ops mdo = new material_database_ops(getContext());
-        String[] artikel = mdo.artikel_list_all();
-        ArrayAdapter<String> artikelAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, artikel);
-        edit_artikel_name.setAdapter(artikelAdapter);
     }
 
     public void refresh_fav_auto_complete()
@@ -1882,7 +1956,6 @@ public class Material extends Fragment {
     }
 
 
-
     public ArrayAdapter get_zulieferer_adapter()
     {
         material_database_ops mdo = new material_database_ops(getContext());
@@ -1932,7 +2005,9 @@ public class Material extends Fragment {
 
     }
 
-    public void refresh_projekt_label() {
+    public void refresh_projekt_label()
+    {
+
         material_database_ops mdo = new material_database_ops(getContext());
         projekt_label.setText(mdo.get_selectet_projekt());
     }
@@ -1994,7 +2069,7 @@ public class Material extends Fragment {
 
 
     private void reset_date() {
-        date_label.setText(bsf.date_refresh_rev2());
+        date_label.setText(bsf.date_refresh());
         date_background.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.hellgrün));
     }
 
@@ -2175,7 +2250,6 @@ public class Material extends Fragment {
 
                     }
 
-
                     break;
 
                 default:
@@ -2236,12 +2310,14 @@ public class Material extends Fragment {
             File f = new File(in_directory);
 
             String[] files = f.list();
-            for (String d : files) {
-                File t = new File(in_directory + "/" + d);
-                t.delete();
+            if(files.length>0)
+            {
+                for (String d : files) {
+                    File t = new File(in_directory + "/" + d);
+                    t.delete();
+                }
+                bsf.log("Verzeichnis 'temp' bereinigt!");
             }
-            bsf.log("Verzeichnis 'temp' bereinigt!");
-
         } catch (Exception e) {
             bsf.error_msg("Verzeichnis 'temp' bereinigung Fehlgeschlagen!\n" + e, getContext());
         }
@@ -2388,7 +2464,7 @@ public class Material extends Fragment {
 
         public void create_backup(String data,String type)
         {
-            String filename =mdo.get_selectet_projekt()+type+"@"+bsf.get_date_filename()+".json";
+            String filename =mdo.get_selectet_projekt()+type+"@"+bsf.get_date_for_filename()+".json";
 
             String backup_root = mdo.get_projekt_root_paht()+backup_dir_app;
             File f = new File(backup_root);
@@ -2425,6 +2501,7 @@ public class Material extends Fragment {
             }
         }
     }
+
 
     void exmsg(String msg, Exception e)
     {

@@ -4,7 +4,7 @@ public interface SQL_finals
 {
     public static final String DB_NAME ="BAUASSIST_DB.db";
 
-    //Tabellennamen
+    //Tabellennamen alt
     public static  final String TB_NAME_KAMERA_CONF ="camera_table_conf";
     public static  final String TB_NAME_LOG_CONF ="log_table_conf";
     public static  final String TB_NAME_MASCHINEN_ITEMS ="maschinen_items";
@@ -17,6 +17,6 @@ public interface SQL_finals
     public static  final String TB_MATERIAL_LOG ="material_log";
 
 
-    //Spaltennamen TAbellen
-
+    //Tabellennamen neu
+    public static  final String  BASI_PROJEKTE ="basi_projekte";
 }

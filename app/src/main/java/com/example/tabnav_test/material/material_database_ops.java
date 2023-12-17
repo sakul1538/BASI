@@ -7,32 +7,21 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.icu.number.SimpleNotation;
-import android.icu.util.Output;
 import android.os.Environment;
 import android.util.JsonReader;
-import android.util.JsonWriter;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.SQL_finals;
 
-import org.json.JSONArray;
-import org.json.JSONStringer;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -309,9 +298,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
     {
 
         //Fixme Projekt ID anpassen
-
-        material_database_ops mdo = new material_database_ops(context);
-        String proj_id =mdo.get_selectet_projekt_root_data().split(",")[1]; //Martinheim Süd,23110022,primary:DCIM/Baustellen /Martinsheim Süd;
+        String proj_id =this.get_selectet_projekt_root_data().split(",")[1]; //Martinheim Süd,23110022,primary:DCIM/Baustellen /Martinsheim Süd;
         SQLiteDatabase db = this.getReadableDatabase();
         String[] selectionArgs = { proj_id };
         String where = "PROJEKT_ID=?";
@@ -348,25 +335,25 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
         long newRowId = wdb.insert(TB_MATERIAL_PROJEKTE,null,data);
 
+
     }
      public String[] projekt_list_all()
     {
-
         SQLiteDatabase db = this.getReadableDatabase();
         String[] columns = { "NAME", "ID" };
 
         Cursor cursor = db.query(TB_MATERIAL_PROJEKTE,columns,null,null,null,null,null);
         String[] strings = new String[cursor.getCount()];
 
-        int i=0;
-        while (cursor.moveToNext())
-        {
-            strings[i] =cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
-            strings[i] +="["+cursor.getString(cursor.getColumnIndexOrThrow("ID"))+"]";
-            i++;
-        }
-        cursor.close();
-        db.close();
+            int i=0;
+            while (cursor.moveToNext())
+            {
+                strings[i] =cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
+                strings[i] +="["+cursor.getString(cursor.getColumnIndexOrThrow("ID"))+"]";
+                i++;
+            }
+            cursor.close();
+            db.close();
 
         return  strings;
     }
@@ -444,17 +431,24 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
     public String get_selectet_projekt()
     {
 
+         this.test_exist_projects();
+
         SQLiteDatabase db = this.getReadableDatabase();
         String[] selectionArgs = {"1"};
         String where = "SELECT_FLAG=?";
 
         Cursor cursor = db.query(TB_MATERIAL_PROJEKTE,null,where,selectionArgs,null,null,null);
         String value ="";
-        while (cursor.moveToNext())
+        if(cursor.getCount()>0)
         {
-            value = cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
-            value +="["+cursor.getString(cursor.getColumnIndexOrThrow("ID"))+"]";
+            while (cursor.moveToNext())
+            {
+                value = cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
+                value +="["+cursor.getString(cursor.getColumnIndexOrThrow("ID"))+"]";
+            }
         }
+
+
         cursor.close();
         db.close();
         return  value;
@@ -462,7 +456,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
     public String get_selectet_projekt_id()
     {
-
+        this.test_exist_projects();
         String id = null;
         try {
             SQLiteDatabase db = this.getReadableDatabase();
@@ -481,7 +475,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
             bsf.error_msg("Kein ausgewähltes Projekt gefunden! \n return=0\n"+e.getMessage().toString(),context);
             throw new RuntimeException(e);
         }
-
         return  id;
     }
 
@@ -544,7 +537,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
             ContentValues data = new ContentValues();
             data.put("ID",bsf.gen_ID());
             data.put("NAME",zulieferer_name);
-            data.put("DATE",bsf.date_refresh()+ " "+bsf.time_refresh());
+            data.put("DATE",bsf.date_refresh_database()+ " "+bsf.time_refresh());
             newRowId = wdb.insert(TB_MATERIAL_ZULIEFERER,null,data);
         }
         return newRowId;
@@ -792,21 +785,31 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
     public String[] artikel_list_all()
     {
-        SQLiteDatabase db = this.getReadableDatabase();
+       SQLiteDatabase db = this.getReadableDatabase();
         String[] columns = { "NAME","EINHEIT" };
 
         Cursor cursor = db.query(TB_MATERIAL_TYP,columns,null,null,null,null,"NAME ASC");
-        String[] strings = new String[cursor.getCount()];
 
-        int i=0;
-        while (cursor.moveToNext())
+        String[] strings;
+
+        if(cursor.getCount()>0)
         {
-            strings[i] =cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
-            strings[i] +=" ["+cursor.getString(cursor.getColumnIndexOrThrow("EINHEIT"))+"]";
-            i++;
+            strings = new String[cursor.getCount()];
+            int i=0;
+            while (cursor.moveToNext())
+            {
+                strings[i] =cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
+                strings[i] +=" ["+cursor.getString(cursor.getColumnIndexOrThrow("EINHEIT"))+"]";
+                i++;
+            }
+            cursor.close();
+            db.close();
         }
-        cursor.close();
-        db.close();
+        else
+        {
+            strings = new String[1];
+            strings[0]="Keine Geschpeichert [Stück]";
+        }
 
         return  strings;
     }
@@ -1226,6 +1229,30 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
         return  strings;
 
+    }
+
+    public void test_exist_projects()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String [] colums = {"ID"};
+        String where = "ID=?";
+        String[] where_args ={"0"};
+
+        Cursor cursor =db.query(SQL_finals.TB_MATERIAL_PROJEKTE,colums,where,where_args,null,null,null);
+
+        if(cursor.getCount()==0)
+        {
+            ContentValues cv = new ContentValues();
+            cv.put("ID", "0");
+            cv.put("NAME", "Allgemein");
+            cv.put("SRC", Environment.getExternalStorageState());
+            cv.put("SELECT_FLAG", "1");
+            this.projekt_add(cv);
+            select_projekt("0");
+        }
+
+        cursor.close();
+        db.close();
     }
 
 

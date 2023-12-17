@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/grey"
     android:padding="5dp"
     tools:context=".material.Material">
 
@@ -114,14 +115,14 @@
                     android:padding="5dp"
                     android:text="@string/LSnr_label" />
 
-                    <EditText
+                <EditText
                     android:id="@+id/edittext_LS_ID"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:ems="10"
                     android:inputType="text"
-                    android:nextFocusDown="@id/autocomplete_zulieferer_name"/>
+                    android:nextFocusDown="@id/autocomplete_zulieferer_name" />
 
 
                 <ImageButton
@@ -303,8 +304,8 @@
                     android:id="@+id/ls_note_field"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:layout_margin="5dp"
+                    android:layout_weight="1"
                     android:padding="5dp"
                     android:text="@string/empty" />
 
@@ -317,6 +318,7 @@
                     android:background="#00FFFFFF"
                     android:padding="5dp"
                     android:src="@drawable/ic_baseline_cancel_24" />
+
                 <ImageButton
                     android:id="@+id/ls_note_add_fav_string"
                     android:layout_width="@dimen/buttons_1"
@@ -326,6 +328,7 @@
                     android:background="#00FFFFFF"
                     android:padding="5dp"
                     android:src="@drawable/ic_baseline_star_24" />
+
                 <ImageButton
                     android:id="@+id/ls_note_fav_string_config"
                     android:layout_width="@dimen/buttons_1"

@@ -10,14 +10,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Typeface;
-import android.graphics.pdf.PdfDocument;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
-
-import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -194,7 +190,7 @@ public class Basic_funct {
         return date_new;
     }
 
-    public String date_refresh() {
+    public String date_refresh_database() {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat datumformat = new SimpleDateFormat("yyyy-MM-dd");
         String date = datumformat.format(calendar.getTime());
@@ -202,7 +198,7 @@ public class Basic_funct {
         return date;
     }
 
-    public String date_refresh_rev2() {
+    public String date_refresh() {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat datumformat = new SimpleDateFormat("dd.MM.yyyy");
         String date = datumformat.format(calendar.getTime());
@@ -211,7 +207,8 @@ public class Basic_funct {
     }
 
 
-    public String get_date_filename() {
+    public String get_date_for_filename()
+    {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat datumformat = new SimpleDateFormat("yyyyMMdd");
         String date = datumformat.format(calendar.getTime());
@@ -374,7 +371,7 @@ public class Basic_funct {
         paint.setTextSize(50);
 
 
-        String timestamp = this.date_refresh() + "  " + this.time_refresh() + " " + text_stamp;
+        String timestamp = this.date_refresh_database() + "  " + this.time_refresh() + " " + text_stamp;
 
         Canvas canvas = new Canvas(bMapScaled);
 

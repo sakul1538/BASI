@@ -1,6 +1,5 @@
 package com.example.tabnav_test.Import_Export;
 
-import static com.example.tabnav_test.material.Material.backup_dir;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
@@ -87,8 +86,6 @@ public class Backup extends SQLiteOpenHelper implements SQL_finals
             }
             data.put(t);
         }
-
-
         File f = new File(path);
         f.mkdirs();
         try {

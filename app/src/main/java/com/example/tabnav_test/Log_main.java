@@ -181,7 +181,7 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
 
 
         //Date&Time Refresh
-        date.setText(bsf.date_refresh_rev2());
+        date.setText(bsf.date_refresh());
         time.setText(bsf.time_refresh());
         show_log = (ImageButton) view.findViewById(R.id.show_log);
 
@@ -323,7 +323,7 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
             {
 
                 try {
-                    date.setText(bsf.date_refresh_rev2());
+                    date.setText(bsf.date_refresh());
                     time.setText(bsf.time_refresh());
                     date_time_bg.setBackgroundColor(getResources().getColor(R.color.hellgrün));
                 } catch (Exception e)

@@ -1,36 +1,28 @@
 package com.example.tabnav_test.config_favorite_strings;
 
-import static androidx.core.app.ActivityCompat.startActivityForResult;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
-import android.widget.Switch;
-
-import androidx.appcompat.view.menu.ActionMenuItemView;
 
 import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.Import_Export.Backup;
 import com.example.tabnav_test.R;
 import com.example.tabnav_test.SQL_finals;
+import com.example.tabnav_test.static_finals;
 import com.example.tabnav_test.material.material_database_ops;
 
 import org.json.JSONException;
@@ -84,8 +76,8 @@ public class config_fav
             {
                 Backup backup = new Backup(context);
                 material_database_ops mdo = new material_database_ops(context);
-                String path= mdo.get_projekt_root_paht()+backup_dir+"APP/";///storage/emulated/0/DCIM/Baustellen /CBB E03/Backups&Exports/
-                String filename = mdo.get_selectet_projekt()+"FAVORITE_STRINGS"+"@"+bsf.get_date_filename()+".json";
+                String path= mdo.get_projekt_root_paht()+static_finals.backup_dir_json;///storage/emulated/0/DCIM/Baustellen /CBB E03/Backups&Exports/
+                String filename = mdo.get_selectet_projekt()+"FAVORITE_STRINGS"+"@"+bsf.get_date_for_filename()+".json";
                 try {
                     String[] where_args = {mdo.get_selectet_projekt_id(),"0","FAVORITE_STRING"};
                     String  where = "(ID=? OR ID=?) AND NAME=?";

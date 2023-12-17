@@ -1,36 +1,24 @@
 package com.example.tabnav_test;
 
-import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.hardware.input.InputManager;
-import android.net.ipsec.ike.IkeSessionParams;
 import android.os.Bundle;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.contentcapture.ContentCaptureCondition;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -46,7 +34,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
@@ -235,7 +222,7 @@ public class fragment_maschinen extends Fragment
 
         radiobutton_color_refresh();
 
-        m_date.setText(bsf.date_refresh_rev2());
+        m_date.setText(bsf.date_refresh());
 
 
         m_date.setOnClickListener(new View.OnClickListener() {
@@ -325,7 +312,7 @@ public class fragment_maschinen extends Fragment
             @Override
             public void onClick(View view)
             {
-                m_date.setText(bsf.date_refresh_rev2());
+                m_date.setText(bsf.date_refresh());
                 m_time.setText(bsf.time_refresh());
                 m_time_and_date_frame.setBackgroundColor(getResources().getColor(R.color.hellgrün));
 
@@ -713,7 +700,7 @@ public class fragment_maschinen extends Fragment
         switch(type)
         {
             case 0:
-                m_date.setText(bsf.date_refresh_rev2());
+                m_date.setText(bsf.date_refresh());
                 m_time.setText(bsf.time_refresh());
                 m_time_and_date_frame.setBackgroundColor(getResources().getColor(R.color.hellgrün));
                 m_maschine_autocomplete_select.setText("");
@@ -725,7 +712,7 @@ public class fragment_maschinen extends Fragment
                 break;
             case 1:
 
-                m_date.setText(bsf.date_refresh_rev2());
+                m_date.setText(bsf.date_refresh());
                 m_time.setText(bsf.time_refresh());
                 m_time_and_date_frame.setBackgroundColor(getResources().getColor(R.color.hellgrün));
                 m_maschine_autocomplete_select.setText("");
@@ -736,7 +723,7 @@ public class fragment_maschinen extends Fragment
 
             default:
 
-                m_date.setText(bsf.date_refresh_rev2());
+                m_date.setText(bsf.date_refresh());
                 m_time.setText(bsf.time_refresh());
                 m_time_and_date_frame.setBackgroundColor(getResources().getColor(R.color.hellgrün));
                 m_maschine_autocomplete_select.setText("");
