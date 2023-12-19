@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/projekt_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/baseline_check_circle_24"
+        android:title="Auswählen" />
+    <item
+        android:id="@+id/projekt_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/baseline_mode_edit_24"
+        android:title="Bearbeiten"
+        android:visible="true" />
+    <item
+        android:id="@+id/projekt_delet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkable="false"
+        android:checked="false"
+        android:icon="@drawable/baseline_delete_24"
+        android:title="Löschen"
+        android:visible="true" />
+    <item
+        android:id="@+id/projekt_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/ic_baseline_info_24_blue"
+        android:title="Info"
+        android:visible="true" />
+    <item
+        android:id="@+id/projekt_create"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/baseline_add_box_24"
+        android:title=" Neu Erstellen"
+        android:visible="true" />
+    <item
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/ic_baseline_save_24"
+        android:title="Backup"
+        android:visible="true">
+        <menu
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <item
+                android:id="@+id/projekt_create_backup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:title="Erstellen" />
+            <item
+                android:id="@+id/projekt_restore_backup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:title="Importieren" />
+        </menu>
+    </item>
+</menu>
