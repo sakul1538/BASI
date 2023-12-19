@@ -111,13 +111,12 @@ public class db_ops extends SQLiteOpenHelper implements SQL_finals
 
         for(String key: args.keySet())
         {
-           where += key+"=? AND";
+           where += key+"=? AND ";
            where_args.add(args.get(key).toString());
         }
+        where = where.substring(0,where.length()-4);
+
         Log.d("BASI",where);
-
-
-
 
 
        // Cursor cursor  = dbr.query(table,null,null,null,null,null,null);
