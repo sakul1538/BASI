@@ -105,21 +105,22 @@ public class db_ops extends SQLiteOpenHelper implements SQL_finals
 
     public void entry_exist(String table,ContentValues args)
     {
-        //SQLiteDatabase dbr = this.getReadableDatabase();
+        SQLiteDatabase dbr = this.getReadableDatabase();
         String where = "";
-        ArrayList<String> where_args = new ArrayList<>();
-
+        String[] where_args = new String[args.size()];
+        int array_pointer =0;
         for(String key: args.keySet())
         {
            where += key+"=? AND ";
-           where_args.add(args.get(key).toString());
+           where_args[array_pointer] = args.get(key).toString();
+           array_pointer++;
         }
-        where = where.substring(0,where.length()-4);
+        where = where.substring(0,where.lastIndexOf("AND"));
 
-        Log.d("BASI",where);
-
-
-       // Cursor cursor  = dbr.query(table,null,null,null,null,null,null);
+        Cursor cursor  = dbr.query(table,null,where,where_args,null,null,null);
+        Log.d("BASI", String.valueOf(cursor.getCount()));
+        dbr.close();
+        cursor.close();
 
     }
 

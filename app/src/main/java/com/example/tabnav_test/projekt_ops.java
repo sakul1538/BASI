@@ -440,11 +440,17 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i)
                 {
+
+
                     ContentValues data = new ContentValues();
-                    data.put("KEY1","1");
-                    data.put("KEY2","2");
-                    data.put("KEY3","3");
-                    dbo.entry_exist("tet",data);
+                    data.put("ID","1");
+                    data.put("DATE","1");
+                    data.put("PROJEKT_NR","2");
+                    data.put("DIR_ROOT","3");
+                    data.put("DIR_SUB","3");
+                    data.put("STATUS_FLAG","3");
+
+                    dbo.entry_exist(SQL_finals.BASI_PROJEKTE,data);
                     dialogInterface.cancel();
                 }
             });
