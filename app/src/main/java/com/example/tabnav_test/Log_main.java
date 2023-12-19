@@ -271,6 +271,8 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
                 config_fav_ops cfops = new config_fav_ops(getContext());
                 cfops.add_favorite_string(acTextView.getText().toString());
                 refresh_fav();
+
+
             }
         });
 

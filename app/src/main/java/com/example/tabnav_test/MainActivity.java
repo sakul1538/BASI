@@ -21,10 +21,12 @@ import android.media.MicrophoneInfo;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.style.ClickableSpan;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.ScrollView;
@@ -46,6 +48,7 @@ public class MainActivity extends AppCompatActivity
     // ----------------------------------------------------------------- Variablen 	Boolean
     // ----------------------------------------------------------------- Instanzen
     ScreenSlidePagerAdapter adapter;
+    projekt_ops projekt;
 
     // ----------------------------------------------------------------- TextView
     // ----------------------------------------------------------------- AutoCompleteTextView
@@ -109,7 +112,7 @@ public class MainActivity extends AppCompatActivity
         // ----------------------------------------------------------------- Variablen 	byte,short,int,long,float,double
         // ----------------------------------------------------------------- Variablen 	Boolean
         // ----------------------------------------------------------------- Instanzen
-        projekt_ops projekt = new projekt_ops(getApplicationContext());
+        projekt = new projekt_ops(getApplicationContext());
         adapter = new ScreenSlidePagerAdapter(this);
 
         // ----------------------------------------------------------------- TextView
@@ -197,7 +200,28 @@ public class MainActivity extends AppCompatActivity
         PopupMenu popup = new PopupMenu(getApplicationContext(),view);
         MenuInflater inflater = popup.getMenuInflater();
         inflater.inflate(R.menu.settings_app_menu, popup.getMenu());
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem)
+            {
+                switch (menuItem.getItemId())
+                {
+                    case R.id.settings_app_projektverwaltung:
+                            projekt.projekt_settings(MainActivity.this);
+                        break;
+
+                    default:
+                        Toast.makeText(MainActivity.this, "Nicht Implementiert", Toast.LENGTH_SHORT).show();
+                }
+                return false;
+            }
+        });
         popup.show();
+
+
+
+
 
     }
 }

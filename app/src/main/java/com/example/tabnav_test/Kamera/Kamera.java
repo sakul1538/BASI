@@ -112,7 +112,7 @@ public class Kamera<onActivityResult> extends Fragment
     LinearLayout date_bg;
     LinearLayout tag_bg;
 // ----------------------------------------------------------------- END
-u
+
     public Kamera()
     {
         // Required empty public constructor

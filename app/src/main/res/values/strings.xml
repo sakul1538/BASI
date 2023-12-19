@@ -23,8 +23,10 @@
     <string name="modify_title_dir_name">Ordner Bearbeiten</string>
     <string name="emtpy"></string>
     <string name="ok">OK</string>
-    <string name="settings_Projekt_name">Prjektbezeichng:</string>
-    <string name="settings_Projekt_path">Stammordner:</string>
+    <string name="settings_Projekt_name">Name:</string>
+    <string name="settings_Projekt_nr">Nr:</string>
+    <string name="settings_Projekt_path">Ordner:</string>
+    <string name="settings_Projekt_create_new_dialog_title">Neues Projekt Anlegen:</string>
     <string name="settings_Projekt_bilder_path">Stammorder Bider:</string>
     <string name="settings_Projekt_bilder_backup_banner">Backup</string>
     <string name="settings_Projekt_bilder_backup_create">Erstellen</string>
@@ -32,9 +34,7 @@
     <string name="settings_Projekt_dialog_title">Projekte verwalten</string>
     <string name="settings_Projekt_dialog_current_selected_title">Aktuelles Projekt</string>
     <string name="settings_Projekt_dialog_selected_title">Projekt Auswählen</string>
-
-
-
+    <string name="settings_Projekt_dialog_create_projekt">Neues Projekt anlegen</string>
 
     <string name="date_label">"Datum "</string>
 
