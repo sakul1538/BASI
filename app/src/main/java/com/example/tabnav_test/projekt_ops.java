@@ -1,7 +1,10 @@
 package com.example.tabnav_test;
 
+import static androidx.activity.result.ActivityResultCallerKt.registerForActivityResult;
+
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,13 +19,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -30,28 +30,30 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.Import_Export.Backup;
-import com.example.tabnav_test.SQL_finals;
-import com.example.tabnav_test.material.material_database_ops;
-import com.example.tabnav_test.static_finals;
 
 import org.json.JSONException;
 
-import java.io.File;
 import java.util.ArrayList;
 
 public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 {
     Context context;
     db_ops dbo;
+
+    static EditText dir;
+    projekt_browser browser;
+
+    TextView current_projekt_main_title;
+
+
     public projekt_ops(@Nullable Context context)
     {
         super(context, DB_NAME, null, 1);
         this.context = context;
         dbo = new db_ops(context);
-
     }
+
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase)
@@ -63,6 +65,9 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
     {
 
     }
+
+
+
     public void projekt_add(ContentValues data)
     {
         //TODO auf Duplikate Prüfen
@@ -92,18 +97,34 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         return  strings;
     }
 
-    public int projekt_delet(String proj_id)
+    public String get_projekt_id(String name,String nr)
     {
-        //FIXIT  auf Projekt mit Status 1 darf nicht gelöscht werden!
+        String output_id ="";
 
-        SQLiteDatabase db = this.getWritableDatabase();
-        String[] selectionArgs = { proj_id };
-        String where = "ID=?";
+        try {
+            SQLiteDatabase db = this.getReadableDatabase();
 
-        int deletedRows = db.delete(TB_MATERIAL_PROJEKTE,where,selectionArgs);
+            String[] where_args = {name,nr};
+            String where  = "NAME=? AND PROJEKT_NR=?";
 
-        return deletedRows;
+            Cursor cursor = db.query(BASI_PROJEKTE,null,where,where_args,null,null,null);
+
+            if(cursor.getCount() > 0)
+            {
+                cursor.moveToFirst();
+               output_id = cursor.getString(cursor.getColumnIndexOrThrow("ID"));
+            }
+
+            cursor.close();
+            db.close();
+        } catch (IllegalArgumentException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        return  output_id;
     }
+
 
     public int update_projekt(String id,ContentValues data)
     {
@@ -290,10 +311,10 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         // ----------------------------------------------------------------- Variablen 	byte,short,int,long,float,double
         // ----------------------------------------------------------------- Variablen 	Boolean
         // ----------------------------------------------------------------- Instanzen
-        projekt_browser browser = new projekt_browser(context);
+        browser = new projekt_browser(context);
 
         // ----------------------------------------------------------------- TextView
-        TextView current_selectet= promptsView.findViewById(R.id.current_selectet);
+        browser.current_selectet= promptsView.findViewById(R.id.current_selectet);
         // ----------------------------------------------------------------- AutoCompleteTextView
         // ----------------------------------------------------------------- EditText
         // ----------------------------------------------------------------- Button
@@ -304,7 +325,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
         // ----------------------------------------------------------------- RecyclerView
         // ----------------------------------------------------------------- Spinner
-        Spinner projlist = promptsView.findViewById(R.id.spinner2);
+        browser.projlist = promptsView.findViewById(R.id.spinner2);
         // ----------------------------------------------------------------- CheckBox
         // ----------------------------------------------------------------- RadioButton
         // ----------------------------------------------------------------- Switch
@@ -319,13 +340,12 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         //Init
 
         try {
-            current_selectet.setText(this.get_selectet_projekt());
+            browser.current_selectet.setText(this.get_selectet_projekt());
         } catch (Exception e) {
 
             throw new RuntimeException(e);
         }
-
-        projlist.setAdapter(browser.list_for_spinner());
+        browser.projekt_spinner_reload();
 
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -345,6 +365,47 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                                 browser.create_projekt();
                                 break;
 
+                            case R.id.projekt_delet:
+                                browser.delet_projekt_dialog();
+                                break;
+
+
+                            case R.id.projekt_info:
+                                try {
+                                    ContentValues output = browser.projekt_spinner_get_selectet_item();
+                                    browser.projekt_info_dialog(output);
+                                } catch (Exception e)
+                                {
+                                    Toast.makeText(context, "Error \n"+e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+
+                                    throw new RuntimeException(e);
+                                }
+                                break;
+
+                            case R.id.projekt_update:
+                                ContentValues output = browser.projekt_info(browser.projekt_spinner_get_selectet_item().get("ID").toString());
+                                browser.update_projekt_dialog(output);
+                                break;
+
+                            case R.id.projekt_select:
+                                browser.projekt_select();
+                                break;
+
+                            case R.id.projekt_create_backup:
+                                Backup backup = new Backup(context);
+                                Basic_funct bsf = new Basic_funct();
+                                try {
+                                    backup.create_backup(SQL_finals.BASI_PROJEKTE,null,null,null, Environment.getExternalStorageDirectory()+static_finals.backup_and_export_dir,"BASI_PROJEKTE@"+bsf.get_date_for_filename()+".json");
+                                } catch (JSONException e) {
+                                    throw new RuntimeException(e);
+                                }
+
+                                Toast.makeText(context, "Backup erstelle ", Toast.LENGTH_SHORT).show();
+
+                                break;  case R.id.projekt_restore_backup:
+
+                                Toast.makeText(context, "Backup erstelle ", Toast.LENGTH_SHORT).show();
+                                break;
 
 
                             default:
@@ -365,7 +426,9 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
         alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
+                current_projekt_main_title.setText(get_selectet_projekt());
                 dialogInterface.cancel();
             }
         });
@@ -379,20 +442,53 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
     }
 
-    private class projekt_browser extends projekt_ops
+    public class projekt_browser extends projekt_ops
     {
+
+        EditText dir_src;
+        Spinner projlist;
+        TextView current_selectet;
 
         public projekt_browser(@Nullable Context context)
         {
             super(context);
         }
-
-        private ArrayAdapter list_for_spinner()
+        public void projekt_spinner_reload()
         {
-             final String name ="NAME";
-             final String projekt_nr ="PROJEKT_NR";
+            projlist.setAdapter(get_projekt_array_adapter_for_spinner());
+        }
 
-             ArrayList list = new ArrayList();
+        public ContentValues  projekt_spinner_get_selectet_item()
+        {
+        String i= projlist.getSelectedItem().toString();
+
+        String name= i.substring(0,i.lastIndexOf("["));
+
+        String nr =  i.substring(i.lastIndexOf("["),i.length());
+        nr =  nr.replace("[","");
+        nr = nr.replace("]","");
+
+        String id = get_projekt_id(name.trim(),nr.trim());
+
+        Log.d("BASI",name);
+        Log.d("BASI",nr);
+        Log.d("BASI",id);
+
+        ContentValues output = new ContentValues();
+
+        output.put("ID",id);
+        output.put("PROJEKT_NR",nr);
+        output.put("NAME",name);
+
+        return  output;
+    }
+
+        private ArrayAdapter get_projekt_array_adapter_for_spinner()
+        {
+            final String name ="NAME";
+            final String projekt_nr ="PROJEKT_NR";
+
+            ArrayList list = new ArrayList();
             try {
                 SQLiteDatabase db = this.getReadableDatabase();
                 String[] columns = {name,projekt_nr };
@@ -424,13 +520,77 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
             ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, list);
             return  spinnerArrayAdapter;
         }
+        public void setDir_src_in_dialog(String path)
+        {
+            try {
+                dir_src.setText(path);
+            }
+            catch ( Exception e)
+            {
 
-        private void create_projekt()
+            }
+        }
+
+        public void create_projekt()
         {
             LayoutInflater li = LayoutInflater.from(context);
             View promptsView = li.inflate(R.layout.settings_projekt_create_new,null,false);
+            // ----------------------------------------------------------------- Variablen
+            // ----------------------------------------------------------------- Variablen  String, char
+            // ----------------------------------------------------------------- Variablen 	byte,short,int,long,float,double
+            // ----------------------------------------------------------------- Variablen 	Boolean
+            // ----------------------------------------------------------------- Instanzen
+            Basic_funct bsf = new Basic_funct();
+            // ----------------------------------------------------------------- TextView
+            // ----------------------------------------------------------------- AutoCompleteTextView
+            // ----------------------------------------------------------------- EditText
+            EditText name = promptsView.findViewById(R.id.create_projekt_name);
+            EditText nr = promptsView.findViewById(R.id.create_projekt_nr);
+            dir_src  = promptsView.findViewById(R.id.create_projekt_dir); ///Global
+            // ----------------------------------------------------------------- Button
+            // ----------------------------------------------------------------- ImageButtons
+            ImageButton reset_name= promptsView.findViewById(R.id.create_projekt_name_reset_button);
+            ImageButton reset_nr= promptsView.findViewById(R.id.create_projekt_nr_reset_button);
+            ImageButton select_dir= promptsView.findViewById(R.id.create_projekt_dir_select_button);
+            // ----------------------------------------------------------------- ImageView
+            // ----------------------------------------------------------------- ListView
+            // ----------------------------------------------------------------- RecyclerView
+            // ----------------------------------------------------------------- Spinner
+            // ----------------------------------------------------------------- CheckBox
+            // ----------------------------------------------------------------- RadioButton
+            // ----------------------------------------------------------------- Switch
+            // ----------------------------------------------------------------- SeekBar
+            // ----------------------------------------------------------------- ProgressBar
+            // ----------------------------------------------------------------- Switch
+            // ----------------------------------------------------------------- ScrollView
+            // ----------------------------------------------------------------- Layouts
+            // ----------------------------------------------------------------- END
+
+            reset_name.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view)
+                {
+                    name.setText("");
+                }
+            });
+            reset_nr.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    nr.setText("");
+                }
+            });
 
 
+
+            select_dir.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view)
+                {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                    ((Activity) context).startActivityForResult(intent, 2);
+
+                }
+            });
 
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
             // set prompts.xml to alertdialog builder
@@ -440,19 +600,56 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i)
                 {
+                    String value_nr = nr.getText().toString().trim();
+                    String value_name = name.getText().toString().trim();
+                    String value_root_dir = dir_src.getText().toString().trim();
 
+                    //Input Fallback
+                    if(value_name.isEmpty())
+                    {
+                        value_name = "Projekt@"+bsf.get_date_for_filename();
+                    }
+                    if(value_nr.isEmpty())
+                    {
+                        value_nr = bsf.gen_ID();
+                    }
+                    if(value_root_dir.isEmpty())
+                    {
+                        value_root_dir = Environment.getExternalStorageDirectory().toString();
+                    }
 
-                    ContentValues data = new ContentValues();
-                    data.put("ID","1");
-                    data.put("DATE","1");
-                    data.put("PROJEKT_NR","2");
-                    data.put("DIR_ROOT","3");
-                    data.put("DIR_SUB","3");
-                    data.put("STATUS_FLAG","3");
+                    if(do_projekt_exist(value_nr,value_name) == true)
+                    {
+                        Toast.makeText(context, "ERROR: \n Projekt nicht angelegt, da es schon existert!", Toast.LENGTH_LONG).show();
+                    }
+                    else
+                    {
 
-                    dbo.entry_exist(SQL_finals.BASI_PROJEKTE,data);
+                        try {
+
+                            ContentValues insert_data = new ContentValues();
+                            insert_data.put("ID",bsf.gen_UUID());
+                            insert_data.put("DATE",bsf.date_refresh_database());
+                            insert_data.put("PROJEKT_NR",value_nr);
+                            insert_data.put("NAME",value_name);
+                            insert_data.put("DIR_ROOT",value_root_dir);
+                            insert_data.put("DIR_SUB","");
+                            insert_data.put("STATUS_FLAG","0");
+                            dbo.insert(SQL_finals.BASI_PROJEKTE,insert_data);
+                            Toast.makeText(context, "Projekt angelegt!", Toast.LENGTH_LONG).show();
+                            projekt_spinner_reload();
+                            projekt_info_dialog(insert_data);
+
+                        } catch (Exception e)
+                        {
+                            Toast.makeText(context, "ERROR: \n Projekt konte nicht angelegt werden\n"+e.getMessage().toString(), Toast.LENGTH_LONG).show();
+                            throw new RuntimeException(e);
+                        }
+
+                    }
                     dialogInterface.cancel();
                 }
+
             });
             alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
                 @Override
@@ -462,11 +659,406 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
             });
             alertDialogBuilder.show();
 
+        }
+
+        public void delet_projekt_dialog()
+        {
+            ContentValues output = projekt_spinner_get_selectet_item();
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+            alertDialogBuilder.setIcon(R.drawable.alert);
+
+            alertDialogBuilder.setTitle("Projekt entfernen");
+
+            String message = "\n" +projlist.getSelectedItem().toString() +" löschen? \n -> Es werden alle Projektspezifischen Daten enfernt! <-";
+            alertDialogBuilder.setMessage(message);
+
+            alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i)
+                {
+                    String message="";
+                    try
+                    {
+                        boolean del_check = delet_projekt(output.get("ID").toString());
+
+                        if(del_check == true)
+                        {
+                            message  ="Projekt wurde entfernt! \n Response: "+String.valueOf(del_check);
+                            projekt_spinner_reload();
+
+                        }else
+                        {
+                            message  ="Projekt konnte NICHT entfernt werden! \n Response:"+String.valueOf(del_check);
+
+                        }
+                    }catch (Exception e)
+                    {
+                        message  ="Projekt konnte NICHT entfernt werden! \n Error:"+e.getMessage().toString();
+
+                    }
+                    Toast.makeText(context,message,Toast.LENGTH_LONG).show();
+
+                    dialogInterface.cancel();
+
+                }
+            });
+            alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.cancel();
+                }
+            });
+            alertDialogBuilder.show();
+        }
+        private boolean delet_projekt(String id)
+        {
+            Boolean  del_check = false;
+            try {
+                SQLiteDatabase dbw = this.getWritableDatabase();
+                long response = dbw.delete(BASI_PROJEKTE,"ID=?",new String[]{id});
+
+                if(response >0)
+                {
+                   del_check =true;
+
+                }
+                dbw.close();
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
 
 
+            return  del_check;
+        }
+        public void projekt_info_dialog(ContentValues output)
+        {
+
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+            alertDialogBuilder.setIcon(R.drawable.ic_baseline_info_24_blue);
+
+            alertDialogBuilder.setTitle("Projekt Infos");
+
+            ContentValues info = projekt_info(output.get("ID").toString());
+            String message ="";
+
+            for(String key: info.keySet())
+            {
+             message += key.toString()+":  "+ info.get(key)+"\n";
+            }
+
+            alertDialogBuilder.setMessage(message);
+
+            alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i)
+                {
+                    dialogInterface.cancel();
+
+                }
+            });
+            String finalMessage = message;
+            alertDialogBuilder.setNeutralButton("Kopieren", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i)
+                {
+                   Basic_funct bsf  =new Basic_funct();
+                   bsf.copy_to_clipboard(finalMessage,context);
+                }
+            });
+            alertDialogBuilder.show();
+        }
+        private ContentValues projekt_info(String id)
+        {
+            ContentValues output_data = new  ContentValues();
+
+            SQLiteDatabase dbr = this.getReadableDatabase();
+
+            Cursor cursor = dbr.query(BASI_PROJEKTE,null,"ID=?",new String[]{id},null,null,null);
+            cursor.moveToFirst();
+
+            String[] colums = cursor.getColumnNames();
+            for(String c: colums)
+            {
+               output_data.put(c,cursor.getString(cursor.getColumnIndexOrThrow(c)));
+            }
+            return output_data;
+        }
+
+        public void update_projekt_dialog(ContentValues projekt_data)
+        {
+                LayoutInflater li = LayoutInflater.from(context);
+                View promptsView = li.inflate(R.layout.settings_projekt_create_new,null,false);
+                // ----------------------------------------------------------------- Variablen
+                // ----------------------------------------------------------------- Variablen  String, char
+                // ----------------------------------------------------------------- Variablen 	byte,short,int,long,float,double
+                // ----------------------------------------------------------------- Variablen 	Boolean
+                // ----------------------------------------------------------------- Instanzen
+                Basic_funct bsf = new Basic_funct();
+                // ----------------------------------------------------------------- TextView
+                TextView title = promptsView.findViewById(R.id.create_dialog_title);
+                // ----------------------------------------------------------------- AutoCompleteTextView
+                // ----------------------------------------------------------------- EditText
+                EditText name = promptsView.findViewById(R.id.create_projekt_name);
+                EditText nr = promptsView.findViewById(R.id.create_projekt_nr);
+                dir_src  = promptsView.findViewById(R.id.create_projekt_dir); ///Global
+                // ----------------------------------------------------------------- Button
+                // ----------------------------------------------------------------- ImageButtons
+                ImageButton reset_name= promptsView.findViewById(R.id.create_projekt_name_reset_button);
+                ImageButton reset_nr= promptsView.findViewById(R.id.create_projekt_nr_reset_button);
+                ImageButton select_dir= promptsView.findViewById(R.id.create_projekt_dir_select_button);
+                // ----------------------------------------------------------------- ImageView
+                // ----------------------------------------------------------------- ListView
+                // ----------------------------------------------------------------- RecyclerView
+                // ----------------------------------------------------------------- Spinner
+                // ----------------------------------------------------------------- CheckBox
+                // ----------------------------------------------------------------- RadioButton
+                // ----------------------------------------------------------------- Switch
+                // ----------------------------------------------------------------- SeekBar
+                // ----------------------------------------------------------------- ProgressBar
+                // ----------------------------------------------------------------- Switch
+                // ----------------------------------------------------------------- ScrollView
+                // ----------------------------------------------------------------- Layouts
+                // ----------------------------------------------------------------- END
+                nr.setText(projekt_data.get("PROJEKT_NR").toString());
+                name.setText(projekt_data.get("NAME").toString());
+                setDir_src_in_dialog(projekt_data.get("DIR_ROOT").toString());
+                title.setText((projekt_data.get("NAME").toString() +" Bearbeiten"));
+                reset_name.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        name.setText("");
+                    }
+                });
+                reset_nr.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        nr.setText("");
+                    }
+                });
+
+                select_dir.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                        ((Activity) context).startActivityForResult(intent, 2);
+
+                    }
+                });
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+                // set prompts.xml to alertdialog builder
+                alertDialogBuilder.setView(promptsView);
+
+                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+
+                        String value_nr = nr.getText().toString().trim();
+                        String value_name = name.getText().toString().trim();
+                        String value_root_dir = dir_src.getText().toString().trim();
+
+                        //Input Fallback
+                        if(value_name.isEmpty() || value_nr.isEmpty() || value_root_dir.isEmpty())
+                        {
+                            bsf.error_msg("ERROR: \n Projekt nicht geändert werden: \n -> Leere oder Ungültige Datenfelder",context);
+                        }
+                        else
+                        {
+                            if(value_name.equals(projekt_data.get("NAME").toString()) && value_nr.equals(projekt_data.get("PROJEKT_NR").toString()))
+                            {
+                                projekt_data.put("PROJEKT_NR",value_nr);
+                                projekt_data.put("NAME",value_name);
+                                projekt_data.put("DIR_ROOT",value_root_dir);
+                                projekt_update(projekt_data);
+                            }
+                            else
+                            {
+                                if(do_projekt_exist(value_nr,value_name) == true)
+                                {
+                                    bsf.error_msg("ERROR: \n Projekt konnte nicht geändert werden: \n -> Datenkollision",context);
+                                }
+                                else
+                                {
+                                    projekt_data.put("PROJEKT_NR",value_nr);
+                                    projekt_data.put("NAME",value_name);
+                                    projekt_data.put("DIR_ROOT",value_root_dir);
+                                    projekt_update(projekt_data);
+                                }
+                            }
+
+                        }
+                        dialogInterface.cancel();
+                    }
+                });
+                alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+                alertDialogBuilder.show();
+        }
+        public void projekt_update(ContentValues projekt_data)
+        {
+            Basic_funct bsf = new Basic_funct();
+            try {
+
+                boolean resonse = dbo.update(SQL_finals.BASI_PROJEKTE,projekt_data);
+                if(resonse == true)
+                {
+                    projekt_spinner_reload();
+                    bsf.succes_msg( "Projektdaten wurden abgeändert!\n Response :"+resonse,context);
+                }
+                else
+                {
+                    bsf.error_msg("Projektdaten konnten nicht abgeändert!\n Response:"+resonse,context);
+                }
+            } catch (Exception e)
+            {
+                bsf.error_msg("ERROR: \n ->"+e.getMessage().toString(),context);
+                throw new RuntimeException(e);
+            }
+        }
+
+        public void projekt_select()
+        {
+            Basic_funct bsf = new Basic_funct();
+
+            try {
+                String selected_id = projekt_get_selected_id();
+                String new_selected_id = projekt_spinner_get_selectet_item().get("ID").toString();
+
+                if(selected_id != "0")
+                {
+                   if(projekt_set_unselect(selected_id) == true)
+                   {
+                      if(projekt_set_select(new_selected_id) == true)
+                      {
+                          current_selectet.setText(get_selectet_projekt());
+                      }
+                      else
+                      {
+                          bsf.error_msg("Error: projekt_set_select=false",context);
+                      }
+                   }
+                   else
+                   {
+                       bsf.error_msg("Error: projekt_set_unselect=false",context);
+                   }
+                }
+                else
+                {
+                    bsf.error_msg("Error: selected_id =0",context);
+                }
+            }
+            catch (Exception e)
+            {
+                bsf.error_msg("Error (Exception \n"+e.getMessage().toString(),context);
+                throw new RuntimeException(e);
+            }
         }
     }
 
+    public String projekt_get_selected_id()
+    {
+        String default_id = "0";
+
+        try {
+            SQLiteDatabase dbr = this.getReadableDatabase();
+            Cursor cursor = dbr.query(BASI_PROJEKTE,null,"STATUS_FLAG=?",new String[]{"1"},null,null,null);
+
+            if(cursor.getCount() >0)
+            {
+                while(cursor.moveToNext())
+                {
+                    default_id =cursor.getString(cursor.getColumnIndexOrThrow("ID"));
+                }
+            }
+            cursor.close();
+            dbr.close();
+        } catch (IllegalArgumentException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        return   default_id;
+    }
+
+    public boolean projekt_set_unselect(String id)
+    {
+        boolean run_check = false;
+        try {
+            SQLiteDatabase dbw = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put("STATUS_FLAG","0");
+
+            long response = dbw.update(BASI_PROJEKTE,values,"ID=?",new String[]{id});
+
+            if(response != -1)
+            {
+                run_check =true;
+
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return  run_check;
+    }
+
+    public boolean projekt_set_select(String id)
+    {
+        boolean run_check = false;
+        try {
+            SQLiteDatabase dbw = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put("STATUS_FLAG","1");
+
+            long response = dbw.update(BASI_PROJEKTE,values,"ID=?",new String[]{id});
+
+            if(response != -1)
+            {
+                run_check =true;
+
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return  run_check;
+    }
+
+    public String projekt_get_current_root_dir()
+    {
+        String root_dir = "";
+
+        try {
+            SQLiteDatabase dbr = this.getReadableDatabase();
+
+            Cursor cursor = dbr.query(BASI_PROJEKTE,null,"STATUS_FLAG=?",new String[]{"1"},null,null,null);
+            cursor.moveToFirst();
+            root_dir =cursor.getString(cursor.getColumnIndexOrThrow("DIR_ROOT"));
+        } catch (IllegalArgumentException e)
+        {
+
+            throw new RuntimeException(e);
+        }
+
+        return root_dir;
+
+    }
+
+    private boolean do_projekt_exist(String projekt_nr, String name)
+    {
+        ContentValues args = new ContentValues();
+        args.put("PROJEKT_NR",projekt_nr);
+        args.put("NAME",name);
+
+        return   dbo.entry_exist(SQL_finals.BASI_PROJEKTE,args);
+    }
     public class sub_dir_list extends BaseAdapter
     {
         String[] data;
@@ -510,8 +1102,6 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
 
 
-
-
-
-
 }
+
+

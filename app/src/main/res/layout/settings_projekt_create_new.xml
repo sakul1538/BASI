@@ -11,7 +11,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/textView96"
+            android:id="@+id/create_dialog_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
@@ -39,7 +39,7 @@
                     android:textStyle="bold" />
 
                 <EditText
-                    android:id="@+id/editTextText2"
+                    android:id="@+id/create_projekt_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="10"
@@ -47,7 +47,7 @@
                     android:text="@string/empty" />
 
                 <ImageButton
-                    android:id="@+id/imageButton51"
+                    android:id="@+id/create_projekt_name_reset_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
@@ -71,7 +71,7 @@
                     android:textStyle="bold" />
 
                 <EditText
-                    android:id="@+id/editTextText5"
+                    android:id="@+id/create_projekt_nr"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="10"
@@ -79,7 +79,7 @@
                     android:text="@string/empty" />
 
                 <ImageButton
-                    android:id="@+id/imageButton70"
+                    android:id="@+id/create_projekt_nr_reset_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
@@ -103,7 +103,7 @@
                     android:textStyle="bold" />
 
                 <EditText
-                    android:id="@+id/editTextText6"
+                    android:id="@+id/create_projekt_dir"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="10"
@@ -111,7 +111,7 @@
                     android:text="@string/empty" />
 
                 <ImageButton
-                    android:id="@+id/imageButton76"
+                    android:id="@+id/create_projekt_dir_select_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"

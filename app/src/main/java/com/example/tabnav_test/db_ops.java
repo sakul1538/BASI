@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import com.example.tabnav_test.static_finals;
 
@@ -15,6 +16,8 @@ import androidx.annotation.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 
 
 public class db_ops extends SQLiteOpenHelper implements SQL_finals
@@ -80,13 +83,12 @@ public class db_ops extends SQLiteOpenHelper implements SQL_finals
         {
             // "ID,DATE,PROJEKT_NR,NAME,DIR_ROOT,DIR_SUB,STATUS_FLAG"
             Basic_funct bsf = new Basic_funct();
-
             SQLiteDatabase dbw = this.getWritableDatabase();
             ContentValues init_data = new ContentValues();
             init_data.put("ID",bsf.gen_UUID());
             init_data.put("DATE",bsf.date_refresh_database());
-            init_data.put("PROJEKT_NR","0");
-            init_data.put("NAME","ALLGEMEIN");
+            init_data.put("PROJEKT_NR",("1"));
+            init_data.put("NAME","DEFAULT");
             init_data.put("DIR_ROOT", Environment.getExternalStorageDirectory().toString());
             init_data.put("DIR_SUB","");
             init_data.put("STATUS_FLAG","1");
@@ -103,28 +105,86 @@ public class db_ops extends SQLiteOpenHelper implements SQL_finals
         dbr.close();
     }
 
-    public void entry_exist(String table,ContentValues args)
+    public boolean entry_exist(String table,ContentValues args)
     {
-        SQLiteDatabase dbr = this.getReadableDatabase();
-        String where = "";
-        String[] where_args = new String[args.size()];
-        int array_pointer =0;
-        for(String key: args.keySet())
+        try {
+            SQLiteDatabase dbr = this.getReadableDatabase();
+            String where = "";
+            String[] where_args = new String[args.size()];
+            int array_pointer =0;
+            for(String key: args.keySet())
+            {
+               where += key+"=? AND ";
+               where_args[array_pointer] = args.get(key).toString();
+               array_pointer++;
+            }
+            where = where.substring(0,where.lastIndexOf("AND"));
+            Cursor cursor  = dbr.query(table,null,where,where_args,null,null,null);
+            int items = cursor.getCount();
+            dbr.close();
+            cursor.close();
+
+            if(items>0)
+            {
+                return true;
+
+            }
+            else
+            {
+                return false;
+            }
+
+        } catch (Exception e)
         {
-           where += key+"=? AND ";
-           where_args[array_pointer] = args.get(key).toString();
-           array_pointer++;
+            throw new RuntimeException(e);
         }
-        where = where.substring(0,where.lastIndexOf("AND"));
-
-        Cursor cursor  = dbr.query(table,null,where,where_args,null,null,null);
-        Log.d("BASI", String.valueOf(cursor.getCount()));
-        dbr.close();
-        cursor.close();
-
     }
 
+    public boolean insert(String tablename, ContentValues input_data)
+    {
+        long row_nr =-1;
 
+        try {
+            SQLiteDatabase dbw = this.getWritableDatabase();
+            row_nr = dbw.insert(tablename,null,input_data);
+            dbw.close();
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        if(row_nr ==-1)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    public boolean update(String tablename, ContentValues update_data)
+    {
+        long response =-1;
+
+        try {
+            SQLiteDatabase dbw = this.getWritableDatabase();
+            response = dbw.update(tablename,update_data,"ID=?",new String[]{update_data.get("ID").toString()});
+            dbw.close();
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        if(response ==-1)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
 }
 
 

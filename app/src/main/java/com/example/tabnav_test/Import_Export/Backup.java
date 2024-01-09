@@ -77,7 +77,7 @@ public class Backup extends SQLiteOpenHelper implements SQL_finals
             for(String c: colums)
             {
                 try {
-                    t.put(c,  cursor.getString(cursor.getColumnIndexOrThrow(c.toString())));
+                    t.put(c, bsf.URLencode(cursor.getString(cursor.getColumnIndexOrThrow(c.toString()))));
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 } catch (IllegalArgumentException e) {
@@ -86,10 +86,12 @@ public class Backup extends SQLiteOpenHelper implements SQL_finals
             }
             data.put(t);
         }
+        Log.d("BASI",path+filename);
         File f = new File(path);
         f.mkdirs();
         try {
             f.createNewFile();
+
 
             FileWriter fw = new FileWriter(path+filename);
             fw.write(data.toString());

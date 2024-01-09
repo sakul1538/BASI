@@ -575,11 +575,6 @@ public class Basic_funct {
 
 
 
-
-
-
-
-
     public void log_output_arraylist(ArrayList arraylist)
     {
 
@@ -617,6 +612,8 @@ public class Basic_funct {
     {
         Toast.makeText(context, "Fehler:\n"+e.getMessage(), Toast.LENGTH_LONG).show();
     }
+
+
 
     /*public void generatePDF() {
         // creating an object variable

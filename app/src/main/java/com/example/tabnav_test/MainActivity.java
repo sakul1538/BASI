@@ -1,32 +1,19 @@
 package com.example.tabnav_test;
 
-import androidx.annotation.NonNull;
+import static android.app.PendingIntent.getActivity;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import android.app.Application;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.media.MicrophoneInfo;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.text.style.ClickableSpan;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.ScrollView;
@@ -36,13 +23,13 @@ import android.widget.Toast;
 import com.example.tabnav_test.Import_Export.Backup;
 
 import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.io.FileNotFoundException;
 
 public class MainActivity extends AppCompatActivity
 {
     // ----------------------------------------------------------------- Variablen
+
     // ----------------------------------------------------------------- Variablen  String, char
     // ----------------------------------------------------------------- Variablen 	byte,short,int,long,float,double
     // ----------------------------------------------------------------- Variablen 	Boolean
@@ -53,6 +40,7 @@ public class MainActivity extends AppCompatActivity
     // ----------------------------------------------------------------- TextView
     // ----------------------------------------------------------------- AutoCompleteTextView
     // ----------------------------------------------------------------- EditText
+
     // ----------------------------------------------------------------- Button
     // ----------------------------------------------------------------- ImageButtons
     // ----------------------------------------------------------------- ImageView
@@ -72,11 +60,12 @@ public class MainActivity extends AppCompatActivity
     ViewPager2 viewPager2;
     // ----------------------------------------------------------------- END
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("BASI","MainActivity:"+ String.valueOf(requestCode));
+
         switch(requestCode)
         {
             case 1: //button_favorite_strings_restore_backup
@@ -88,6 +77,13 @@ public class MainActivity extends AppCompatActivity
                     throw new RuntimeException(e);
                 }
                 break;
+
+            case 2:
+
+                projekt.browser.setDir_src_in_dialog(data.getData().getPath());
+                break;
+            default:
+                Log.d("BASI","MainActivity:"+ String.valueOf(requestCode));
         }
     }
 
@@ -116,7 +112,7 @@ public class MainActivity extends AppCompatActivity
         adapter = new ScreenSlidePagerAdapter(this);
 
         // ----------------------------------------------------------------- TextView
-        TextView current_projekt = findViewById(R.id.textView91);
+        projekt.current_projekt_main_title= findViewById(R.id.textView91);
         // ----------------------------------------------------------------- AutoCompleteTextView
         // ----------------------------------------------------------------- EditText
         // ----------------------------------------------------------------- Button
@@ -136,17 +132,16 @@ public class MainActivity extends AppCompatActivity
         // ----------------------------------------------------------------- Layouts
         CoordinatorLayout clay = (CoordinatorLayout) findViewById(R.id.colay_main);
         tabLayout = (TabLayout) findViewById((R.id.tabLayout3));
-
         viewPager2 =(ViewPager2) findViewById(R.id.viewPager1);
         viewPager2.setAdapter(adapter);
         // ----------------------------------------------------------------- END
 
        //init
         try {
-            current_projekt.setText(projekt.get_selectet_projekt());
+            projekt.current_projekt_main_title.setText(projekt.get_selectet_projekt());
         } catch (Exception e)
         {
-            current_projekt.setText("");
+            projekt.current_projekt_main_title.setText("");
             Toast.makeText(getApplicationContext(),"Error\n"+e.getMessage().toString(),Toast.LENGTH_LONG).show();
             throw new RuntimeException(e);
         }
@@ -173,8 +168,6 @@ public class MainActivity extends AppCompatActivity
                 super.onPageSelected(position);
             }
         });
-
-
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener()
         {
@@ -208,7 +201,7 @@ public class MainActivity extends AppCompatActivity
                 switch (menuItem.getItemId())
                 {
                     case R.id.settings_app_projektverwaltung:
-                            projekt.projekt_settings(MainActivity.this);
+                        projekt.projekt_settings(MainActivity.this);
                         break;
 
                     default:
@@ -219,11 +212,8 @@ public class MainActivity extends AppCompatActivity
         });
         popup.show();
 
-
-
-
-
     }
+
 }
 
 
