@@ -77,7 +77,15 @@ public class Backup extends SQLiteOpenHelper implements SQL_finals
             for(String c: colums)
             {
                 try {
-                    t.put(c, bsf.URLencode(cursor.getString(cursor.getColumnIndexOrThrow(c.toString()))));
+                    if(c.equals("ID"))
+                    {
+                        t.put(c, cursor.getString(cursor.getColumnIndexOrThrow(c.toString())));
+                    }
+                    else
+                    {
+                        t.put(c, bsf.URLencode(cursor.getString(cursor.getColumnIndexOrThrow(c.toString()))));
+                    }
+
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 } catch (IllegalArgumentException e) {
@@ -121,10 +129,11 @@ public class Backup extends SQLiteOpenHelper implements SQL_finals
             Toast.makeText(context, "Backup erstellen Fehlgeschlagen!:  \n"+e.getMessage().toString(), Toast.LENGTH_LONG).show();
         }
     }
-    public void restore_backup(String table,String filename, Boolean overwrite) throws FileNotFoundException {
-        Log.d("TABLE",table);
-        Log.d("Overwrite",overwrite.toString());
+    public void restore_backup(String table,String filename) throws FileNotFoundException
+    {
 
+
+        Log.d("TABLE",table);
         String source_path = filename.replace("/document/primary:", Environment.getExternalStorageDirectory().toString()+"/");
         Log.d("filename",filename);
         SQLiteDatabase dbw = this.getWritableDatabase();
@@ -186,5 +195,9 @@ public class Backup extends SQLiteOpenHelper implements SQL_finals
 
 
     }
+
+
+
+
 
 }

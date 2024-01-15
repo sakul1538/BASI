@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
+import android.util.JsonReader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -31,27 +32,63 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import com.example.tabnav_test.Import_Export.Backup;
+import com.example.tabnav_test.material.material_database_ops;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 {
+    // ----------------------------------------------------------------- Variablen
     Context context;
+    // ----------------------------------------------------------------- Variablen  String, char
+    // ----------------------------------------------------------------- Variablen 	byte,short,int,long,float,double
+    // ----------------------------------------------------------------- Variablen 	Boolean
+
+    // ----------------------------------------------------------------- Instanzen
     db_ops dbo;
-
-    static EditText dir;
     projekt_browser browser;
-
+    backup projekt_backup;
+    // ----------------------------------------------------------------- TextView
     TextView current_projekt_main_title;
-
+    // ----------------------------------------------------------------- AutoCompleteTextView
+    // ----------------------------------------------------------------- EditText
+    static EditText dir;
+    // ----------------------------------------------------------------- Button
+    // ----------------------------------------------------------------- ImageButtons
+    // ----------------------------------------------------------------- ImageView
+    // ----------------------------------------------------------------- ListView
+    // ----------------------------------------------------------------- RecyclerView
+    // ----------------------------------------------------------------- Spinner
+    // ----------------------------------------------------------------- CheckBox
+    // ----------------------------------------------------------------- RadioButton
+    // ----------------------------------------------------------------- Switch
+    // ----------------------------------------------------------------- SeekBar
+    // ----------------------------------------------------------------- ProgressBar
+    // ----------------------------------------------------------------- Switch
+    // ----------------------------------------------------------------- ScrollView
+    // ----------------------------------------------------------------- Layouts
+    // ----------------------------------------------------------------- END
 
     public projekt_ops(@Nullable Context context)
     {
         super(context, DB_NAME, null, 1);
         this.context = context;
         dbo = new db_ops(context);
+
     }
 
 
@@ -312,6 +349,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         // ----------------------------------------------------------------- Variablen 	Boolean
         // ----------------------------------------------------------------- Instanzen
         browser = new projekt_browser(context);
+        projekt_backup= new backup(context);
 
         // ----------------------------------------------------------------- TextView
         browser.current_selectet= promptsView.findViewById(R.id.current_selectet);
@@ -392,19 +430,54 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                                 break;
 
                             case R.id.projekt_create_backup:
-                                Backup backup = new Backup(context);
-                                Basic_funct bsf = new Basic_funct();
+
                                 try {
-                                    backup.create_backup(SQL_finals.BASI_PROJEKTE,null,null,null, Environment.getExternalStorageDirectory()+static_finals.backup_and_export_dir,"BASI_PROJEKTE@"+bsf.get_date_for_filename()+".json");
+                                    projekt_backup.create_backup();
                                 } catch (JSONException e) {
                                     throw new RuntimeException(e);
                                 }
 
-                                Toast.makeText(context, "Backup erstelle ", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "Backup erstellt ", Toast.LENGTH_SHORT).show();
 
-                                break;  case R.id.projekt_restore_backup:
+                                break;
 
-                                Toast.makeText(context, "Backup erstelle ", Toast.LENGTH_SHORT).show();
+                                case R.id.projekt_restore_backup:
+
+
+                                    Intent intent_restore_backup = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                                    intent_restore_backup.addCategory(Intent.CATEGORY_OPENABLE);
+                                    intent_restore_backup.setType("application/json");
+
+                                    AlertDialog.Builder alertdialog = new AlertDialog.Builder(context);
+                                    alertdialog.setTitle("Aktion bei vorhandenen Einträgen?");
+
+                                    alertdialog.setPositiveButton("Überschreiben", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i)
+                                        {
+                                            projekt_backup.import_backup_overwrite= true;
+
+
+
+                                            dialogInterface.cancel();
+                                            ((Activity) context).startActivityForResult(intent_restore_backup, 3);
+                                        }
+                                    });
+
+                                    alertdialog.setNegativeButton("Behalten", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i)
+                                        {
+                                            projekt_backup.import_backup_overwrite= false;
+
+                                            ((Activity) context).startActivityForResult(intent_restore_backup, 3);
+
+                                        }
+                                    });
+
+                                    alertdialog.show();
+
+
                                 break;
 
 
@@ -415,15 +488,13 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                     }
                 });
                 popup.show();
-
-
             }
         });
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
         // set prompts.xml to alertdialog builder
         alertDialogBuilder.setView(promptsView);
         alertDialogBuilder.setTitle("Projektbowser");
-
+        Basic_funct bsf = new Basic_funct();
         alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i)
@@ -434,7 +505,9 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         });
         alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
+                current_projekt_main_title.setText(get_selectet_projekt());
                 dialogInterface.cancel();
             }
         });
@@ -442,9 +515,169 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
     }
 
-    public class projekt_browser extends projekt_ops
+
+    public static class backup extends projekt_ops
     {
 
+        private  Basic_funct bsf = new Basic_funct();
+        private  material_database_ops mdo= new material_database_ops(context);
+        public String backup_filename = "BACKUP_BASI_PROJEKTE@"+bsf.get_date_for_filename()+".json";
+        public String backup_path=Environment.getExternalStorageDirectory()+static_finals.backup_and_export_dir;
+        public Boolean import_backup_overwrite =false;
+        public backup(@Nullable Context context)
+        {
+            super(context);
+        }
+        public Boolean restore_backup(String file, Boolean overwrite_mode)
+        {
+            SQLiteDatabase dbw = this.getWritableDatabase();
+            SQLiteDatabase dbr = this.getReadableDatabase();
+            int imported=0;
+            int updated =0;
+            int skipt = 0;
+
+            InputStream in2 = null;
+            try {
+                in2 = new FileInputStream(new File(file));
+                try {
+                    JsonReader reader = new JsonReader(new InputStreamReader(in2,"UTF-8"));
+                    reader.beginArray();
+                    while(reader.hasNext())
+                    {
+                        reader.beginObject();
+                        ContentValues output_data = new ContentValues();
+                        while (reader.hasNext())
+                        {
+                            String name =reader.nextName();
+                            String value =reader.nextString();
+                            if(name.equals("ID") ==false)
+                            {
+                                value =bsf.URLdecode(value);
+                            }
+                            output_data.put(name,value);
+                        }
+
+                        int entry_couter= dbr.query(BASI_PROJEKTE,null,"ID=?",new String[]{output_data.get("ID").toString()},null,null,null).getCount();
+
+                        switch (entry_couter)
+                        {
+                            case 0:
+                                dbw.insert(BASI_PROJEKTE,null,output_data);
+                                imported++;
+                                break;
+
+                            case 1:
+
+                                if(overwrite_mode ==true)
+                                {
+                                    dbw.update(BASI_PROJEKTE,output_data,"ID=?",new String[]{output_data.get("ID").toString()});
+                                    updated++;
+                                }
+                                else
+                                {
+                                    skipt++;
+                                }
+                                break;
+                            default:
+                        }
+                        reader.endObject();
+                    }
+                    reader.endArray();
+                    reader.close();
+                    String rapport_message = "Importiert: "+String.valueOf(imported)+"\n";
+                    rapport_message += "Aktuallisiert: "+String.valueOf(updated)+"\n";
+                    rapport_message += "Übersprungen: "+String.valueOf(skipt)+"\n";
+                    Toast.makeText(context, rapport_message, Toast.LENGTH_LONG).show();
+                }
+                catch (UnsupportedEncodingException e)
+                {
+                    throw new RuntimeException(e);
+                } catch (IOException e)
+                {
+                    throw new RuntimeException(e);
+                }
+
+            } catch (FileNotFoundException ex)
+            {
+                throw new RuntimeException(ex);
+            }
+
+            return true;
+        }
+
+        public void create_backup() throws JSONException
+        {
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor cursor = db.query(BASI_PROJEKTE,null,null,null,null,null,null);
+            String[] colums = cursor.getColumnNames();
+
+            JSONArray data = new JSONArray();
+
+            while (cursor.moveToNext())
+            {
+                JSONObject t = new JSONObject();
+                for(String c: colums)
+                {
+                    try {
+
+                        switch(c)
+                        {
+                            case "ID":
+                                t.put(c, cursor.getString(cursor.getColumnIndexOrThrow(c.toString())));
+                                break;
+                            case "STATUS_FLAG":
+                                t.put(c,"0");
+                                break;
+                            default:
+                                t.put(c, bsf.URLencode(cursor.getString(cursor.getColumnIndexOrThrow(c.toString()))));
+                        }
+
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    } catch (IllegalArgumentException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                data.put(t);
+            }
+
+            File f = new File(backup_path);
+            f.mkdirs();
+            try {
+                f.createNewFile();
+
+                FileWriter fw = new FileWriter(backup_path+backup_filename);
+                fw.write(data.toString());
+                fw.close();
+
+                AlertDialog.Builder create_backup_report_dialog  = new AlertDialog.Builder(context);
+                create_backup_report_dialog.setTitle("Export Report");
+                create_backup_report_dialog.setMessage("Backup gespeichert unter: \n\n"+backup_path+backup_filename);
+                create_backup_report_dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+                create_backup_report_dialog.setNegativeButton("URL Kopieren", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        bsf.copy_to_clipboard(backup_path+backup_filename,context);
+                    }
+                });
+
+                create_backup_report_dialog.show();
+
+            } catch (IOException e)
+            {
+                Toast.makeText(context, "Backup erstellen Fehlgeschlagen!:  \n"+e.getMessage().toString(), Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    public class projekt_browser extends projekt_ops
+    {
         EditText dir_src;
         Spinner projlist;
         TextView current_selectet;
@@ -530,6 +763,8 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
             }
         }
+
+
 
         public void create_projekt()
         {
@@ -928,7 +1163,6 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         public void projekt_select()
         {
             Basic_funct bsf = new Basic_funct();
-
             try {
                 String selected_id = projekt_get_selected_id();
                 String new_selected_id = projekt_spinner_get_selectet_item().get("ID").toString();
@@ -953,7 +1187,15 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                 }
                 else
                 {
-                    bsf.error_msg("Error: selected_id =0",context);
+                    if(projekt_set_select(new_selected_id) == true)
+                    {
+                        current_selectet.setText(get_selectet_projekt());
+                    }
+                    else
+                    {
+                        bsf.error_msg("Error: projekt_set_select =false",context);
+                    }
+
                 }
             }
             catch (Exception e)
@@ -985,7 +1227,6 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         {
             throw new RuntimeException(e);
         }
-
         return   default_id;
     }
 
@@ -1030,6 +1271,11 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         }
         return  run_check;
     }
+
+
+
+
+
 
     public String projekt_get_current_root_dir()
     {

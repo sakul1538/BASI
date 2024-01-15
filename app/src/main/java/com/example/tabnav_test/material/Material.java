@@ -407,7 +407,7 @@ public class Material extends Fragment implements static_finals
 
                             Backup backup = new Backup(getContext());
                             try {
-                                backup.restore_backup(SQL_finals.TB_MATERIAL_TYP,finalSource_path,true);
+                                backup.restore_backup(SQL_finals.TB_MATERIAL_TYP,finalSource_path);
 
                             } catch (FileNotFoundException e) {
                                 throw new RuntimeException(e);
@@ -454,7 +454,7 @@ public class Material extends Fragment implements static_finals
 
 
                             try {
-                                backup.restore_backup(SQL_finals.TB_MATERIAL_PROJEKTE,finalSource_path,true);
+                                backup.restore_backup(SQL_finals.TB_MATERIAL_PROJEKTE,finalSource_path);
                                 refresh_spinner();
                             } catch (FileNotFoundException e)
                             {
@@ -469,7 +469,7 @@ public class Material extends Fragment implements static_finals
                         public void onClick(DialogInterface dialogInterface, int i)
                         {
                             try {
-                                backup.restore_backup(SQL_finals.TB_MATERIAL_PROJEKTE,finalSource_path,false);
+                                backup.restore_backup(SQL_finals.TB_MATERIAL_PROJEKTE,finalSource_path);
                                 refresh_spinner();
                             } catch (FileNotFoundException e) {
                                 throw new RuntimeException(e);

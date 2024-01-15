@@ -2,14 +2,19 @@ package com.example.tabnav_test;
 
 import static android.app.PendingIntent.getActivity;
 
+import static java.security.AccessController.getContext;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -31,11 +36,14 @@ public class MainActivity extends AppCompatActivity
     // ----------------------------------------------------------------- Variablen
 
     // ----------------------------------------------------------------- Variablen  String, char
+
+    String source_path ="";
     // ----------------------------------------------------------------- Variablen 	byte,short,int,long,float,double
     // ----------------------------------------------------------------- Variablen 	Boolean
     // ----------------------------------------------------------------- Instanzen
     ScreenSlidePagerAdapter adapter;
     projekt_ops projekt;
+
 
     // ----------------------------------------------------------------- TextView
     // ----------------------------------------------------------------- AutoCompleteTextView
@@ -72,15 +80,26 @@ public class MainActivity extends AppCompatActivity
                 Log.d("BASI",data.getData().getPath());
                 Backup backup = new Backup(getApplicationContext());
                 try {
-                    backup.restore_backup(SQL_finals.TB_NAME_LOG_CONF,data.getData().getPath(),false);
+                    backup.restore_backup(SQL_finals.TB_NAME_LOG_CONF,data.getData().getPath());
                 } catch (FileNotFoundException e) {
                     throw new RuntimeException(e);
                 }
                 break;
 
             case 2:
-
                 projekt.browser.setDir_src_in_dialog(data.getData().getPath());
+                break;
+            case 3:
+
+                    String path_to_restore_file =data.getData().getPath(); //primary:BASI/Backup&Exports/BASI_PROJEKTE@20240109.json
+                    String backup_restore_file_src = path_to_restore_file.replace("/document/primary:", Environment.getExternalStorageDirectory().toString()+"/");
+                    if(projekt.projekt_backup.restore_backup(backup_restore_file_src,projekt.projekt_backup.import_backup_overwrite))
+                    {
+                        projekt.browser.projekt_spinner_reload();
+                    }
+
+
+
                 break;
             default:
                 Log.d("BASI","MainActivity:"+ String.valueOf(requestCode));
@@ -99,7 +118,6 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Context context = getApplicationContext();
         db_ops dbo= new db_ops(getApplicationContext());
         dbo.init();
 
