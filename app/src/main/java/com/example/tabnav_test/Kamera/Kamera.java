@@ -265,11 +265,11 @@ public class Kamera<onActivityResult> extends Fragment
 
         adddir.setOnClickListener(new View.OnClickListener()
         {
-
             @Override
             public void onClick(View view)
             {
-                dir_dialog("add",null,container);
+
+                //dir_dialog("add",null,container);
             }
         });
 
