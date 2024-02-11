@@ -2,6 +2,8 @@ package com.example.tabnav_test;
 
 import static androidx.activity.result.ActivityResultCallerKt.registerForActivityResult;
 
+import static java.util.Arrays.sort;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentUris;
@@ -833,6 +835,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         }
         public void projekt_info_dialog(ContentValues output)
         {
+            Basic_funct bsf = new Basic_funct();
 
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
             alertDialogBuilder.setIcon(R.drawable.ic_baseline_info_24_blue);
@@ -840,12 +843,37 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
             alertDialogBuilder.setTitle("Projekt Infos");
 
             ContentValues info = projekt_info(output.get("ID").toString());
+
             String message ="";
+
+            String message_sub_dirs ="";
 
             for(String key: info.keySet())
             {
-             message += key.toString()+":  "+ info.get(key)+"\n";
+                switch(key.toString())
+                {
+                    case "DIR_SUB":
+                        message_sub_dirs += key.toString()+":\n";
+                        try {
+                            JSONArray a = new JSONArray(info.get(key).toString());
+                            for(int c= 0;c < a.length();c++)
+                            {
+                                JSONObject o = new JSONObject(a.get(c).toString());
+                                message_sub_dirs += "+ "+bsf.URLdecode(o.getString("NAME"))+"\n";
+                            }
+
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        break;
+
+                    default:
+
+                            message += key.toString()+": "+ info.get(key)+"\n";
+
+                }
             }
+            message+=message_sub_dirs;
 
             alertDialogBuilder.setMessage(message);
 
@@ -880,29 +908,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
             String[] colums = cursor.getColumnNames();
             for(String c: colums)
             {
-                switch(c)
-                {
-                    case "DIR_SUB":
-                        String dat= "";
-                        try {
-                            JSONArray e = new JSONArray(cursor.getString(cursor.getColumnIndexOrThrow(c)));
-                            for(int p = 0; p<e.length();p++)
-                            {
-                                JSONObject d= new JSONObject(String.valueOf(e.get(p)));
-                               dat += d.get("NAME")+",";
-
-                            }
-
-                        } catch (JSONException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                        output_data.put(c,dat.substring(0,dat.length()-1));
-                        break;
-
-                    default:
-                        output_data.put(c,cursor.getString(cursor.getColumnIndexOrThrow(c)));
-                }
-
+                output_data.put(c,cursor.getString(cursor.getColumnIndexOrThrow(c)));
             }
             return output_data;
         }

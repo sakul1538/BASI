@@ -87,7 +87,8 @@ public class MainActivity extends AppCompatActivity
                 break;
 
             case 2:
-                projekt.browser.setDir_src_in_dialog(data.getData().getPath());
+
+                projekt.browser.setDir_src_in_dialog(data.getData().getPath().replace("/tree/primary:",Environment.getExternalStorageDirectory().toString()+"/")+"/");
                 break;
             case 3:
 

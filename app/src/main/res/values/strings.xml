@@ -13,6 +13,8 @@
     <string name="kamera_label_date">Datum:</string>
     <string name="kamera_label_media">Medien:</string>
     <string name="kamera_sub_dir_add">Hinzufügen</string>
+    <string name="kamera_sub_dir_add_new">Neu</string>
+    <string name="kamera_sub_dir_add_clone">Unterverzeichnis</string>
     <string name="kamera_sub_dir_update">Bearbeiten</string>
     <string name="kamera_sub_dir_delet">Löschen</string>
 
@@ -22,6 +24,7 @@
     <string name="abort">Abbrechen</string>
     <string name="dir_name">Ortnername:</string>
     <string name="add_title_dir_name">Neuer Ordner Anlegen</string>
+    <string name="add_sub_dir_title_dir_name">Unterordner Anlegen</string>
     <string name="modify_title_dir_name">Ordner Bearbeiten</string>
     <string name="emtpy"></string>
     <string name="ok">OK</string>

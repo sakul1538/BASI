@@ -94,7 +94,6 @@ public class db_ops extends SQLiteOpenHelper implements SQL_finals
             init_data.put("PROJEKT_NR",("1"));
             init_data.put("NAME","DEFAULT");
             init_data.put("DIR_ROOT", Environment.getExternalStorageDirectory().toString());
-
             init_data.put("DIR_SUB","[{\"NAME\":\"DEFAULT\",\"DIR\":\"\"}]");
             init_data.put("STATUS_FLAG","1");
 

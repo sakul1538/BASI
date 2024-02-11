@@ -5,7 +5,22 @@
         android:id="@+id/kamera_sub_dir_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:title="@string/kamera_sub_dir_add" />
+        android:title="@string/kamera_sub_dir_add" >
+        <menu
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <item
+                android:id="@+id/kamera_sub_dir_add_new"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:title="@string/kamera_sub_dir_add_new" />
+            <item
+                android:id="@+id/kamera_sub_dir_add_clone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:title="@string/kamera_sub_dir_add_clone" />
+        </menu>
+    </item>
     <item
         android:id="@+id/kamera_sub_dir_update"
         android:layout_width="wrap_content"
