@@ -2,8 +2,10 @@ package com.example.tabnav_test.Kamera;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -15,26 +17,28 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.telephony.mbms.MbmsErrors;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -44,14 +48,18 @@ import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.R;
 import com.example.tabnav_test.config_favorite_strings.config_fav;
 import com.example.tabnav_test.config_favorite_strings.config_fav_ops;
-import com.example.tabnav_test.db_ops;
+import com.example.tabnav_test.projekt_ops;
 import com.example.tabnav_test.static_finals;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
+import java.util.zip.Inflater;
 
 
 public class Kamera<onActivityResult> extends Fragment
@@ -69,6 +77,8 @@ public class Kamera<onActivityResult> extends Fragment
     private int resultCode;
     // ----------------------------------------------------------------- Variablen Boolean
     // ----------------------------------------------------------------- Instanzen
+    projekt_ops projekt;
+    kamera_directorys kamera_dirs;
     // ----------------------------------------------------------------- TextView
     TextView curr_date;
     TextView tag;
@@ -98,8 +108,8 @@ public class Kamera<onActivityResult> extends Fragment
     // ----------------------------------------------------------------- ListView
     // ----------------------------------------------------------------- RecyclerView
     // ----------------------------------------------------------------- Spinner
-    Spinner spinner;
     kamera_spinner spinnerops;
+    Spinner spinner;
 // ----------------------------------------------------------------- CheckBox
 // ----------------------------------------------------------------- RadioButton
 // ----------------------------------------------------------------- Switch
@@ -131,7 +141,11 @@ public class Kamera<onActivityResult> extends Fragment
     {
         super.onResume();
         refresh_fav_auto_complete();
+        refresh_spinner();
+
     }
+
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -155,6 +169,10 @@ public class Kamera<onActivityResult> extends Fragment
         // ----------------------------------------------------------------- Instanzen
         Basic_funct bsf =new  Basic_funct();
         spinnerops = new kamera_spinner(getContext());
+        projekt = new projekt_ops(getContext());
+        kamera_dirs = new kamera_directorys(getContext());
+
+
 
         // ----------------------------------------------------------------- TextView
         curr_date =(TextView) view.findViewById(R.id.kamera_date);
@@ -200,8 +218,10 @@ public class Kamera<onActivityResult> extends Fragment
 
         //Init
         refresh_spinner();
+
         tag_visibility(View.GONE);
         preview_camera_visibility(View.GONE);
+
 
         kamera_tag_field_value.setOnFocusChangeListener(new View.OnFocusChangeListener()
         {
@@ -246,7 +266,7 @@ public class Kamera<onActivityResult> extends Fragment
             @Override
             public void onClick(View view)
             {
-                dir_dialog("modify",String.valueOf(spinner.getSelectedItem()),container);
+                refresh_spinner();
             }
         });
 
@@ -255,15 +275,77 @@ public class Kamera<onActivityResult> extends Fragment
             @Override
             public void onClick(View view)
             {
-                int responde =spinnerops.deletOne(RROJ_NR,String.valueOf(spinner.getSelectedItem()));
-                String message ="Es wurden "+String.valueOf(responde)+" Einträge gelöscht!";
 
-                Toast.makeText(getContext(),message,Toast.LENGTH_SHORT).show();
-                refresh_spinner();
             }
         });
 
-        adddir.setOnClickListener(new View.OnClickListener()
+        adddir.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                PopupMenu popup = new PopupMenu(getContext(),view);
+                MenuInflater inflater = popup.getMenuInflater();
+                inflater.inflate(R.menu.kamera_subdir_options_menu, popup.getMenu());
+
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem)
+                    {
+                        switch (menuItem.getItemId())
+                        {
+
+                            case  R.id.kamera_sub_dir_add:
+                                    sub_dir_dialog("add",null,container);
+                                break;
+
+                            case R.id.kamera_sub_dir_update:
+                                sub_dir_dialog("update",null,container);
+                                break;
+
+                            case R.id.kamera_sub_sir_delet:
+
+                                String selectet_item = spinner.getSelectedItem().toString();
+
+                                AlertDialog.Builder confirm_delet = new AlertDialog.Builder(getContext());
+                                confirm_delet.setTitle("Bestätigen");
+
+                                confirm_delet.setIcon(R.drawable.alert);
+                                confirm_delet.setMessage(selectet_item +" wirklich löschen?");
+                                confirm_delet.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        try {
+                                            kamera_dirs.delet(selectet_item);
+                                        } catch (JSONException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                        refresh_spinner();
+                                        dialogInterface.cancel();
+                                    }
+                                });
+                                confirm_delet.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.cancel();
+                                    }
+                                });
+
+                                confirm_delet.show();
+
+
+                                break;
+
+                            default:
+                                Toast.makeText(getContext(), "Nicht Implementiert", Toast.LENGTH_SHORT).show();
+                        }
+                        return false;
+                    }
+                });
+                popup.show();
+            }
+        });
+
+       /* adddir.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
@@ -271,7 +353,7 @@ public class Kamera<onActivityResult> extends Fragment
 
                 //dir_dialog("add",null,container);
             }
-        });
+        });*/
 
         //---------------------------------------------------------
 
@@ -281,7 +363,7 @@ public class Kamera<onActivityResult> extends Fragment
             @Override
             public void onClick(View view)
             {
-               String[] responde = spinnerops.getOne(RROJ_NR, String.valueOf(spinner.getSelectedItem()));
+               String[] responde = spinnerops.getOne(RROJ_NR, String.valueOf(kamera_dirs.spinner.getSelectedItem()));
 
                String date = curr_date.getText().toString();
                 date = date.replace(".", "");
@@ -349,7 +431,7 @@ public class Kamera<onActivityResult> extends Fragment
                     curr_date.setText(bsf.date_refresh());
                     tag_background(static_finals.un_mark_color);
                     date_background(static_finals.un_mark_color);
-                    spinner.setSelection(0);
+                    kamera_dirs.spinner.setSelection(0);
                     kamera_tag_field_value.setText("");
                     camera_photo.setImageResource(0);
                     kamera_switch_tag_onoff.setChecked(false);
@@ -487,7 +569,8 @@ public class Kamera<onActivityResult> extends Fragment
             case 1:
 
                     String message=String.valueOf(data.getData().getLastPathSegment());
-                    dir.setText(message);
+                    String[] cut = message.split(":");
+                    dir.setText(cut[1]);
 
                 break;
 
@@ -539,7 +622,6 @@ public class Kamera<onActivityResult> extends Fragment
                     {
                         save_dir = t_array[0];
                         tags = "";
-
                     }
 
                     //Datum extrahieren  28122022_ID_566429213554924951.jpeg
@@ -737,29 +819,21 @@ public class Kamera<onActivityResult> extends Fragment
 
 
 
-    public void refresh_spinner()
+   /* public void refresh_spinner()
     {
-        String[] kat_nativ = spinnerops.getall(RROJ_NR);
+        String []dir_names = kamera_dirs.get_dir_names_as_array(projekt.projekt_get_selected_id());
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line,dir_names);
+        kamera_dirs.spinner.setAdapter(spinnerArrayAdapter);
+    }*/
 
-       // Log.d("Adresse",kat_nativ[0]);
-
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line,kat_nativ);
-
-     //   ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item,items);
-        //spinnerArrayAdapter.setDropDownViewResource(R.layout.kamera_spinner_list);
-        spinner.setAdapter(spinnerArrayAdapter);
-    }
-
-    public void dir_dialog(String mode,String value, ViewGroup container)
+    public void sub_dir_dialog(String mode,String value, ViewGroup container)
     {
         LayoutInflater li = LayoutInflater.from(getActivity());
         View promptsView = li.inflate(R.layout.diradd, container,false);
 
         name = (EditText) promptsView.findViewById(R.id.editTextTextPersonName10);
         dir = (EditText) promptsView.findViewById(R.id.editTextTextPersonName11);
-        final ImageButton paht = (ImageButton) promptsView.findViewById(R.id.imageButton2);
-        CheckBox sub_folder = (CheckBox) promptsView.findViewById(R.id.enable_subfolder);
-
+        final ImageButton paht = (ImageButton) promptsView.findViewById(R.id.imageButton2);;
 
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
@@ -778,7 +852,7 @@ public class Kamera<onActivityResult> extends Fragment
                     @Override
                     public void onClick(View view)
                     {
-                        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                       Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
                         startActivityForResult(intent, 1);
                     }
                 });
@@ -790,40 +864,16 @@ public class Kamera<onActivityResult> extends Fragment
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
                         try {
+                            Basic_funct bsf = new Basic_funct();
+                            String name_value = bsf.URLencode(name.getText().toString());
+                            String paht_value = bsf.URLencode(dir.getText().toString());
 
-                                String foldername = name.getText().toString();
-
-                                long resonse =  spinnerops.addOne(RROJ_NR,foldername,dir.getText().toString());
-
-                                if(sub_folder.isChecked() ==true)
-                                {
-                                    String  abs_path = dir.getText().toString().replace("primary:","/storage/emulated/0/");
-                                    File storageDir = new File(abs_path);
-
-                                    File[] folders= storageDir.listFiles();
-                                    for(File is :folders)
-                                    {
-                                        if(is.isDirectory() == true)
-                                        {
-                                            String[] parts =is.toString().split("/");
-
-                                            String name =foldername+" -->"+ parts[parts.length-1];
-
-                                            String  sub_abs_path = is.toString().replace("/storage/emulated/0/","primary:");
-                                            long resonse2 =  spinnerops.addOne(RROJ_NR,name,sub_abs_path);
-                                         //   Log.d(name,is.toString());
-                                          //  Log.d(name,sub_abs_path);
-
-                                        }
-
-                                    }
-
-                                }
-                                refresh_spinner();
+                            kamera_dirs.add(name_value,paht_value);
+                            refresh_spinner();
                         }
                         catch (Exception e)
                         {
-                            Toast.makeText(getContext(),e.getMessage().toString(),Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(),"A:"+e.getMessage().toString(),Toast.LENGTH_LONG).show();
                         }
                     }
 
@@ -839,15 +889,18 @@ public class Kamera<onActivityResult> extends Fragment
 
                 break;
 
-            case "modify":
+            case "update":
 
                 alertDialogBuilder.setTitle(R.string.modify_title_dir_name);
 
+                String name_old = spinner.getSelectedItem().toString();
 
-                String[] items = spinnerops.getOne(RROJ_NR,value);
-
-                name.setText(items[0]); //Name
-                dir.setText(items[1]); //Dir
+                name.setText(name_old);
+                try {
+                    dir.setText(kamera_dirs.get_dir_from_name(spinner.getSelectedItem().toString()));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
 
                 paht.setOnClickListener(new View.OnClickListener()
                 {
@@ -866,15 +919,19 @@ public class Kamera<onActivityResult> extends Fragment
                     {
 
                         //Werte zum Update
-                        String name_alt= items[0]; //Alter name , falls geändert
+                        ///String name_alt= items[0]; //Alter name , falls geändert
                         String name_new= String.valueOf(name.getText());
                         String dir_new = String.valueOf(dir.getText());
 
-                        int  responde = spinnerops.updateOne(RROJ_NR,name_alt,name_new,dir_new);
+                        try {
+                           kamera_dirs.update(name_old,name_new,dir_new);
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
 
+                       // Toast.makeText(getContext(), "Es wurden "+ String.valueOf(responde)+" Einträge geändert.",Toast.LENGTH_SHORT).show();
+                          refresh_spinner();
 
-                        Toast.makeText(getContext(), "Es wurden "+ String.valueOf(responde)+" Einträge geändert.",Toast.LENGTH_SHORT).show();
-                        refresh_spinner();
                     }
                 });
                 alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener()
@@ -1014,6 +1071,19 @@ public class Kamera<onActivityResult> extends Fragment
         return image;
     }
 
+    public void refresh_spinner()
+    {
+        try {
+            String []dir_names = kamera_dirs.get_dir_names_as_array(projekt.projekt_get_selected_id());
+            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line,dir_names);
+            spinner.setAdapter(spinnerArrayAdapter);
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
 
     private void refresh_fav_auto_complete()
     {
@@ -1028,6 +1098,178 @@ public class Kamera<onActivityResult> extends Fragment
         Log.e("Exception: Kamera ->","ID: "+msg+" Message:" +e.getMessage().toString());
         e.printStackTrace();
     }
+
+    public static class kamera_directorys extends Kamera
+    {
+
+        projekt_ops.kamera_dir directory;
+        Context context;
+
+        public kamera_directorys(Context context)
+        {
+            this.context = context;
+            directory = new projekt_ops.kamera_dir(this.context);
+
+        }
+
+        public void add(String name, String dir) throws JSONException {
+
+            String json =  directory.get_dir(directory.projekt_get_selected_id());
+            JSONArray data_array;
+            if(json.isEmpty())
+            {
+            data_array = new JSONArray();
+            JSONObject obj = new JSONObject();
+
+                try {
+                    obj.put("DIR",dir);
+                    obj.put("NAME",name);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                data_array.put(obj);
+            }
+            else
+            {
+                data_array = new JSONArray(json);
+                JSONObject obj = new JSONObject();
+                obj.put("NAME",name);
+                obj.put("DIR",dir);
+                data_array.put(obj);
+            }
+
+            directory.set_dir(directory.projekt_get_selected_id(),data_array.toString());
+        }
+
+
+
+        public void update(String name_old,String name_new,String path_new) throws JSONException
+        {
+            Basic_funct bsf = new Basic_funct();
+            String json =  directory.get_dir(directory.projekt_get_selected_id());
+
+            JSONArray dirlist_new = new JSONArray();
+
+            if(json.equals("")==false)
+            {
+                JSONArray dirlist =new JSONArray(json);
+                if(dirlist.length() !=0)
+                {
+                    for(int c= 0; c< dirlist.length();c++)
+                    {
+                        JSONObject obj = new JSONObject(dirlist.get(c).toString());
+                        String item = obj.getString("NAME");
+
+                        if(item.equals(bsf.URLencode(name_old)))
+                        {
+                            JSONObject obj_new = new JSONObject();
+                            obj_new.put("NAME",bsf.URLencode(name_new));
+                            obj_new.put("DIR",bsf.URLencode(path_new));
+                            dirlist_new.put(obj_new);
+                        }
+                        else
+                        {
+                            JSONObject obj_new = new JSONObject();
+                            obj_new.put("NAME", obj.getString("NAME"));
+                            obj_new.put("DIR",obj.getString("DIR"));
+                            dirlist_new.put(obj_new);
+                        }
+                    }
+                }
+            }
+            directory.set_dir(directory.projekt_get_selected_id(),dirlist_new.toString());
+
+        }
+
+        public void delet(String name) throws JSONException
+        {
+            Basic_funct bsf = new Basic_funct();
+            String json =  directory.get_dir(directory.projekt_get_selected_id());
+
+            JSONArray dirlist_new = new JSONArray();
+
+            if(json.equals("")==false)
+            {
+                JSONArray dirlist =new JSONArray(json);
+                if(dirlist.length() !=0)
+                {
+                    for(int c= 0; c< dirlist.length();c++)
+                    {
+                        JSONObject obj = new JSONObject(dirlist.get(c).toString());
+                        String item = obj.getString("NAME");
+
+                        if(item.equals(bsf.URLencode(name))==false)
+                        {
+                            JSONObject obj_new = new JSONObject();
+                            obj_new.put("NAME", obj.getString("NAME"));
+                            obj_new.put("DIR",obj.getString("DIR"));
+                            dirlist_new.put(obj_new);
+                        }
+                    }
+                }
+            }
+            directory.set_dir(directory.projekt_get_selected_id(),dirlist_new.toString());
+
+        }
+       public String get_dir_from_name(String name) throws JSONException
+       {
+            Basic_funct bsf = new Basic_funct();
+            String json =  directory.get_dir(directory.projekt_get_selected_id());
+            String paht="";
+
+            if(json.equals("")==false)
+            {
+                JSONArray dirlist =new JSONArray(json);
+
+                if(dirlist.length() !=0)
+                {
+                    for(int c= 0; c< dirlist.length();c++)
+                    {
+                        JSONObject obj = new JSONObject(dirlist.get(c).toString());
+                        String item = obj.getString("NAME");
+
+                        if(item.equals(bsf.URLencode(name)))
+                        {
+                            paht =bsf.URLdecode(obj.getString("DIR").toString());
+                        }
+                    }
+                }
+            }
+
+           return paht;
+        }
+        public String [] get_dir_names_as_array(String projekt_id) throws JSONException
+        {
+           String json=  directory.get_dir(projekt_id);
+           Basic_funct bsf = new Basic_funct();
+
+           if(json.equals("")==false)
+           {
+               JSONArray dirlist =new JSONArray(json);
+               String [] output = new String[dirlist.length()];
+
+               if(dirlist.length() !=0)
+               {
+                   for(int c= 0; c< dirlist.length();c++)
+                   {
+                       JSONObject obj = new JSONObject(dirlist.get(c).toString());
+                       output[c] = bsf.URLdecode(obj.getString("NAME"));
+                   }
+                   return  output;
+               }
+               else
+               {
+                  return  new String[]{"DEFAULT"};
+               }
+           }
+           else
+           {
+               return  new String[]{"DEFAULT"};
+           }
+        }
+
+    }
+
 }
 
 

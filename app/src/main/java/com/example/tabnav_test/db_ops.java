@@ -14,6 +14,10 @@ import com.example.tabnav_test.static_finals;
 
 import androidx.annotation.Nullable;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,12 +79,12 @@ public class db_ops extends SQLiteOpenHelper implements SQL_finals
     {
 
     }
-    public void init()
-    {
+    public void init(){
         SQLiteDatabase dbr = this.getReadableDatabase();
         Cursor cursor  = dbr.query(BASI_PROJEKTE,new String[]{"ID"},null,null,null,null,null);
         if(cursor.getCount() == 0)
         {
+
             // "ID,DATE,PROJEKT_NR,NAME,DIR_ROOT,DIR_SUB,STATUS_FLAG"
             Basic_funct bsf = new Basic_funct();
             SQLiteDatabase dbw = this.getWritableDatabase();
@@ -90,7 +94,8 @@ public class db_ops extends SQLiteOpenHelper implements SQL_finals
             init_data.put("PROJEKT_NR",("1"));
             init_data.put("NAME","DEFAULT");
             init_data.put("DIR_ROOT", Environment.getExternalStorageDirectory().toString());
-            init_data.put("DIR_SUB","");
+
+            init_data.put("DIR_SUB","[{\"NAME\":\"DEFAULT\",\"DIR\":\"\"}]");
             init_data.put("STATUS_FLAG","1");
 
             try {

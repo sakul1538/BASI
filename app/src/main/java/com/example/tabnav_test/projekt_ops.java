@@ -32,6 +32,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import com.example.tabnav_test.Import_Export.Backup;
+import com.example.tabnav_test.Kamera.Kamera;
 import com.example.tabnav_test.material.material_database_ops;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -47,6 +48,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -64,6 +66,8 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
     backup projekt_backup;
     // ----------------------------------------------------------------- TextView
     TextView current_projekt_main_title;
+
+
     // ----------------------------------------------------------------- AutoCompleteTextView
     // ----------------------------------------------------------------- EditText
     static EditText dir;
@@ -107,32 +111,15 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
     public void projekt_add(ContentValues data)
     {
+        //in tabelle
         //TODO auf Duplikate Prüfen
         SQLiteDatabase wdb = this.getWritableDatabase();
 
         long newRowId = wdb.insert(TB_MATERIAL_PROJEKTE,null,data);
     }
 
-    public String[] projekt_list_all()
-    {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String[] columns = { "NAME", "ID" };
 
-        Cursor cursor = db.query(TB_MATERIAL_PROJEKTE,columns,null,null,null,null,null);
-        String[] strings = new String[cursor.getCount()];
 
-        int i=0;
-        while (cursor.moveToNext())
-        {
-            strings[i] =cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
-            strings[i] +="["+cursor.getString(cursor.getColumnIndexOrThrow("ID"))+"]";
-            i++;
-        }
-        cursor.close();
-        db.close();
-
-        return  strings;
-    }
 
     public String get_projekt_id(String name,String nr)
     {
@@ -163,40 +150,6 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
     }
 
 
-    public int update_projekt(String id,ContentValues data)
-    {
-        int response =0;
-        SQLiteDatabase db = this.getWritableDatabase();
-        String[] selectionArgs = { id };
-        String where = "ID=?";
-
-        response = db.update(TB_MATERIAL_PROJEKTE,data,where,selectionArgs);
-
-        return response;
-    }
-
-    public String get_projekt_data(String id)
-    {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String[] selectionArgs = {id};
-        String where = "ID=?";
-
-        Cursor cursor = db.query(TB_MATERIAL_PROJEKTE,null,where,selectionArgs,null,null,null);
-        String value ="";
-        while (cursor.moveToNext())
-        {
-            value = cursor.getString(cursor.getColumnIndexOrThrow("ID"));
-            value +=","+cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
-            value +=","+cursor.getString(cursor.getColumnIndexOrThrow("SRC"));
-
-        }
-        cursor.close();
-        db.close();
-
-        return  value;
-
-    }
-
     public void select_projekt(String id)
     {
         //reset von allen
@@ -218,7 +171,6 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         response = db.update(TB_MATERIAL_PROJEKTE,data,where_select,selectionArgs_select);
 
     }
-
 
     public String get_selectet_projekt()
     {
@@ -247,95 +199,6 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         cursor.close();
         db.close();
         return  value;
-    }
-
-    public String get_selectet_projekt_id()
-    {
-        Basic_funct bsf = new Basic_funct();
-        this.test_exist_projects();
-        String id = null;
-        try {
-            SQLiteDatabase db = this.getReadableDatabase();
-            String[] selectionArgs = {"1"};
-            String where = "SELECT_FLAG=?";
-
-            Cursor cursor = db.query(TB_MATERIAL_PROJEKTE,null,where,selectionArgs,null,null,null);
-            id = "null";
-            cursor.moveToFirst();
-            id=cursor.getString(cursor.getColumnIndexOrThrow("ID"));
-            cursor.close();
-            db.close();
-        } catch (IllegalArgumentException e)
-        {
-            id="0";
-            bsf.error_msg("Kein ausgewähltes Projekt gefunden! \n return=0\n"+e.getMessage().toString(),context);
-            throw new RuntimeException(e);
-        }
-        return  id;
-    }
-
-    public String get_selectet_projekt_root_data()
-    {
-
-        SQLiteDatabase db = this.getReadableDatabase();
-        String[] selectionArgs = {"1"};
-        String where = "SELECT_FLAG=?";
-
-        Cursor cursor = db.query(TB_MATERIAL_PROJEKTE,null,where,selectionArgs,null,null,null);
-        String value ="";
-
-        while (cursor.moveToNext())
-        {
-            value = cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
-            value +=","+cursor.getString(cursor.getColumnIndexOrThrow("ID"));
-            value +=","+cursor.getString(cursor.getColumnIndexOrThrow("SRC"));
-        }
-        cursor.close();
-        db.close();
-        return  value;
-    }
-
-    public String get_projekt_root_paht()
-    {
-
-
-        SQLiteDatabase db = this.getReadableDatabase();
-        String[] selectionArgs = {"1"};
-        String where = "SELECT_FLAG=?";
-
-        Cursor cursor = db.query(TB_MATERIAL_PROJEKTE,null,where,selectionArgs,null,null,null);
-        cursor.moveToFirst();
-
-        String root =cursor.getString(cursor.getColumnIndexOrThrow("SRC")).replace("primary:", Environment.getExternalStorageDirectory().toString()+"/");
-
-        cursor.close();
-        db.close();
-
-        return  root;
-    }
-
-    public void test_exist_projects()
-    {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String [] colums = {"ID"};
-        String where = "ID=?";
-        String[] where_args ={"0"};
-
-        Cursor cursor =db.query(SQL_finals.TB_MATERIAL_PROJEKTE,colums,where,where_args,null,null,null);
-
-        if(cursor.getCount()==0)
-        {
-            ContentValues cv = new ContentValues();
-            cv.put("ID", "0");
-            cv.put("NAME", "Allgemein");
-            cv.put("SRC", Environment.getExternalStorageState());
-            cv.put("SELECT_FLAG", "1");
-            this.projekt_add(cv);
-            select_projekt("0");
-        }
-
-        cursor.close();
-        db.close();
     }
 
     public void projekt_settings(Context context)
@@ -685,6 +548,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         public projekt_browser(@Nullable Context context)
         {
             super(context);
+
         }
         public void projekt_spinner_reload()
         {
@@ -868,7 +732,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                             insert_data.put("PROJEKT_NR",value_nr);
                             insert_data.put("NAME",value_name);
                             insert_data.put("DIR_ROOT",value_root_dir);
-                            insert_data.put("DIR_SUB","");
+                            insert_data.put("DIR_SUB","[{\"NAME\":\"DEFAULT\",\"DIR\":\"\"}]");
                             insert_data.put("STATUS_FLAG","0");
                             dbo.insert(SQL_finals.BASI_PROJEKTE,insert_data);
                             Toast.makeText(context, "Projekt angelegt!", Toast.LENGTH_LONG).show();
@@ -1016,7 +880,29 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
             String[] colums = cursor.getColumnNames();
             for(String c: colums)
             {
-               output_data.put(c,cursor.getString(cursor.getColumnIndexOrThrow(c)));
+                switch(c)
+                {
+                    case "DIR_SUB":
+                        String dat= "";
+                        try {
+                            JSONArray e = new JSONArray(cursor.getString(cursor.getColumnIndexOrThrow(c)));
+                            for(int p = 0; p<e.length();p++)
+                            {
+                                JSONObject d= new JSONObject(String.valueOf(e.get(p)));
+                               dat += d.get("NAME")+",";
+
+                            }
+
+                        } catch (JSONException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                        output_data.put(c,dat.substring(0,dat.length()-1));
+                        break;
+
+                    default:
+                        output_data.put(c,cursor.getString(cursor.getColumnIndexOrThrow(c)));
+                }
+
             }
             return output_data;
         }
@@ -1174,6 +1060,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                       if(projekt_set_select(new_selected_id) == true)
                       {
                           current_selectet.setText(get_selectet_projekt());
+
                       }
                       else
                       {
@@ -1230,6 +1117,30 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         return   default_id;
     }
 
+    public String projekt_get_selected_root_dir()
+    {
+        String default_root = "0";
+
+        try {
+            SQLiteDatabase dbr = this.getReadableDatabase();
+            Cursor cursor = dbr.query(BASI_PROJEKTE,null,"STATUS_FLAG=?",new String[]{"1"},null,null,null);
+
+            if(cursor.getCount() >0)
+            {
+                while(cursor.moveToNext())
+                {
+                    default_root =cursor.getString(cursor.getColumnIndexOrThrow("DIR_ROOT"));
+                }
+            }
+            cursor.close();
+            dbr.close();
+        } catch (IllegalArgumentException e)
+        {
+            throw new RuntimeException(e);
+        }
+        return   default_root;
+    }
+
     public boolean projekt_set_unselect(String id)
     {
         boolean run_check = false;
@@ -1273,10 +1184,6 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
     }
 
 
-
-
-
-
     public String projekt_get_current_root_dir()
     {
         String root_dir = "";
@@ -1305,49 +1212,70 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
         return   dbo.entry_exist(SQL_finals.BASI_PROJEKTE,args);
     }
-    public class sub_dir_list extends BaseAdapter
+    public static class kamera_dir extends projekt_ops
+
     {
-        String[] data;
-        Context context;
-        LayoutInflater layoutInflater;
-
-        public sub_dir_list(String[] data, Context context)
+        public kamera_dir(@Nullable Context context)
         {
+            super(context);
 
-            super();
-            this.data = data;
-            this.context = context;
-            layoutInflater = LayoutInflater.from(context);
         }
 
-        @Override
-        public int getCount() {
-            return data.length;
-        }
-
-        @Override
-        public Object getItem(int i) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup paren)
+        public String get_dir(String projekt_id)
         {
-            convertView= layoutInflater.inflate(R.layout.sub_dir_projekt_list, null);
-            TextView txt=(TextView)convertView.findViewById(R.id.textView98);
-            txt.setText(data[position]);
-            return convertView;
+            String dir_list ="";
+
+            SQLiteDatabase db = this.getReadableDatabase();
+            String[] selectionArgs = {projekt_id};
+            String where = "ID=?";
+
+            Cursor cursor = null;
+            try {
+                cursor = db.query(BASI_PROJEKTE,null,where,selectionArgs,null,null,null);
+                if(cursor.getCount() !=0)
+                {
+                    cursor.moveToFirst();
+                    dir_list = (cursor.getString(cursor.getColumnIndexOrThrow("DIR_SUB")));
+                }
+            }
+            catch (IllegalArgumentException e)
+            {
+                throw new RuntimeException(e);
+            }
+
+            cursor.close();
+            db.close();
+
+
+         return dir_list;
 
         }
+        public  void set_dir(String projekt_id,String input)
+        {
+            //reset von allen
+            long response =0;
+            SQLiteDatabase db = this.getWritableDatabase();
+
+            String[] selectionArgs = {projekt_id};
+            String where= "ID=?";
+
+            ContentValues  data = new ContentValues();
+            data.put("DIR_SUB",input);
+            response = db.update(BASI_PROJEKTE,data,where,selectionArgs);
+            Log.d("BASI", String.valueOf(response));
+
+            db.close();
+        }
+
     }
 
-
-
 }
+
+
+
+
+
+
+
 
 

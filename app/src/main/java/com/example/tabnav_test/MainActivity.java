@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.example.tabnav_test.Import_Export.Backup;
 
+import com.example.tabnav_test.Kamera.Kamera;
 import com.google.android.material.tabs.TabLayout;
 
 import java.io.FileNotFoundException;
@@ -43,7 +44,6 @@ public class MainActivity extends AppCompatActivity
     // ----------------------------------------------------------------- Instanzen
     ScreenSlidePagerAdapter adapter;
     projekt_ops projekt;
-
 
     // ----------------------------------------------------------------- TextView
     // ----------------------------------------------------------------- AutoCompleteTextView
@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity
 
         // ----------------------------------------------------------------- TextView
         projekt.current_projekt_main_title= findViewById(R.id.textView91);
+
         // ----------------------------------------------------------------- AutoCompleteTextView
         // ----------------------------------------------------------------- EditText
         // ----------------------------------------------------------------- Button
@@ -220,6 +221,7 @@ public class MainActivity extends AppCompatActivity
                 {
                     case R.id.settings_app_projektverwaltung:
                         projekt.projekt_settings(MainActivity.this);
+
                         break;
 
                     default:
