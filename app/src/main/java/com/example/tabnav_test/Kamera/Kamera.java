@@ -329,17 +329,6 @@ public class Kamera<onActivityResult> extends Fragment {
                 popup.show();
             }
         });
-
-       /* adddir.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-
-                //dir_dialog("add",null,container);
-            }
-        });*/
-
         //---------------------------------------------------------
 
 
@@ -349,6 +338,8 @@ public class Kamera<onActivityResult> extends Fragment {
             {
 
                 String selected_item = spinner.getSelectedItem().toString();
+
+
                 String date = curr_date.getText().toString();
                 date = date.replace(".", "");
                 String paht=projekt.projekt_get_current_root_dir();
@@ -357,13 +348,32 @@ public class Kamera<onActivityResult> extends Fragment {
 
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
-                }
-                if (kamera_switch_tag_onoff.isChecked() == true)
-                {
-                    dispatchTakePictureIntent(paht, selected_item, true, kamera_tag_field_value.getText().toString(), date);
+                         }
 
-                } else
-                    dispatchTakePictureIntent(paht, selected_item, false, "", date); //Path
+                if(paht.equals("")==false)
+                {
+                    if (kamera_switch_tag_onoff.isChecked() == true)
+                    {
+                        dispatchTakePictureIntent(paht, selected_item, true, kamera_tag_field_value.getText().toString(), date);
+
+                    } else
+                        dispatchTakePictureIntent(paht, selected_item, false, "", date); //Path
+                }
+                else
+                {
+                    AlertDialog.Builder alert_empty_path = new AlertDialog.Builder(getContext());
+                    alert_empty_path.setTitle("Error");
+                    alert_empty_path.setIcon(R.drawable.alert);
+
+                    alert_empty_path.setMessage("Kein Speicherpfad vorhanden!");
+                    alert_empty_path.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                          dialogInterface.cancel();
+                        }
+                    });
+                    alert_empty_path.show();
+                }
                 }
         });
 
@@ -415,7 +425,7 @@ public class Kamera<onActivityResult> extends Fragment {
                     curr_date.setText(bsf.date_refresh());
                     tag_background(static_finals.un_mark_color);
                     date_background(static_finals.un_mark_color);
-                    kamera_dirs.spinner.setSelection(0);
+                    spinner.setSelection(0);
                     kamera_tag_field_value.setText("");
                     camera_photo.setImageResource(0);
                     kamera_switch_tag_onoff.setChecked(false);
@@ -868,7 +878,7 @@ public class Kamera<onActivityResult> extends Fragment {
                 alertDialogBuilder.setTitle(R.string.modify_title_dir_name);
 
                 String name_old = spinner.getSelectedItem().toString();
-
+                //Leere DIR einträge überbrücken !
                 name.setText(name_old);
                 try {
                     dir.setText(kamera_dirs.get_dir_from_name(spinner.getSelectedItem().toString()));
@@ -989,8 +999,11 @@ public class Kamera<onActivityResult> extends Fragment {
 
         Basic_funct bsf = new Basic_funct();
 
-
         String addings = date + "_ID_";
+
+
+        title = title.replace(">","_").replace(" ","");
+
         String imageFileName = title + "@" + addings;
 
         if (tag_on == true) {
@@ -1130,7 +1143,8 @@ public class Kamera<onActivityResult> extends Fragment {
 
         }
 
-        public String get_dir_from_name(String name) throws JSONException {
+        public String get_dir_from_name(String name) throws JSONException
+        {
             Basic_funct bsf = new Basic_funct();
             String json = directory.get_dir(directory.projekt_get_selected_id());
             String paht = "";
