@@ -300,7 +300,13 @@ public class Kamera<onActivityResult> extends Fragment {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         try {
-                                            kamera_dirs.delet(selectet_item);
+                                            if(kamera_dirs.delet(selectet_item))
+                                            {
+                                                bsf.succes_msg("Löschen erfolgt!",getContext() );
+                                            }else
+                                            {
+                                                bsf.error_msg("Löschen fehlgeschlagen!",getContext());
+                                            }
                                         } catch (JSONException e) {
                                             throw new RuntimeException(e);
                                         }
@@ -975,32 +981,14 @@ public class Kamera<onActivityResult> extends Fragment {
         }
     }
 
-
-    private File createImageFile2() throws IOException {
-
-        String abs_path = "/storage/emulated/0/DCIM/";
-        Basic_funct bsf = new Basic_funct();
-
-        File storageDir = new File(abs_path);
-        File image = File.createTempFile(
-                "BASI_temp",  /* prefix */
-                ".jpeg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.getAbsolutePath();
-
-        return image;
-    }
+    private File createImageFile(String path, String title, boolean tag_on, String tag, String date) throws IOException
+    {
 
 
-    private File createImageFile(String path, String title, boolean tag_on, String tag, String date) throws IOException {
 
         Basic_funct bsf = new Basic_funct();
 
         String addings = date + "_ID_";
-
 
         title = title.replace(">","_").replace(" ","");
 
@@ -1023,23 +1011,26 @@ public class Kamera<onActivityResult> extends Fragment {
     }
 
     public void refresh_spinner() {
-
         try {
             String[] dir_name = kamera_dirs.get_dir_names_as_array(projekt.projekt_get_selected_id());
             ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, dir_name);
             spinner.setAdapter(spinnerArrayAdapter);
 
-        } catch (JSONException e) {
+        } catch (JSONException e)
+        {
             throw new RuntimeException(e);
         }
-
-
     }
 
-    private void refresh_fav_auto_complete() {
-        config_fav_ops cfop = new config_fav_ops(getContext());
-        ArrayAdapter<String> favArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, cfop.favorite_strings_list(false));
-        kamera_tag_field_value.setAdapter(favArrayAdapter);
+    private void refresh_fav_auto_complete()
+    {
+        try {
+            config_fav_ops cfop = new config_fav_ops(getContext());
+            ArrayAdapter<String> favArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, cfop.favorite_strings_list(false));
+            kamera_tag_field_value.setAdapter(favArrayAdapter);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
@@ -1056,14 +1047,15 @@ public class Kamera<onActivityResult> extends Fragment {
         public kamera_directorys(Context context) {
             this.context = context;
             directory = new projekt_ops.kamera_dir(this.context);
-
         }
 
-        public void add(String name, String dir) throws JSONException {
+        public void add(String name, String dir) throws JSONException
+        {
 
             String json = directory.get_dir(directory.projekt_get_selected_id());
             JSONArray data_array;
-            if (json.isEmpty()) {
+            if (json.isEmpty())
+            {
                 data_array = new JSONArray();
                 JSONObject obj = new JSONObject();
 
@@ -1074,72 +1066,127 @@ public class Kamera<onActivityResult> extends Fragment {
                     throw new RuntimeException(e);
                 }
                 data_array.put(obj);
-            } else {
-                data_array = new JSONArray(json);
-                JSONObject obj = new JSONObject();
-                obj.put("NAME", name);
-                obj.put("DIR", dir);
-                data_array.put(obj);
-            }
+            } else
+            {
+                Basic_funct bsf  = new Basic_funct();
+                if(kamera_subdir_exist(name) == false)
+                {
+                    data_array = new JSONArray(json);
+                    JSONObject obj = new JSONObject();
+                    obj.put("NAME", name);
+                    obj.put("DIR", dir);
+                    data_array.put(obj);
+                    if(directory.set_dir(directory.projekt_get_selected_id(), data_array.toString()))
+                    {
+                        bsf.succes_msg("Verzeichnis "+name+" angelegt!",context);
+                    }
+                }
+                else
+                {
 
-            directory.set_dir(directory.projekt_get_selected_id(), data_array.toString());
+                    bsf.error_msg("Vezeichns "+name+" existiert schon!",context);
+                }
+            }
+        }
+
+        public boolean kamera_subdir_exist(String name)
+        {
+            Boolean output = false;
+            try {
+                String []  existed_dir_name = get_dir_names_as_array(directory.projekt_get_selected_id());
+                for(String item:existed_dir_name)
+                {
+                    if(item.contains(name))
+                    {
+                        output =true;
+                    }
+                }
+
+            } catch (JSONException e)
+            {
+
+                throw new RuntimeException(e);
+            }
+            return  output;
         }
 
 
         public void update(String name_old, String name_new, String path_new) throws JSONException {
             Basic_funct bsf = new Basic_funct();
-            String json = directory.get_dir(directory.projekt_get_selected_id());
 
-            JSONArray dirlist_new = new JSONArray();
+            if(kamera_subdir_exist(name_new)==false)
+            {
+                String json = directory.get_dir(directory.projekt_get_selected_id());
 
-            if (json.equals("") == false) {
-                JSONArray dirlist = new JSONArray(json);
-                if (dirlist.length() != 0) {
-                    for (int c = 0; c < dirlist.length(); c++) {
-                        JSONObject obj = new JSONObject(dirlist.get(c).toString());
-                        String item = obj.getString("NAME");
+                JSONArray dirlist_new = new JSONArray();
 
-                        if (item.equals(bsf.URLencode(name_old))) {
-                            JSONObject obj_new = new JSONObject();
-                            obj_new.put("NAME", bsf.URLencode(name_new));
-                            obj_new.put("DIR", bsf.URLencode(path_new));
-                            dirlist_new.put(obj_new);
-                        } else {
-                            JSONObject obj_new = new JSONObject();
-                            obj_new.put("NAME", obj.getString("NAME"));
-                            obj_new.put("DIR", obj.getString("DIR"));
-                            dirlist_new.put(obj_new);
+                if (json.equals("") == false)
+                {
+                    JSONArray dirlist = new JSONArray(json);
+                    if (dirlist.length() != 0)
+                    {
+                        for (int c = 0; c < dirlist.length(); c++) {
+                            JSONObject obj = new JSONObject(dirlist.get(c).toString());
+                            String item = obj.getString("NAME");
+
+                            if (item.equals(bsf.URLencode(name_old))) {
+                                JSONObject obj_new = new JSONObject();
+                                obj_new.put("NAME", bsf.URLencode(name_new));
+                                obj_new.put("DIR", bsf.URLencode(path_new));
+                                dirlist_new.put(obj_new);
+                            } else {
+                                JSONObject obj_new = new JSONObject();
+                                obj_new.put("NAME", obj.getString("NAME"));
+                                obj_new.put("DIR", obj.getString("DIR"));
+                                dirlist_new.put(obj_new);
+                            }
                         }
                     }
                 }
+                directory.set_dir(directory.projekt_get_selected_id(), dirlist_new.toString());
             }
-            directory.set_dir(directory.projekt_get_selected_id(), dirlist_new.toString());
-
+            else
+            {
+              bsf.error_msg("Error: Überschneidungen mit bestehenden Einträgen!",getContext());
+            }
         }
 
-        public void delet(String name) throws JSONException {
+        public boolean delet(String name) throws JSONException
+        {
+            Boolean resonpnse= false;
             Basic_funct bsf = new Basic_funct();
             String json = directory.get_dir(directory.projekt_get_selected_id());
 
+
             JSONArray dirlist_new = new JSONArray();
 
-            if (json.equals("") == false) {
+            if (json.equals("") == false)
+            {
                 JSONArray dirlist = new JSONArray(json);
-                if (dirlist.length() != 0) {
-                    for (int c = 0; c < dirlist.length(); c++) {
+                if (dirlist.length() != 0)
+                {
+                    for (int c = 0; c < dirlist.length(); c++)
+                    {
                         JSONObject obj = new JSONObject(dirlist.get(c).toString());
                         String item = obj.getString("NAME");
 
-                        if (item.equals(bsf.URLencode(name)) == false) {
+                        if (item.equals(bsf.URLencode(name)) == false)
+                        {
                             JSONObject obj_new = new JSONObject();
                             obj_new.put("NAME", obj.getString("NAME"));
                             obj_new.put("DIR", obj.getString("DIR"));
                             dirlist_new.put(obj_new);
                         }
+                        else
+                        {
+                            resonpnse =true;
+                        }
                     }
                 }
             }
+
             directory.set_dir(directory.projekt_get_selected_id(), dirlist_new.toString());
+            return resonpnse;
 
         }
 

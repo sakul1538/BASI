@@ -1256,21 +1256,37 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
          return dir_list;
 
         }
-        public  void set_dir(String projekt_id,String input)
+        public  boolean set_dir(String projekt_id,String input)
         {
             //reset von allen
-            long response =0;
-            SQLiteDatabase db = this.getWritableDatabase();
+            long response_sql =-1;
 
-            String[] selectionArgs = {projekt_id};
-            String where= "ID=?";
+            try {
+                SQLiteDatabase db = null;
+                db = this.getWritableDatabase();
 
-            ContentValues  data = new ContentValues();
-            data.put("DIR_SUB",input);
-            response = db.update(BASI_PROJEKTE,data,where,selectionArgs);
-            Log.d("BASI", String.valueOf(response));
+                String[] selectionArgs = {projekt_id};
+                String where= "ID=?";
 
-            db.close();
+                ContentValues  data = new ContentValues();
+                data.put("DIR_SUB",input);
+                response_sql = db.update(BASI_PROJEKTE,data,where,selectionArgs);
+                db.close();
+
+            } catch (Exception e)
+            {
+                Toast.makeText(context, e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                throw new RuntimeException(e);
+            }
+
+            if(response_sql == -1)
+            {
+                return false;
+            }
+            else
+            {
+                return  true;
+            }
         }
 
     }
