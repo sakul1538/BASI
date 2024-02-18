@@ -130,7 +130,7 @@ public class material_artikel_adapter extends RecyclerView.Adapter<material_arti
                             refresh_dataset(view.getContext());
                         }catch (Exception e)
                         {
-                            Log.d("BASI", e.getMessage().toString());
+                            Log.d("BASI", e.getMessage());
                         }
                         dialogInterface.cancel();
 
@@ -174,9 +174,9 @@ public class material_artikel_adapter extends RecyclerView.Adapter<material_arti
         {
             // Define click listener for the ViewHolder's View
             super(itemView);
-            artikel_name = (TextView) itemView.findViewById(R.id.textView70);
-            del_button = (ImageButton) itemView.findViewById(R.id.imageButton59);
-            update_button = (ImageButton) itemView.findViewById(R.id.imageButton58);
+            artikel_name = itemView.findViewById(R.id.textView70);
+            del_button = itemView.findViewById(R.id.imageButton59);
+            update_button = itemView.findViewById(R.id.imageButton58);
         }
         public TextView getTextView()
         {

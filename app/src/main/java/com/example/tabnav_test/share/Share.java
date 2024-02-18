@@ -28,7 +28,7 @@ public class Share
                 File file_csv = new File(PATH_EXPORTS+"csv/",filename+"."+file_type);
                 file_csv.mkdirs();
 
-                if(file_csv.exists()==true)
+                if(file_csv.exists())
                 {
                     file_csv.delete();
                 }
@@ -55,7 +55,7 @@ public class Share
                 File file_txt = new File(PATH_EXPORTS+"txt/",filename+"."+file_type);
                 file_txt.mkdirs();
 
-                if(file_txt.exists()==true)
+                if(file_txt.exists())
                 {
                     file_txt.delete();
                 }
@@ -82,7 +82,7 @@ public class Share
                 File file_backup = new File(PATH_EXPORTS+"backups/",filename+".txt");
                 file_backup.mkdirs();
 
-                if(file_backup.exists()==true)
+                if(file_backup.exists())
                 {
                     file_backup.delete();
                 }

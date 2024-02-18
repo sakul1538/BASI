@@ -118,6 +118,8 @@
     <string name="log_actions_upload_all_check_false">Unerledigte</string>
     <string name="log_actions_upload_all_fav_true">Markierte</string>
     <string name="log_actionsupload_all_search">Suchergebnisse</string>
+    <string name="log_title">Log Einträge</string>
+
 
 
     <string name="m_conf_masch_list_name">Name:</string>

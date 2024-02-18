@@ -270,7 +270,7 @@ public class Material extends Fragment implements static_finals
                                 File destination = new File(destinationPath);
 
                                 try {
-                                    bsf.copyFileUsingStream(source, destination); //Kopieren von-zu
+                                    Basic_funct.copyFileUsingStream(source, destination); //Kopieren von-zu
                                     create_imageset();
                                     media_visibilitiy(View.VISIBLE);
                                     media_shift("r");
@@ -307,7 +307,7 @@ public class Material extends Fragment implements static_finals
                             File destination = new File(destinationPath);
 
                             try {
-                                bsf.copyFileUsingStream(source, destination); //Kopieren von-zu
+                                Basic_funct.copyFileUsingStream(source, destination); //Kopieren von-zu
                                 media_visibilitiy(View.VISIBLE);
                                 create_imageset();
                                 media_shift("r");
@@ -335,7 +335,7 @@ public class Material extends Fragment implements static_finals
                             File destination = new File(destinationPath);
 
                             try {
-                                bsf.copyFileUsingStream(source, destination); //Kopieren von-zu
+                                Basic_funct.copyFileUsingStream(source, destination); //Kopieren von-zu
                                 refresh_viewer_photo();
                             } catch (IOException e) {
                                 exmsg("250720231849", e);
@@ -501,13 +501,10 @@ public class Material extends Fragment implements static_finals
             Matrix matrix = new Matrix();
 
 
-            switch (orientaion) {
-                case 6:
-                    matrix.setRotate(90);
-                    Bitmap bMapRotation = Bitmap.createBitmap(bMap, 0, 0, bMap.getWidth(), bMap.getHeight(), matrix, true);
-                    save_bitmap(bMapRotation,file_url);
-                    break;
-
+            if (orientaion == 6) {
+                matrix.setRotate(90);
+                Bitmap bMapRotation = Bitmap.createBitmap(bMap, 0, 0, bMap.getWidth(), bMap.getHeight(), matrix, true);
+                save_bitmap(bMapRotation, file_url);
             }
         } catch (IOException e)
         {
@@ -623,7 +620,7 @@ public class Material extends Fragment implements static_finals
             @Override
             public void onFocusChange(View view, boolean b)
             {
-                if(b==true)
+                if(b)
                 {
                     refresh_fav_auto_complete();
                 }
@@ -660,7 +657,7 @@ public class Material extends Fragment implements static_finals
             @Override
             public void onFocusChange(View view, boolean b)
             {
-                if(b==false)
+                if(!b)
                 {
                     r.lsnr_test_alert(r.lsnr_test());
                 }
@@ -671,7 +668,7 @@ public class Material extends Fragment implements static_finals
             @Override
             public void onClick(View view)
             {
-                if(lieferant_lock_status==false)
+                if(!lieferant_lock_status)
                 {
                     zulieferer_backgound.setBackgroundColor(getResources().getColor(R.color.orange));
                     lieferant_lock_status =true;
@@ -818,7 +815,7 @@ public class Material extends Fragment implements static_finals
                     {
                         String ms_time_string =  String.valueOf(System.currentTimeMillis());
 
-                        String ls_nr_alternativ ="G"+ms_time_string.substring(ms_time_string.length()-5,ms_time_string.length());
+                        String ls_nr_alternativ ="G"+ms_time_string.substring(ms_time_string.length()-5);
                         data.put("LSNR", ls_nr_alternativ);
 
                     }
@@ -866,7 +863,7 @@ public class Material extends Fragment implements static_finals
                     if (response > 0)
                     {
                         String copy_temp_msg = "";
-                        if (copy_media_files_from_temp(r.get_zulieferer_name(),data.get("LSNR").toString(),r.get_date().replace(".","")) == true)
+                        if (copy_media_files_from_temp(r.get_zulieferer_name(), data.get("LSNR").toString(), r.get_date().replace(".", "")))
                         {
                             copy_temp_msg = "+ Medien wurden ins Verzeichniss übernommen!";
                         } else {
@@ -884,7 +881,7 @@ public class Material extends Fragment implements static_finals
                     reset_complete();
                 } catch (Exception e) {
                     exmsg("200620232152", e);
-                    Toast.makeText(getContext(), "Kein Eintrag erstellt, interner Feher \n " + e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Kein Eintrag erstellt, interner Feher \n " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     clean_temp_dir();
                     reset_complete();
                 }
@@ -1062,7 +1059,7 @@ public class Material extends Fragment implements static_finals
 
                         }catch (Exception e )
                         {
-                            Toast.makeText(getContext(), "Fehler:\n"+e.getMessage().toString(),Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Fehler:\n"+ e.getMessage(),Toast.LENGTH_SHORT).show();
                         }
 
                     }
@@ -1673,11 +1670,11 @@ public class Material extends Fragment implements static_finals
 
                     TextView path_value = pic_view_UI.findViewById(R.id.textView65);
 
-                    photo_viewer = (ImageView) pic_view_UI.findViewById(R.id.imageView4);
+                    photo_viewer = pic_view_UI.findViewById(R.id.imageView4);
 
-                    ImageButton refresh_image = (ImageButton) pic_view_UI.findViewById(R.id.imageButton60);
-                    ImageButton refresh_image_file = (ImageButton) pic_view_UI.findViewById(R.id.imageButton63);
-                    ImageButton rotate_right = (ImageButton) pic_view_UI.findViewById(R.id.imageButton62);
+                    ImageButton refresh_image = pic_view_UI.findViewById(R.id.imageButton60);
+                    ImageButton refresh_image_file = pic_view_UI.findViewById(R.id.imageButton63);
+                    ImageButton rotate_right = pic_view_UI.findViewById(R.id.imageButton62);
 
                     path_value.setText(file_url.replace(Environment.getExternalStorageDirectory().getAbsolutePath(), ""));
 
@@ -1778,7 +1775,7 @@ public class Material extends Fragment implements static_finals
 
     private void reset_autocomplete_liste_zulieferer()
     {
-        if(lieferant_lock_status ==false)
+        if(!lieferant_lock_status)
         {
             edit_zulieferer_name.setText("");
         }
@@ -1835,7 +1832,7 @@ public class Material extends Fragment implements static_finals
             public void onClick(DialogInterface dialogInterface, int i) {
                 String name = proj_name.getText().toString();
                 String id = proj_nr.getText().toString();
-                if (id.isEmpty() == true) {
+                if (id.isEmpty()) {
                     id = bsf.gen_ID();
                 }
                 String dir_value = dirname.getText().toString();
@@ -2134,7 +2131,7 @@ public class Material extends Fragment implements static_finals
             }
 
             arraypos = "  (" + imageset_array_pointer + ")";
-            imagecounter.setText("Bild " + String.valueOf(imageset_array_pointer + 1) + " von " + max + arraypos);
+            imagecounter.setText("Bild " + (imageset_array_pointer + 1) + " von " + max + arraypos);
 
         } else {
             ///media_visibilitiy(View.GONE);
@@ -2292,7 +2289,7 @@ public class Material extends Fragment implements static_finals
 
                 try {
                     File source_file = new File(source);
-                    bsf.copyFileUsingStream(source_file, new File(destination)); //Kopieren von-zu
+                    Basic_funct.copyFileUsingStream(source_file, new File(destination)); //Kopieren von-zu
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -2419,19 +2416,12 @@ public class Material extends Fragment implements static_finals
                    get_selectet_projekt_id()
                 };
 
-           if(mdo.find_similar(TB_MATERIAL_LOG,select_args,"LSNR=? AND LIEFERANT_ID=? AND PROJEKT_ID=?")>0)
-           {
-               return true;
-           }
-           else
-           {
-               return false;
-           }
+            return mdo.find_similar(TB_MATERIAL_LOG, select_args, "LSNR=? AND LIEFERANT_ID=? AND PROJEKT_ID=?") > 0;
         }
 
         public void lsnr_test_alert(Boolean b)
         {
-            if (b==true)
+            if (b)
             {
                 bsf.info_msg( this.get_lsnr() + " von "+this.get_zulieferer_name()+" \n =>  In Datenbank gefunden!", getContext());
                 ls_nr_background.setBackgroundColor(getResources().getColor(R.color.camera_button));
@@ -2497,7 +2487,7 @@ public class Material extends Fragment implements static_finals
 
             } catch (IOException e)
             {
-                Toast.makeText(getContext(), "Backup erstellen Fehlgeschlagen!:  \n"+e.getMessage().toString(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Backup erstellen Fehlgeschlagen!:  \n"+ e.getMessage(), Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -2505,7 +2495,7 @@ public class Material extends Fragment implements static_finals
 
     void exmsg(String msg, Exception e)
     {
-        Log.e("Exception: Material ->","ID: "+msg+" Message:" +e.getMessage().toString());
+        Log.e("Exception: Material ->","ID: "+msg+" Message:" + e.getMessage());
         e.printStackTrace();
     }
 

@@ -62,7 +62,7 @@ public class config_fav_ops extends SQLiteOpenHelper implements SQL_finals
         while (cursor.moveToNext())
         {
             strings[i] = bsf.URLdecode(cursor.getString(cursor.getColumnIndexOrThrow("VALUE")));
-            if(extras==true)
+            if(extras)
             {
                 if(cursor.getString(cursor.getColumnIndexOrThrow("ID")).contentEquals("0"))
                 {
@@ -81,16 +81,16 @@ public class config_fav_ops extends SQLiteOpenHelper implements SQL_finals
         try
         {
             material_database_ops mdo = new material_database_ops(context);
-            String [] where_args = {mdo.get_selectet_projekt_id().toString(),"0","FAVORITE_STRING", bsf.URLencode(value_old) };
+            String [] where_args = {mdo.get_selectet_projekt_id(),"0","FAVORITE_STRING", bsf.URLencode(value_old) };
             String where = "(ID=? OR ID=?) AND (NAME=? AND VALUE=?)";
             ContentValues data_new = new ContentValues();
             data_new.put("VALUE",bsf.URLencode(value_new));
-            if(global_status==true)
+            if(global_status)
             {
                 data_new.put("ID","0");
             }else
             {
-                data_new.put("ID",mdo.get_selectet_projekt_id().toString());
+                data_new.put("ID", mdo.get_selectet_projekt_id());
             }
             SQLiteDatabase db = this.getWritableDatabase();
             db.update(TB_NAME_LOG_CONF,data_new,where,where_args);
@@ -107,7 +107,7 @@ public class config_fav_ops extends SQLiteOpenHelper implements SQL_finals
         try
         {
             material_database_ops mdo = new material_database_ops(context);
-            String [] where_args = {mdo.get_selectet_projekt_id().toString(),"FAVORITE_STRING" };
+            String [] where_args = {mdo.get_selectet_projekt_id(),"FAVORITE_STRING" };
             String where = "ID=? AND NAME=?";
 
             SQLiteDatabase db = this.getWritableDatabase();
@@ -126,7 +126,7 @@ public class config_fav_ops extends SQLiteOpenHelper implements SQL_finals
         try
         {
             material_database_ops mdo = new material_database_ops(context);
-            String [] where_args = {mdo.get_selectet_projekt_id().toString(),"0","FAVORITE_STRING",bsf.URLencode(name)};
+            String [] where_args = {mdo.get_selectet_projekt_id(),"0","FAVORITE_STRING",bsf.URLencode(name)};
             String  where = "(ID=? OR ID=?) AND (NAME=? AND VALUE=?)";
             SQLiteDatabase db = this.getWritableDatabase();
             db.delete(TB_NAME_LOG_CONF,where,where_args);
@@ -163,7 +163,7 @@ public class config_fav_ops extends SQLiteOpenHelper implements SQL_finals
                 data.put("ID",mdo.get_selectet_projekt_id());
 
                 long row_nr= db.insert(TB_NAME_LOG_CONF,null,data);
-                bsf.succes_msg(" Element \'"+element.trim()+"\'  hinzugefügt!",context);
+                bsf.succes_msg(" Element '" +element.trim()+ "'  hinzugefügt!",context);
 
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
                 alertDialogBuilder.setTitle("Speicheroptionen");

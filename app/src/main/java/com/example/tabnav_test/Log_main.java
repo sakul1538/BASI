@@ -43,7 +43,8 @@ import java.util.Calendar;
  * Use the {@link Log_main#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetListener {
+public class Log_main extends Fragment
+{
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -122,7 +123,6 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
         super.onResume();
 
         refresh_fav();
-        refresh_spinner();
     }
 
     @Override
@@ -146,54 +146,47 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
         Basic_funct bsf = new Basic_funct();
         Context context = getContext();
 
-
         spinnerops = new log_fav(getContext());
-
 
         Calendar calendar = Calendar.getInstance();
 
         InputMethodManager inputMethodManager = (InputMethodManager)       getSystemService(INPUT_METHOD_SERVICE);
 
-
-
         //TextExit
-        date = (TextView) view.findViewById(R.id.log_date);
+        date = view.findViewById(R.id.log_date);
 
-        time = (TextView) view.findViewById(R.id.log_time);
-        acTextView = (AutoCompleteTextView) view.findViewById(R.id.note);
+        time = view.findViewById(R.id.log_time);
+        acTextView = view.findViewById(R.id.note);
         //Image Buttons
-        date_refresh = (ImageButton) view.findViewById(R.id.imageButton8);
+        date_refresh = view.findViewById(R.id.imageButton8);
 
         //ImageButtons
-        reset_note = (ImageButton) view.findViewById(R.id.ls_note_reset);
-        reset_main = (ImageButton) view.findViewById(R.id.reset_all);
-        save_log = (ImageButton) view.findViewById(R.id.save_entry);
-        date_forward = (ImageButton) view.findViewById(R.id.imageButton26);
-        date_backward = (ImageButton) view.findViewById(R.id.imageButton25);
+        reset_note = view.findViewById(R.id.ls_note_reset);
+        reset_main = view.findViewById(R.id.reset_all);
+        save_log = view.findViewById(R.id.save_entry);
+        date_forward = view.findViewById(R.id.imageButton26);
+        date_backward = view.findViewById(R.id.imageButton25);
 
 
-        add_kat = (ImageButton) view.findViewById(R.id.add_category);
-        fav_button = (ImageButton) view.findViewById(R.id.fav_button);
-        fav_button_settings = (ImageButton) view.findViewById(R.id.fav_button_settings);
+        fav_button = view.findViewById(R.id.fav_button);
+        fav_button_settings = view.findViewById(R.id.fav_button_settings);
 
-        kategory = (Spinner) view.findViewById(R.id.spinner);
-        category_settings_button  =(ImageButton) view.findViewById(R.id.category_settings_button);
 
 
         //Date&Time Refresh
         date.setText(bsf.date_refresh());
         time.setText(bsf.time_refresh());
-        show_log = (ImageButton) view.findViewById(R.id.show_log);
+        show_log = view.findViewById(R.id.show_log);
 
         //Layouts
 
-        date_time_bg = (LinearLayout) view.findViewById(R.id.log_date_time_background);
-        refresh_spinner();
+        date_time_bg = view.findViewById(R.id.log_date_time_background);
+
 
         acTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
-                if(b==true)
+                if(b)
                 {
                     refresh_fav();
                 }
@@ -271,8 +264,6 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
                 config_fav_ops cfops = new config_fav_ops(getContext());
                 cfops.add_favorite_string(acTextView.getText().toString());
                 refresh_fav();
-
-
             }
         });
 
@@ -288,9 +279,12 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
                     String n = acTextView.getText().toString();
                     n = bsf.URLencode(n);
 
-                    int response= (int) spinnerops.log_add_entry(RROJ_NR,d,t,c,n);
 
-                    Toast.makeText(getContext(),"Antwort_"+response,Toast.LENGTH_LONG).show();
+                    //Fixme speichern der Log Einträge
+
+                   // int response= (int) spinnerops.log_add_entry(RROJ_NR,d,t,c,n);
+
+                  //  Toast.makeText(getContext(),"Antwort_"+response,Toast.LENGTH_LONG).show();
 
                     hideKeyboard(context,view);
 
@@ -352,7 +346,7 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
                 } catch (Exception e)
                 {
                     exmsg("050220231101",e);
-                    bsf.error_msg("Fehler:"+e.getMessage().toString(),context);
+                    bsf.error_msg("Fehler:"+ e.getMessage(),context);
                 }
 
             }
@@ -370,105 +364,10 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
                 } catch (Exception e)
                 {
                     exmsg("050220231102",e);
-                    bsf.error_msg("Fehler:"+e.getMessage().toString(),context);
+                    bsf.error_msg("Fehler:"+ e.getMessage(),context);
                 }
             }
         });
-        category_settings_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)
-            {
-                try {
-                    Intent fav_settings = new Intent(getContext(), log_conf_categorys.class);
-                    startActivity(fav_settings);
-                } catch (Exception e)
-                {
-                    exmsg("050220231103",e);
-                    bsf.error_msg("Fehler:"+e.getMessage().toString(),context);
-                    e.printStackTrace();
-                }
-            }
-        });
-
-
-
-        add_kat.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                LayoutInflater li = LayoutInflater.from(getActivity());
-                View promptsView = li.inflate(R.layout.log_add_category, container, false);
-
-                EditText log_add_category_name = (EditText) promptsView.findViewById(R.id.log_add_category_name);
-                ImageButton  reset = (ImageButton) promptsView.findViewById(R.id.log_add_category_reset);
-
-
-                reset.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view)
-                    {
-                        log_add_category_name.setText("");
-                    }
-                });
-
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-
-                // set prompts.xml to alertdialog builder
-                alertDialogBuilder.setView(promptsView);
-                alertDialogBuilder.setTitle("Neue Kategorie");
-
-                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i)
-                    {
-                        material_database_ops mdo= new material_database_ops(context);
-                        try {
-
-                            long resonse =  spinnerops.log_add_category(log_add_category_name.getText().toString());
-
-                            if(resonse == -1)
-                            {
-                                bsf.error_msg("Eintrag konnte nicht erstellt werden!" ,context);
-                            }
-                            else
-                            {
-                                bsf.succes_msg("Neuer Eintrag wurder erstellt!",context);
-                                refresh_spinner();
-                            }
-
-                        }
-                        catch (Exception e)
-                        {
-                            exmsg("050220231105",e);
-                            bsf.error_msg("Fehler:"+e.getMessage().toString(),context);
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-                alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i)
-                    {
-                        dialogInterface.cancel();
-                    }
-                });
-
-
-
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                // show it
-                alertDialog.show();
-
-
-            }
-        });
-
-
         // Inflate the layout for this fragment
 
         return view;
@@ -481,39 +380,21 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
         return null;
     }
 
-    private void refresh_spinner()
-    {
-
-        try {
-
-            String[] kat_nativ = spinnerops.getallcategorys();
-
-            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, kat_nativ);
-
-
-
-            kategory.setAdapter(spinnerArrayAdapter);
-        } catch (Exception e)
-        {
-            exmsg("050220231133",e);
-            Toast.makeText(getContext(), "050220231133 -> Aktuallisierung fehlgeschlagen", Toast.LENGTH_SHORT).show();
-        }
-    }
-
 
     public void reset_field(String field_name) {
 
         switch (field_name) {
 
             case "notiz":
-
                 acTextView.setText("");
-
                 break;
 
             case "all":
-                kategory.setSelection(0);
+                Basic_funct bsf = new Basic_funct();
                 acTextView.setText("");
+                date.setText(bsf.date_refresh());
+                time.setText(bsf.time_refresh());
+
                 break;
 
             default:
@@ -521,12 +402,6 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
 
         }
     }
-
-    @Override
-    public void onTimeSet(TimePicker timePicker, int i, int i1) {
-
-    }
-
 
     private void refresh_fav()
     {
@@ -551,15 +426,9 @@ public class Log_main extends Fragment  implements TimePickerDialog.OnTimeSetLis
 
     private void exmsg(String msg,Exception e)
     {
-        Log.e("Exception: Log_main ->","ID: "+msg+" Message:" +e.getMessage().toString());
+        Log.e("Exception: Log_main ->","ID: "+msg+" Message:" + e.getMessage());
         e.printStackTrace();
     }
-
-
-
-
-
-
 
 }
 

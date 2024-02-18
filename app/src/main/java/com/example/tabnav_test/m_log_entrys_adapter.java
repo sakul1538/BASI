@@ -33,7 +33,7 @@ import java.util.Calendar;
 public class m_log_entrys_adapter extends RecyclerView.Adapter<m_log_entrys_adapter.ViewHolder>
 {
 
-    private  ArrayList<String> datalist = new ArrayList<String>();
+    private final ArrayList<String> datalist = new ArrayList<String>();
     private String[] dataset;
     m_database_ops mdo;
     Basic_funct bsf;
@@ -45,7 +45,7 @@ public class m_log_entrys_adapter extends RecyclerView.Adapter<m_log_entrys_adap
     public m_log_entrys_adapter(String[] dataset, fragment_maschinen framgent_context)
     {
 
-        if(dataset[0].equals("") == false)
+        if(!dataset[0].equals(""))
         {
             for(int i= dataset.length;i >= 0;i--)
             {
@@ -85,7 +85,7 @@ public class m_log_entrys_adapter extends RecyclerView.Adapter<m_log_entrys_adap
         mdo = new m_database_ops(context);
         bsf = new Basic_funct();
 
-        if(this.datalist.get(position).equals("") ==true)
+        if(this.datalist.get(position).equals(""))
         {
             holder.itemView.setVisibility(View.INVISIBLE);
             Log.d("BASI", "Keine Daten");
@@ -291,7 +291,7 @@ public class m_log_entrys_adapter extends RecyclerView.Adapter<m_log_entrys_adap
                             }
                             else
                             {
-                                bsf.succes_msg("Es wurden "+ String.valueOf(response)+" geändert!",context);
+                                bsf.succes_msg("Es wurden "+ response +" geändert!",context);
                                 mdo.refresh_counter(data[1]);
                                 String[] new_data = mdo.get_log_entrys_byid(data[1]);
                                 refresh_dataset(new_data);
@@ -351,12 +351,12 @@ public class m_log_entrys_adapter extends RecyclerView.Adapter<m_log_entrys_adap
         {
             super(itemView);
 
-            m_date_value = (TextView) itemView.findViewById(R.id.m_date_value);
-            m_time_value = (TextView) itemView.findViewById(R.id.m_time_value);
-            m_counter_value = (TextView) itemView.findViewById(R.id.m_counter_value);
-            m_counter_diff_value = (TextView) itemView.findViewById(R.id.m_counter_diff_value);
-            m_delet_imgbutton = (ImageButton) itemView.findViewById(R.id.m_delet_imgbutton);
-            m_update_imgbutton = (ImageButton) itemView.findViewById(R.id.m_update_imgbutton);
+            m_date_value = itemView.findViewById(R.id.m_date_value);
+            m_time_value = itemView.findViewById(R.id.m_time_value);
+            m_counter_value = itemView.findViewById(R.id.m_counter_value);
+            m_counter_diff_value = itemView.findViewById(R.id.m_counter_diff_value);
+            m_delet_imgbutton = itemView.findViewById(R.id.m_delet_imgbutton);
+            m_update_imgbutton = itemView.findViewById(R.id.m_update_imgbutton);
         }
     }
 

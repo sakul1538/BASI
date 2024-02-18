@@ -126,7 +126,7 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
         holder.m_category.setText(datasplit[5]);
         holder.m_counter.setText(mdo.get_counter(datasplit[0]));
 
-        if(datasplit[8].contains("NULL")==true)
+        if(datasplit[8].contains("NULL"))
         {
             holder.m_view_pic.setImageResource(R.drawable.ic_baseline_agriculture_24);
         }
@@ -134,7 +134,7 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
         {
             try
             {
-            String path = bsf.APP_DCIM_MASCHINEN+"/"+datasplit[8];
+            String path = Basic_funct.APP_DCIM_MASCHINEN +"/"+datasplit[8];
            // Log.d("BASI", Environment.getExternalStorageDirectory() +  "/" + path[1]);
             Basic_func_img bsfimg =new  Basic_func_img();
             Bitmap bMapScaled = bsfimg.Bitmap_adjust(path,500);
@@ -157,9 +157,9 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
 
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
 
-                ImageView photo = (ImageView) image_viewer.findViewById(R.id.imageView4);
+                ImageView photo = image_viewer.findViewById(R.id.imageView4);
 
-                String path = bsf.APP_DCIM_MASCHINEN+"/"+datasplit[8];
+                String path = Basic_funct.APP_DCIM_MASCHINEN +"/"+datasplit[8];
 
                 Basic_func_img bsfimg =new  Basic_func_img();
 
@@ -271,7 +271,7 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
                     {
                             if(mdo.check_maschine(name.getText().toString(),nr.getText().toString()) != "null") //"null" = keine Maschine existiert
                             {
-                                if(name.getText().toString().equals(data.get("NAME").toString()) ==true && nr.getText().toString().equals(data.get("NR").toString()) ==true)
+                                if(name.getText().toString().equals(data.get("NAME").toString()) && nr.getText().toString().equals(data.get("NR").toString()))
                                 {
                                     m_message_text_view.setVisibility(View.GONE);
                                     m_error_text_view_image.setVisibility(View.GONE);
@@ -317,7 +317,7 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
                     {
                         if(mdo.check_maschine(name.getText().toString(),nr.getText().toString()) != "null") //"null" = keine Maschine existiert
                         {
-                            if(name.getText().toString().equals(data.get("NAME").toString()) ==true && nr.getText().toString().equals(data.get("NR").toString()) ==true)
+                            if(name.getText().toString().equals(data.get("NAME").toString()) && nr.getText().toString().equals(data.get("NR").toString()))
                             {
 
                                 //Validierung der akutellen Maschine
@@ -363,13 +363,13 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
                 counter.setVisibility(View.GONE);
                 counter_label.setVisibility(View.GONE);
 
-                if(data.get("PIC_SRC").toString().contains("NULL")==true)
+                if(data.get("PIC_SRC").toString().contains("NULL"))
                 {
                     imw.setImageResource(R.drawable.ic_baseline_agriculture_24);
                 }
                 else
                 {
-                    String path = bsf.APP_DCIM_MASCHINEN + "/" + data.get("PIC_SRC").toString();
+                    String path = Basic_funct.APP_DCIM_MASCHINEN + "/" + data.get("PIC_SRC").toString();
 
                     try {
                         Basic_func_img  bsfimg= new Basic_func_img();
@@ -437,7 +437,7 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
                         } else
                         {
                             String tpaht = imgUri.getPath();
-                            if(tpaht.contains(":") == false)
+                            if(!tpaht.contains(":"))
                             {
                                 Log.d("BASI", "Kamera:"+tpaht);
                                 String[] t = tpaht.split("/");
@@ -449,7 +449,7 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
                                 String[] t = path.split("/");
                                 filename= t[t.length-1];
 
-                                bsf.copyBitmap_to(path,bsf.APP_DCIM_MASCHINEN,filename);
+                                bsf.copyBitmap_to(path, Basic_funct.APP_DCIM_MASCHINEN,filename);
 
                             }
 
@@ -464,7 +464,7 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
                             bsf.log_div();
 
 
-                            if (TextUtils.equals(masch_id,datasplit[0]) == true || masch_id.equals("null") == true )
+                            if (TextUtils.equals(masch_id, datasplit[0]) || masch_id.equals("null"))
                             {
                                 int response= mdo.update_manschine(RROJ_NR,datasplit[0],data);
                                 if(response == 1)
@@ -484,7 +484,7 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
 
                         }catch (Exception e)
                         {
-                            Log.d("BASI_RESPONSE:",String.valueOf(e.getMessage().toString()));
+                            Log.d("BASI_RESPONSE:",String.valueOf(e.getMessage()));
 
                         }
 
@@ -559,7 +559,7 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
 
                 m_info_last_entry_value.setText(last_entry);
 
-                Bitmap m_info_pic = bsfimg.Bitmap_adjust(bsfimg.APP_DCIM_MASCHINEN+"/"+cv.get("PIC_SRC").toString(),0);
+                Bitmap m_info_pic = bsfimg.Bitmap_adjust(Basic_funct.APP_DCIM_MASCHINEN +"/"+cv.get("PIC_SRC").toString(),0);
 
                 m_info_imageview.setImageBitmap(m_info_pic);
 
@@ -602,7 +602,7 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
             {
                 Intent m_log_main= new Intent(context, m_log_main.class);
                 m_log_main.putExtra("MASCH_ID",datasplit[0]);
-                ((Activity) context).startActivity(m_log_main);
+                context.startActivity(m_log_main);
 
             }
         });
@@ -650,10 +650,10 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
 
         try {
 
-            File storageDir = new File(bsf.APP_DCIM_MASCHINEN);
+            File storageDir = new File(Basic_funct.APP_DCIM_MASCHINEN);
             File image=null;
 
-            if(storageDir.exists() == false)
+            if(!storageDir.exists())
             {
                 storageDir.mkdirs();
             }
@@ -712,18 +712,18 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            m_name = (TextView) itemView.findViewById(R.id.textView37);
-            m_category = (TextView) itemView.findViewById(R.id.textView27);
-            m_counter = (TextView) itemView.findViewById(R.id.textView35);
+            m_name = itemView.findViewById(R.id.textView37);
+            m_category = itemView.findViewById(R.id.textView27);
+            m_counter = itemView.findViewById(R.id.textView35);
 
-            m_view_pic = (ImageView) itemView.findViewById(R.id.m_imageView);
+            m_view_pic = itemView.findViewById(R.id.m_imageView);
 
-            switch_onoff = (Switch) itemView.findViewById(R.id.switch1);
+            switch_onoff = itemView.findViewById(R.id.switch1);
 
-            delet_button = (ImageButton) itemView.findViewById(R.id.imageButton5);
-            update_button = (ImageButton) itemView.findViewById(R.id.imageButton6);
-            info_button = (ImageButton) itemView.findViewById(R.id.imageButton4);
-            show_log_button = (ImageButton) itemView.findViewById(R.id.imageButton19);
+            delet_button = itemView.findViewById(R.id.imageButton5);
+            update_button = itemView.findViewById(R.id.imageButton6);
+            info_button = itemView.findViewById(R.id.imageButton4);
+            show_log_button = itemView.findViewById(R.id.imageButton19);
         }
     }
 

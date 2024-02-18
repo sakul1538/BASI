@@ -207,7 +207,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                         }catch ( Exception e)
                         {
                             exmsg("030920231259",e);
-                            bsf.error_msg("Interner Fehler:\n "+e.getMessage().toString(),view.getContext());
+                            bsf.error_msg("Interner Fehler:\n "+ e.getMessage(),view.getContext());
                         }
                     }
                 });
@@ -239,7 +239,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                 }catch ( Exception e)
                 {
                     exmsg("030920231259",e);
-                    bsf.error_msg("Interner Fehler:\n "+e.getMessage().toString(),view.getContext());
+                    bsf.error_msg("Interner Fehler:\n "+ e.getMessage(),view.getContext());
                 }
             }
         });
@@ -288,7 +288,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
                         } catch (IOException e)
                         {
-                            bsf.error_msg("Interner Fehler:\n+"+e.getMessage().toString(), view.getContext());
+                            bsf.error_msg("Interner Fehler:\n+"+ e.getMessage(), view.getContext());
                         }
                     }
                 });
@@ -398,17 +398,17 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         public ViewHolder(@NonNull View itemView)
         {
             super(itemView);
-            artikel = (TextView) itemView.findViewById(R.id.textView78);
-            noitz = (TextView) itemView.findViewById(R.id.textView75);
-            delet_entry = (ImageButton) itemView.findViewById(R.id.imageButton42);
-            entry_details = (ImageButton) itemView.findViewById(R.id.imageButton40);
-            table_layout_details = (TableLayout) itemView.findViewById(R.id.table_details);
-            gallery_rcv = (RecyclerView) itemView.findViewById(R.id.gallery_rcv);
-            update_entry = (ImageButton)   itemView.findViewById(R.id.imageButton41);
-            add_media_camera = (ImageButton)   itemView.findViewById(R.id.imageButton44);
-            add_media_files = (ImageButton)   itemView.findViewById(R.id.imageButton68);
-            add_file_pdf = (ImageButton)   itemView.findViewById(R.id.imageButton38);
-            copy_entry = (ImageButton)   itemView.findViewById(R.id.imageButton71);
+            artikel = itemView.findViewById(R.id.textView78);
+            noitz = itemView.findViewById(R.id.textView75);
+            delet_entry = itemView.findViewById(R.id.imageButton42);
+            entry_details = itemView.findViewById(R.id.imageButton40);
+            table_layout_details = itemView.findViewById(R.id.table_details);
+            gallery_rcv = itemView.findViewById(R.id.gallery_rcv);
+            update_entry = itemView.findViewById(R.id.imageButton41);
+            add_media_camera = itemView.findViewById(R.id.imageButton44);
+            add_media_files = itemView.findViewById(R.id.imageButton68);
+            add_file_pdf = itemView.findViewById(R.id.imageButton38);
+            copy_entry = itemView.findViewById(R.id.imageButton71);
         }
 
         public TextView artikel() {return artikel;}
@@ -577,7 +577,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                     new String[]{"NAME"});
         }catch (Exception e)
         {
-            Log.d("BASI",e.getMessage().toString());
+            Log.d("BASI", e.getMessage());
         }
 
         artikel.setText(artikel_name);
@@ -619,7 +619,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             @Override
             public void onFocusChange(View view, boolean b)
             {
-                if (b == false)
+                if (!b)
                 {
 
                     String ls_zulieferere_id = mdo.get_zulieferer_param(
@@ -668,7 +668,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             public void onFocusChange(View view, boolean b)
             {
 
-                if(b == false)
+                if(!b)
                 {
 
                     String ls_zulieferere_id = mdo.get_zulieferer_param(
@@ -712,7 +712,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                 mdo.add_artikel_to_list(artikel.getText().toString(), artikel_einheit.getSelectedItem().toString());
 
                 String artikel_id = mdo.get_artikel_param(new String[]{artikel.getText().toString().trim(), artikel_einheit.getSelectedItem().toString().trim()}, "NAME=? AND EINHEIT=?", new String[]{"ID"});
-                Log.d("BASI Artikel: ", artikel_id.toString());
+                Log.d("BASI Artikel: ", artikel_id);
                 data_new.put("MATERIAL_ID", artikel_id);
 
                 data_new.put("MENGE", menge.getText().toString());
@@ -809,7 +809,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
     public void exmsg(String msg, Exception e)
     {
-        Log.e("Exception: Material ->","ID: "+msg+" Message:" +e.getMessage().toString());
+        Log.e("Exception: Material ->","ID: "+msg+" Message:" + e.getMessage());
         e.printStackTrace();
     }
 

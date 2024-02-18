@@ -61,7 +61,7 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position)
     {
-        String dataset [];
+        String[] dataset;
         String flag_state=null;
         int posi = position;
         String note_encoded = null;
@@ -300,14 +300,14 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
         {
             super(itemView);
 
-            datum = (TextView) itemView.findViewById(R.id.textView3);
-            zeit = (TextView) itemView.findViewById(R.id.textView10);
-            notiz = (TextView) itemView.findViewById(R.id.textView16);
-            kategorie = (TextView) itemView.findViewById(R.id.textView20);
-            delete_entry = (ImageButton) itemView.findViewById(R.id.show_log_delet_entry);
-            log_set_unset_star = (ImageButton) itemView.findViewById(R.id.log_set_star);
-            log_set_unset_check = (ImageButton) itemView.findViewById(R.id.log_check_button);
-            log_clipboard = (ImageButton) itemView.findViewById(R.id.log_clipboard_button);
+            datum = itemView.findViewById(R.id.textView3);
+            zeit = itemView.findViewById(R.id.textView10);
+            notiz = itemView.findViewById(R.id.textView16);
+            kategorie = itemView.findViewById(R.id.textView20);
+            delete_entry = itemView.findViewById(R.id.show_log_delet_entry);
+            log_set_unset_star = itemView.findViewById(R.id.log_set_star);
+            log_set_unset_check = itemView.findViewById(R.id.log_check_button);
+            log_clipboard = itemView.findViewById(R.id.log_clipboard_button);
 
 
 
@@ -325,7 +325,7 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
 
     private void exmsg(String msg,Exception e)
     {
-        Log.e("Exception: log_show_data_adapter ->","ID: "+msg+" Message:" +e.getMessage().toString());
+        Log.e("Exception: log_show_data_adapter ->","ID: "+msg+" Message:" + e.getMessage());
         e.printStackTrace();
     }
 

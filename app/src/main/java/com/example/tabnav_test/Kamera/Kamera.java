@@ -170,21 +170,21 @@ public class Kamera<onActivityResult> extends Fragment {
 
 
         // ----------------------------------------------------------------- TextView
-        curr_date = (TextView) view.findViewById(R.id.kamera_date);
-        tag = (TextView) view.findViewById(R.id.textView32);
-        media_label = (TextView) view.findViewById(R.id.textView66);
-        save_paht_set = (TextView) view.findViewById(R.id.textView4);
+        curr_date = view.findViewById(R.id.kamera_date);
+        tag = view.findViewById(R.id.textView32);
+        media_label = view.findViewById(R.id.textView66);
+        save_paht_set = view.findViewById(R.id.textView4);
 
         // ----------------------------------------------------------------- AutoCompleteTextView
-        kamera_tag_field_value = (AutoCompleteTextView) view.findViewById(R.id.kamera_tag_field_value);
+        kamera_tag_field_value = view.findViewById(R.id.kamera_tag_field_value);
         // ----------------------------------------------------------------- EditText
         // ----------------------------------------------------------------- Button
         // ----------------------------------------------------------------- ImageButtons
-        kamera_reset_tag = (ImageButton) view.findViewById(R.id.kamera_reset_tag_button);
-        kamera_tag_add_fav = (ImageButton) view.findViewById(R.id.tag_add_to_fav);
-        kamera_tag_add_fav = (ImageButton) view.findViewById(R.id.tag_add_to_fav);
-        kamera_tag_add_fav = (ImageButton) view.findViewById(R.id.tag_add_to_fav);
-        curr_date_refresh_button = (ImageButton) view.findViewById(R.id.kamera_date_refresh_button);
+        kamera_reset_tag = view.findViewById(R.id.kamera_reset_tag_button);
+        kamera_tag_add_fav = view.findViewById(R.id.tag_add_to_fav);
+        kamera_tag_add_fav = view.findViewById(R.id.tag_add_to_fav);
+        kamera_tag_add_fav = view.findViewById(R.id.tag_add_to_fav);
+        curr_date_refresh_button = view.findViewById(R.id.kamera_date_refresh_button);
         take_picture = view.findViewById(R.id.imageButton11);
         adddir = view.findViewById(R.id.imageButton7);
         adddir_delet = view.findViewById(R.id.imageButton10);
@@ -201,14 +201,14 @@ public class Kamera<onActivityResult> extends Fragment {
         // ----------------------------------------------------------------- CheckBox
         // ----------------------------------------------------------------- RadioButton
         // ----------------------------------------------------------------- Switch
-        kamera_switch_tag_onoff = (Switch) view.findViewById(R.id.kamera_switch_tag_onoff);
+        kamera_switch_tag_onoff = view.findViewById(R.id.kamera_switch_tag_onoff);
         // ----------------------------------------------------------------- SeekBar
         // ----------------------------------------------------------------- ProgressBar
         // ----------------------------------------------------------------- Switch
         // ----------------------------------------------------------------- ScrollView
         // ----------------------------------------------------------------- Layouts
-        tag_bg = (LinearLayout) view.findViewById(R.id.tag_background);
-        date_bg = (LinearLayout) view.findViewById(R.id.date_background);
+        tag_bg = view.findViewById(R.id.tag_background);
+        date_bg = view.findViewById(R.id.date_background);
         // ----------------------------------------------------------------- END
 
         //Init
@@ -221,7 +221,7 @@ public class Kamera<onActivityResult> extends Fragment {
         kamera_tag_field_value.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
-                if (b == true) {
+                if (b) {
                     refresh_fav_auto_complete();
                 }
             }
@@ -356,9 +356,9 @@ public class Kamera<onActivityResult> extends Fragment {
                     throw new RuntimeException(e);
                          }
 
-                if(paht.equals("")==false)
+                if(!paht.equals(""))
                 {
-                    if (kamera_switch_tag_onoff.isChecked() == true)
+                    if (kamera_switch_tag_onoff.isChecked())
                     {
                         dispatchTakePictureIntent(paht, selected_item, true, kamera_tag_field_value.getText().toString(), date);
 
@@ -450,11 +450,11 @@ public class Kamera<onActivityResult> extends Fragment {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 boolean m = kamera_switch_tag_onoff.isChecked();
 
-                if (kamera_switch_tag_onoff.isChecked() == true) {
+                if (kamera_switch_tag_onoff.isChecked()) {
                     tag_background(static_finals.mark_color);
                 }
 
-                if (kamera_switch_tag_onoff.isChecked() == false) {
+                if (!kamera_switch_tag_onoff.isChecked()) {
                     tag_background(static_finals.un_mark_color);
                 }
             }
@@ -595,7 +595,7 @@ public class Kamera<onActivityResult> extends Fragment {
                     t_array = filename.split("@");
 
                     //Tag
-                    if (t_array[0].contains("#") == true) {
+                    if (t_array[0].contains("#")) {
                         t_array2 = t_array[0].split("#");
                         save_dir = t_array2[0]; //Test
                         tags = t_array2[1]; // #Test
@@ -621,7 +621,7 @@ public class Kamera<onActivityResult> extends Fragment {
 
                     datum = tag + "." + monat + "." + jahr;
 
-                    if (datum.contains(date) == true) {
+                    if (datum.contains(date)) {
                         datum += " " + bsf.time_refresh();
                     }
 
@@ -630,9 +630,9 @@ public class Kamera<onActivityResult> extends Fragment {
                     if (tags == "")
                     {
 
-                        photostamp = projekt_name+": "+ save_dir + "  " + datum + " [KW" + String.valueOf(kw) + "]";
+                        photostamp = projekt_name+": "+ save_dir + "  " + datum + " [KW" + kw + "]";
                     } else {
-                        photostamp =projekt_name+": "+ save_dir + "  #" + tags + "    " + datum + " [KW" + String.valueOf(kw) + "]";
+                        photostamp =projekt_name+": "+ save_dir + "  #" + tags + "    " + datum + " [KW" + kw + "]";
                     }
 
 
@@ -705,16 +705,10 @@ public class Kamera<onActivityResult> extends Fragment {
                         //Maximalgrösse der Ansicht(maximal)  je nach Orientierung
                         int bitmap_dim = 900;
 
-                        switch (rotation) {
-                            case 6:
-                                //hochkannt
-                                bitmap3 = Bitmap.createScaledBitmap(bMap2, bitmap_dim / 2, bitmap_dim, true);
-
-                                break;
-
-                            default:
-                                bitmap3 = Bitmap.createScaledBitmap(bMap2, bitmap_dim, bitmap_dim / 2, true);
-
+                        if (rotation == 6) {//hochkannt
+                            bitmap3 = Bitmap.createScaledBitmap(bMap2, bitmap_dim / 2, bitmap_dim, true);
+                        } else {
+                            bitmap3 = Bitmap.createScaledBitmap(bMap2, bitmap_dim, bitmap_dim / 2, true);
                         }
 
                         camera_photo.setImageBitmap(bitmap3); // Im imageView Anzeigen
@@ -727,7 +721,7 @@ public class Kamera<onActivityResult> extends Fragment {
 
                                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
 
-                                ImageView photo = (ImageView) pic_view_UI.findViewById(R.id.imageView4);
+                                ImageView photo = pic_view_UI.findViewById(R.id.imageView4);
                                 photo.setImageBitmap(BitmapFactory.decodeFile(url));
 
                                 // set prompts.xml to alertdialog builder
@@ -788,10 +782,9 @@ public class Kamera<onActivityResult> extends Fragment {
         LayoutInflater li = LayoutInflater.from(getActivity());
         View promptsView = li.inflate(R.layout.diradd, container, false);
 
-        name = (EditText) promptsView.findViewById(R.id.editTextTextPersonName10);
-        dir = (EditText) promptsView.findViewById(R.id.editTextTextPersonName11);
-        final ImageButton paht = (ImageButton) promptsView.findViewById(R.id.imageButton2);
-        ;
+        name = promptsView.findViewById(R.id.editTextTextPersonName10);
+        dir = promptsView.findViewById(R.id.editTextTextPersonName11);
+        final ImageButton paht = promptsView.findViewById(R.id.imageButton2);
 
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
@@ -824,7 +817,7 @@ public class Kamera<onActivityResult> extends Fragment {
                             kamera_dirs.add(name_value, paht_value);
                             refresh_spinner();
                         } catch (Exception e) {
-                            Toast.makeText(getContext(), "A:" + e.getMessage().toString(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), "A:" + e.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     }
 
@@ -865,7 +858,7 @@ public class Kamera<onActivityResult> extends Fragment {
                             kamera_dirs.add(name_value, paht_value);
                             refresh_spinner();
                         } catch (Exception e) {
-                            Toast.makeText(getContext(), "A:" + e.getMessage().toString(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), "A:" + e.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     }
 
@@ -994,7 +987,7 @@ public class Kamera<onActivityResult> extends Fragment {
 
         String imageFileName = title + "@" + addings;
 
-        if (tag_on == true) {
+        if (tag_on) {
             imageFileName = title + "#" + tag + "@" + addings;
 
         }
@@ -1035,7 +1028,7 @@ public class Kamera<onActivityResult> extends Fragment {
     }
 
     private void exmsg(String msg, Exception e) {
-        Log.e("Exception: Kamera ->", "ID: " + msg + " Message:" + e.getMessage().toString());
+        Log.e("Exception: Kamera ->", "ID: " + msg + " Message:" + e.getMessage());
         e.printStackTrace();
     }
 
@@ -1069,7 +1062,7 @@ public class Kamera<onActivityResult> extends Fragment {
             } else
             {
                 Basic_funct bsf  = new Basic_funct();
-                if(kamera_subdir_exist(name) == false)
+                if(!kamera_subdir_exist(name))
                 {
                     data_array = new JSONArray(json);
                     JSONObject obj = new JSONObject();
@@ -1096,9 +1089,9 @@ public class Kamera<onActivityResult> extends Fragment {
                 String []  existed_dir_name = get_dir_names_as_array(directory.projekt_get_selected_id());
                 for(String item:existed_dir_name)
                 {
-                    if(item.contains(name))
-                    {
-                        output =true;
+                    if (item.contains(name)) {
+                        output = true;
+                        break;
                     }
                 }
 
@@ -1114,13 +1107,13 @@ public class Kamera<onActivityResult> extends Fragment {
         public void update(String name_old, String name_new, String path_new) throws JSONException {
             Basic_funct bsf = new Basic_funct();
 
-            if(kamera_subdir_exist(name_new)==false)
+            if(!kamera_subdir_exist(name_new))
             {
                 String json = directory.get_dir(directory.projekt_get_selected_id());
 
                 JSONArray dirlist_new = new JSONArray();
 
-                if (json.equals("") == false)
+                if (!json.equals(""))
                 {
                     JSONArray dirlist = new JSONArray(json);
                     if (dirlist.length() != 0)
@@ -1160,7 +1153,7 @@ public class Kamera<onActivityResult> extends Fragment {
 
             JSONArray dirlist_new = new JSONArray();
 
-            if (json.equals("") == false)
+            if (!json.equals(""))
             {
                 JSONArray dirlist = new JSONArray(json);
                 if (dirlist.length() != 0)
@@ -1170,7 +1163,7 @@ public class Kamera<onActivityResult> extends Fragment {
                         JSONObject obj = new JSONObject(dirlist.get(c).toString());
                         String item = obj.getString("NAME");
 
-                        if (item.equals(bsf.URLencode(name)) == false)
+                        if (!item.equals(bsf.URLencode(name)))
                         {
                             JSONObject obj_new = new JSONObject();
                             obj_new.put("NAME", obj.getString("NAME"));
@@ -1196,7 +1189,7 @@ public class Kamera<onActivityResult> extends Fragment {
             String json = directory.get_dir(directory.projekt_get_selected_id());
             String paht = "";
 
-            if (json.equals("") == false) {
+            if (!json.equals("")) {
                 JSONArray dirlist = new JSONArray(json);
 
                 if (dirlist.length() != 0) {
@@ -1205,7 +1198,7 @@ public class Kamera<onActivityResult> extends Fragment {
                         String item = obj.getString("NAME");
 
                         if (item.equals(bsf.URLencode(name))) {
-                            paht = bsf.URLdecode(obj.getString("DIR").toString());
+                            paht = bsf.URLdecode(obj.getString("DIR"));
                         }
                     }
                 }
@@ -1218,7 +1211,7 @@ public class Kamera<onActivityResult> extends Fragment {
             String json = directory.get_dir(projekt_id);
             Basic_funct bsf = new Basic_funct();
 
-          if(json.equals("")==false)
+          if(!json.equals(""))
            {
                JSONArray dirlist =new JSONArray(json);
                String [] output = new String[dirlist.length()];

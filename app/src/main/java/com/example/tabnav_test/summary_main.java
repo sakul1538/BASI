@@ -71,8 +71,8 @@ public class summary_main extends Fragment {
         View view = inflater.inflate(R.layout.fragment_summary_main, container, false);
         // Inflate the layout for this fragment
 
-        Spinner mat_spinner = (Spinner) view.findViewById(R.id.material_spinner);
-        TextView Wert = (TextView) view.findViewById(R.id.textView31);
+        Spinner mat_spinner = view.findViewById(R.id.material_spinner);
+        TextView Wert = view.findViewById(R.id.textView31);
 
         String[] material ={"Splitt 4/8 [m3]","Splittbeton 4/8 [m3]","Kiessand 1 [m3]","Aushub [m3]","Rasensamen [kg]","Dünger [kg]"};
 

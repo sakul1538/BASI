@@ -112,8 +112,9 @@
 
             <AutoCompleteTextView
                 android:id="@+id/note"
-                android:layout_width="226dp"
+                android:layout_width="333dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_weight="1"
                 android:text="@string/empty"
                 tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
@@ -122,11 +123,22 @@
                 android:id="@+id/ls_note_reset"
                 android:layout_width="@dimen/buttons_1"
                 android:layout_height="@dimen/buttons_1"
+                android:layout_gravity="center"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:background="@color/purple_500"
                 app:srcCompat="@drawable/ic_baseline_cancel_24"
                 tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:padding="5dp">
 
             <ImageButton
                 android:id="@+id/fav_button"
@@ -147,55 +159,13 @@
                 android:background="@color/purple_500"
                 app:srcCompat="@drawable/ic_baseline_settings_24"
                 tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
-
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/textView6"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:background="@color/yellow"
-            android:padding="5dp"
-            android:text="@string/log_kat"
-            android:textSize="16sp"
-            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:orientation="horizontal">
-
-            <Spinner
-                android:id="@+id/spinner"
-                android:layout_width="228dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:minHeight="48dp"
-                tools:ignore="SpeakableTextPresentCheck" />
-
-            <ImageButton
-                android:id="@+id/add_category"
-                android:layout_width="@dimen/buttons_1"
-                android:layout_height="@dimen/buttons_1"
-                android:layout_margin="5dp"
-                android:layout_weight="1"
-                android:background="@color/purple_500"
-                app:srcCompat="@drawable/ic_baseline_add_box_24"
-                tools:ignore="SpeakableTextPresentCheck" />
-
-            <ImageButton
-                android:id="@+id/category_settings_button"
-                android:layout_width="@dimen/buttons_1"
-                android:layout_height="@dimen/buttons_1"
-                android:layout_margin="5dp"
-                android:layout_weight="1"
-                android:background="@color/purple_500"
-                app:srcCompat="@drawable/ic_baseline_settings_24"
-                tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
-
-        </LinearLayout>
+            android:orientation="horizontal"/>
 
         <LinearLayout
             android:layout_width="wrap_content"

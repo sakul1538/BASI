@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity
 
                 break;
             default:
-                Log.d("BASI","MainActivity:"+ String.valueOf(requestCode));
+                Log.d("BASI","MainActivity:"+ requestCode);
         }
     }
 
@@ -150,9 +150,9 @@ public class MainActivity extends AppCompatActivity
         // ----------------------------------------------------------------- Switch
         // ----------------------------------------------------------------- ScrollView
         // ----------------------------------------------------------------- Layouts
-        CoordinatorLayout clay = (CoordinatorLayout) findViewById(R.id.colay_main);
-        tabLayout = (TabLayout) findViewById((R.id.tabLayout3));
-        viewPager2 =(ViewPager2) findViewById(R.id.viewPager1);
+        CoordinatorLayout clay = findViewById(R.id.colay_main);
+        tabLayout = findViewById((R.id.tabLayout3));
+        viewPager2 = findViewById(R.id.viewPager1);
         viewPager2.setAdapter(adapter);
         // ----------------------------------------------------------------- END
 
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity
         } catch (Exception e)
         {
             projekt.current_projekt_main_title.setText("");
-            Toast.makeText(getApplicationContext(),"Error\n"+e.getMessage().toString(),Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(),"Error\n"+ e.getMessage(),Toast.LENGTH_LONG).show();
             throw new RuntimeException(e);
         }
 
@@ -218,15 +218,10 @@ public class MainActivity extends AppCompatActivity
             @Override
             public boolean onMenuItemClick(MenuItem menuItem)
             {
-                switch (menuItem.getItemId())
-                {
-                    case R.id.settings_app_projektverwaltung:
-                        projekt.projekt_settings(MainActivity.this);
-
-                        break;
-
-                    default:
-                        Toast.makeText(MainActivity.this, "Nicht Implementiert", Toast.LENGTH_SHORT).show();
+                if (menuItem.getItemId() == R.id.settings_app_projektverwaltung) {
+                    projekt.projekt_settings(MainActivity.this);
+                } else {
+                    Toast.makeText(MainActivity.this, "Nicht Implementiert", Toast.LENGTH_SHORT).show();
                 }
                 return false;
             }

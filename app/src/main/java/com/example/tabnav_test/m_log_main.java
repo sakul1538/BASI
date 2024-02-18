@@ -72,76 +72,64 @@ public class m_log_main extends AppCompatActivity
     {
         super.onActivityResult(requestCode, resultCode, data);
 
-        switch(requestCode)
-        {
-            case 0:
-               Uri uri = data.getData();
+        if (requestCode == 0) {
+            Uri uri = data.getData();
+            try {
+
+                ArrayList imported_entrys = readTextFromUri(uri);
+
                 try {
 
-                  ArrayList imported_entrys =  readTextFromUri(uri);
+                    // TODO: 29.01.23 counter aktuallisieren nach import
 
-                    try {
+                    JSONObject head = new JSONObject(String.valueOf(imported_entrys.get(0))); //head
 
-                        // TODO: 29.01.23 counter aktuallisieren nach import 
+                    Boolean file_type = head.getString("FILE_TYPE").contains("BACKUP_MASCHINEN_ENTRYS");
+                    Boolean maschiid = head.getString("MASCH_ID").equals(masch_id);
+                    Boolean id_check = masch_id.contains(mdo.check_maschine(head.getString("NAME"), head.getString("NR")));
 
-                        JSONObject head = new JSONObject(String.valueOf(imported_entrys.get(0))); //head
+                    bsf.log(String.valueOf(file_type));
+                    bsf.log(String.valueOf(maschiid));
+                    bsf.log(String.valueOf(id_check));
 
-                        Boolean file_type = head.getString("FILE_TYPE").contains("BACKUP_MASCHINEN_ENTRYS");
-                        Boolean maschiid = head.getString("MASCH_ID").equals(masch_id);
-                        Boolean id_check = masch_id.contains(mdo.check_maschine(head.getString("NAME"), head.getString("NR")));
+                    if (file_type && maschiid && id_check) {
+                        imported_entrys.remove(0);
+                        int importet = 0;
+                        for (int e = 1; e < imported_entrys.size(); e++) {
+                            ContentValues cv = new ContentValues();
+                            String[] row = imported_entrys.get(e).toString().split(",");
+                            bsf.log(row[6]);
 
-                        bsf.log(String.valueOf(file_type));
-                        bsf.log(String.valueOf(maschiid));
-                        bsf.log(String.valueOf(id_check));
-
-                        if(file_type ==true && maschiid ==true && id_check == true)
-                        {
-                            imported_entrys.remove(0);
-                            int importet=0;
-                            for(int e = 1; e<imported_entrys.size();e++)
-                            {
-                                ContentValues cv  = new ContentValues();
-                                String[] row =imported_entrys.get(e).toString().split(",");
-                                bsf.log(row[6]);
-
-                                cv.put("ID", row[0]);
-                                cv.put("PROJ_NR",bsf.PROJ_NR); //fixme projektnummer
-                                cv.put("MASCH_ID",row[1]);
-                                cv.put("DATE",row[2]);
-                                cv.put("TIME",row[3]);
-                                cv.put("NR",row[4]);
-                                cv.put("NAME",row[5]);
-                                cv.put("COUNTER",Double.parseDouble(row[6]));
-                                if(mdo.add_log_entry(cv) != -1)
-                                {
-                                    importet++;
-                                }
+                            cv.put("ID", row[0]);
+                            cv.put("PROJ_NR", Basic_funct.PROJ_NR); //fixme projektnummer
+                            cv.put("MASCH_ID", row[1]);
+                            cv.put("DATE", row[2]);
+                            cv.put("TIME", row[3]);
+                            cv.put("NR", row[4]);
+                            cv.put("NAME", row[5]);
+                            cv.put("COUNTER", Double.parseDouble(row[6]));
+                            if (mdo.add_log_entry(cv) != -1) {
+                                importet++;
                             }
-                            bsf.succes_msg("Es wurden "+importet+ " Einträge importiert",m_log_main.this);
-                            reload_datalist();
-                            mdo.refresh_counter(masch_id);
                         }
-                        else
-                        {
-                           bsf.error_msg("Import Fehler: Falsche Maschine oder ungültige Backupfile",m_log_main.this);
-                            reload_datalist();
-                        }
-
-
-                    } catch (JSONException e)
-                    {
-
-                        e.printStackTrace();
+                        bsf.succes_msg("Es wurden " + importet + " Einträge importiert", m_log_main.this);
+                        reload_datalist();
+                        mdo.refresh_counter(masch_id);
+                    } else {
+                        bsf.error_msg("Import Fehler: Falsche Maschine oder ungültige Backupfile", m_log_main.this);
+                        reload_datalist();
                     }
 
 
-                } catch (IOException ex)
-                {
-                    ex.printStackTrace();
+                } catch (JSONException e) {
+
+                    e.printStackTrace();
                 }
 
-                break;
 
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -175,7 +163,7 @@ public class m_log_main extends AppCompatActivity
 
 
         //RecyclerView
-        m_log_entrys = (RecyclerView) findViewById(R.id.rcv);
+        m_log_entrys = findViewById(R.id.rcv);
 
         m_log_entrys_adapter_main = new m_log_entrys_adapter_main( bsf.to_ArrayList(mdo.get_log_entrys_byid(masch_id)));
         m_log_entrys.setAdapter(m_log_entrys_adapter_main);
@@ -212,7 +200,7 @@ public class m_log_main extends AppCompatActivity
         }
         catch (Exception e)
         {
-                   Log.e("m_log_main : selectet_date.setText ->",e.getMessage().toString());
+                   Log.e("m_log_main : selectet_date.setText ->", e.getMessage());
         }
 
         selectet_date.setOnClickListener(new View.OnClickListener()
@@ -242,7 +230,7 @@ public class m_log_main extends AppCompatActivity
                             entrys_date_like();
                         }catch (Exception e)
                         {
-                            Log.e("m_log_main :selectet_date ->",e.getMessage().toString());
+                            Log.e("m_log_main :selectet_date ->", e.getMessage());
                         }
 
 
@@ -263,7 +251,7 @@ public class m_log_main extends AppCompatActivity
                     entrys_date_like();
                 }catch (Exception e)
                 {
-                    Log.e("m_log_main :date_shift_forward ->",e.getMessage().toString());
+                    Log.e("m_log_main :date_shift_forward ->", e.getMessage());
                 }
 
 
@@ -283,7 +271,7 @@ public class m_log_main extends AppCompatActivity
                      }
                         catch (Exception e)
                      {
-                        Log.e("m_log_main :date_shift_forward ->",e.getMessage().toString());
+                        Log.e("m_log_main :date_shift_forward ->", e.getMessage());
                      }
 
 
@@ -304,7 +292,7 @@ public class m_log_main extends AppCompatActivity
                     }
                 }catch (Exception e)
                 {
-                    Log.e("m_log_main :calendar ->",e.getMessage().toString());
+                    Log.e("m_log_main :calendar ->", e.getMessage());
                 }
 
 
@@ -322,7 +310,7 @@ public class m_log_main extends AppCompatActivity
                     layout_date.setVisibility(View.GONE);
                 }catch (Exception e)
                 {
-                      Log.e("m_log_main :cancel_select_date ->",e.getMessage().toString());
+                      Log.e("m_log_main :cancel_select_date ->", e.getMessage());
                 }
 
             }
@@ -494,7 +482,7 @@ public class m_log_main extends AppCompatActivity
 
         } catch (Exception e)
         {
-            bsf.error_msg("Backup fehlgeschlagen" + e.getMessage().toString(), m_log_main.this);
+            bsf.error_msg("Backup fehlgeschlagen" + e.getMessage(), m_log_main.this);
         }
 
     }
@@ -541,7 +529,7 @@ public class m_log_main extends AppCompatActivity
 
         } catch (Exception e)
         {
-            bsf.error_msg("Export fehlgeschlagen" + e.getMessage().toString(), m_log_main.this);
+            bsf.error_msg("Export fehlgeschlagen" + e.getMessage(), m_log_main.this);
         }
     }
 
@@ -586,7 +574,7 @@ public class m_log_main extends AppCompatActivity
 
         } catch (Exception e)
         {
-            bsf.error_msg("Export fehlgeschlagen" + e.getMessage().toString(), m_log_main.this);
+            bsf.error_msg("Export fehlgeschlagen" + e.getMessage(), m_log_main.this);
         }
     }
 
@@ -611,7 +599,7 @@ public class m_log_main extends AppCompatActivity
             for(String i: dataset)
             {
                 String []row = i.split(",");
-                if(row[2].equals(date_val) ==true)
+                if(row[2].equals(date_val))
                 {
                     data.add(i);
                 }
@@ -665,7 +653,7 @@ public class m_log_main extends AppCompatActivity
 
     private void exmsg(String msg,Exception e)
     {
-        Log.e("Exception: m_log_main ->","ID: "+msg+" Message:" +e.getMessage().toString());
+        Log.e("Exception: m_log_main ->","ID: "+msg+" Message:" + e.getMessage());
     }
 }
 

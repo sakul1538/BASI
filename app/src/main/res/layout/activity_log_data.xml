@@ -15,7 +15,7 @@
         android:layout_height="match_parent"
 
 
-        android:background="@color/hellgrün"
+        android:background="@color/grey"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -28,12 +28,23 @@
                 android:layout_margin="5dp"
                 android:orientation="vertical">
 
+                <TextView
+                    android:id="@+id/textView6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@color/yellow"
+                    android:padding="5dp"
+                    android:text="@string/log_title"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
                 <LinearLayout
                     android:id="@+id/back"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
-                    android:background="@color/hellgrün"
+                    android:background="@color/grey"
                     android:orientation="horizontal"
                     android:padding="5dp">
 
@@ -52,7 +63,7 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="5dp"
                         android:layout_weight="1"
-                        android:background="@color/purple_200"
+                        android:background="#00C6FF00"
                         android:padding="5dp"
                         app:srcCompat="@drawable/ic_baseline_search_24" />
 
@@ -62,7 +73,7 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="5dp"
                         android:layout_weight="1"
-                        android:background="@color/purple_200"
+                        android:background="#00C6FF00"
                         android:padding="5dp"
                         app:srcCompat="@drawable/ic_baseline_filter_alt_24" />
 
@@ -72,7 +83,7 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="5dp"
                         android:layout_weight="1"
-                        android:background="@color/purple_200"
+                        android:background="#00C6FF00"
                         android:padding="5dp"
                         app:srcCompat="@drawable/ic_baseline_settings_24" />
 
@@ -82,7 +93,7 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="5dp"
                         android:layout_weight="1"
-                        android:background="@color/purple_200"
+                        android:background="#00C6FF00"
                         android:padding="5dp"
                         app:srcCompat="@drawable/ic_baseline_cancel_24" />
                 </LinearLayout>

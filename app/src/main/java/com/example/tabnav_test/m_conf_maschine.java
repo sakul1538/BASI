@@ -158,25 +158,25 @@ public class m_conf_maschine extends AppCompatActivity {
         m_database_ops mdo = new m_database_ops(context);
         bsf = new Basic_funct();
 
-        m_conf_add_maschine_button = (ImageButton) findViewById(R.id.m_conf_add_maschine_button);
-        m_conf_find_maschine_button = (ImageButton) findViewById(R.id.m_conf_find_maschine_button);
+        m_conf_add_maschine_button = findViewById(R.id.m_conf_add_maschine_button);
+        m_conf_find_maschine_button = findViewById(R.id.m_conf_find_maschine_button);
 
-        m_conf_filter_maschine_button = (ImageButton) findViewById(R.id.m_conf_filter_maschine_button);
+        m_conf_filter_maschine_button = findViewById(R.id.m_conf_filter_maschine_button);
 
-        m_conf_date_maschine_button = (ImageButton) findViewById(R.id.m_conf_date_maschine_button);
-        m_conf_date_maschine_curr_date_forward = (ImageButton) findViewById(R.id.m_conf_date_maschine_curr_date_forward);
-        m_conf_date_maschine_curr_date_backward = (ImageButton) findViewById(R.id.m_conf_date_maschine_curr_date_backward);
-        m_conf_reset_search_maschine = (ImageButton) findViewById(R.id.m_conf_reset_search_maschine);
+        m_conf_date_maschine_button = findViewById(R.id.m_conf_date_maschine_button);
+        m_conf_date_maschine_curr_date_forward = findViewById(R.id.m_conf_date_maschine_curr_date_forward);
+        m_conf_date_maschine_curr_date_backward = findViewById(R.id.m_conf_date_maschine_curr_date_backward);
+        m_conf_reset_search_maschine = findViewById(R.id.m_conf_reset_search_maschine);
 
 
-        m_conf_date_maschine_dialog = (LinearLayout) findViewById(R.id.m_conf_date_maschine_dialog);
+        m_conf_date_maschine_dialog = findViewById(R.id.m_conf_date_maschine_dialog);
 
-        m_conf_date_maschine_curr_date = (TextView) findViewById(R.id.m_conf_date_maschine_curr_date);
+        m_conf_date_maschine_curr_date = findViewById(R.id.m_conf_date_maschine_curr_date);
 
 
         m_conf_date_maschine_curr_date.setText(bsf.date_refresh());// FIXME: 08.01.23
 
-        m_rcv = (RecyclerView) findViewById(R.id.m_rcv);
+        m_rcv = findViewById(R.id.m_rcv);
 
         String[] data = mdo.get_maschinen(RROJ_NR);
 
@@ -240,9 +240,9 @@ public class m_conf_maschine extends AppCompatActivity {
                                     public void onFocusChange(View view, boolean b)
                                     {
                                         String error_txt = "Maschine existiert bereits!";
-                                        if(b == false) //Beim Verlassen
+                                        if(!b) //Beim Verlassen
                                         {
-                                            if(TextUtils.isEmpty(nr.getText().toString())== false) // Wenn NR nicht leer
+                                            if(!TextUtils.isEmpty(nr.getText().toString())) // Wenn NR nicht leer
                                             {
                                                 if(mdo.check_maschine(name.getText().toString(),nr.getText().toString()) != "null") //"null" = keine Maschine existiert
                                                 {
@@ -277,9 +277,9 @@ public class m_conf_maschine extends AppCompatActivity {
                                     public void onFocusChange(View view, boolean b)
                                     {
                                         String error_txt = "Maschine existiert bereits!";
-                                        if(b == false) //Beim Verlassen
+                                        if(!b) //Beim Verlassen
                                         {
-                                            if(TextUtils.isEmpty(name.getText().toString())== false) // Wenn NR nicht leer
+                                            if(!TextUtils.isEmpty(name.getText().toString())) // Wenn NR nicht leer
                                             {
                                                 if(mdo.check_maschine(name.getText().toString(),nr.getText().toString()) != "null") //"null" = keine Maschine existiert
                                                 {
@@ -339,7 +339,7 @@ public class m_conf_maschine extends AppCompatActivity {
                                         ContentValues data = new ContentValues();
                                         data.put("PROJ_NR", RROJ_NR);
 
-                                        if(TextUtils.isEmpty(nr.getText().toString()) == true)
+                                        if(TextUtils.isEmpty(nr.getText().toString()))
                                         {
                                             data.put("NR","");
                                         }
@@ -349,7 +349,7 @@ public class m_conf_maschine extends AppCompatActivity {
                                         }
 
 
-                                        if(TextUtils.isEmpty(name.getText().toString()) == true)
+                                        if(TextUtils.isEmpty(name.getText().toString()))
                                         {
                                             data.put("NAME","");
                                         }
@@ -359,7 +359,7 @@ public class m_conf_maschine extends AppCompatActivity {
                                         }
 
 
-                                        if(TextUtils.isEmpty(counter.getText().toString()) == true)
+                                        if(TextUtils.isEmpty(counter.getText().toString()))
                                         {
 
                                             data.put("COUNTER",0);
@@ -369,7 +369,7 @@ public class m_conf_maschine extends AppCompatActivity {
                                             data.put("COUNTER", counter.getText().toString());
                                         }
 
-                                        data.put("CATEGORY", category.getSelectedItem().toString());;
+                                        data.put("CATEGORY", category.getSelectedItem().toString());
                                         data.put("NOTE", note.getText().toString());
 
                                         String filename = "NULL";
@@ -378,7 +378,7 @@ public class m_conf_maschine extends AppCompatActivity {
                                             data.put("PIC_SRC", filename);
                                         } else {
                                             String tpaht = imgUri.getPath();
-                                            if (tpaht.contains(":") == false) {
+                                            if (!tpaht.contains(":")) {
                                                 Log.d("BASI", "Kamera:" + tpaht);
                                                 String[] t = tpaht.split("/");
                                                 filename = t[t.length - 1];
@@ -387,7 +387,7 @@ public class m_conf_maschine extends AppCompatActivity {
                                                 String[] t = path.split("/");
                                                 filename = t[t.length - 1];
 
-                                                bsf.copyBitmap_to(path, bsf.APP_DCIM_MASCHINEN, filename);
+                                                bsf.copyBitmap_to(path, Basic_funct.APP_DCIM_MASCHINEN, filename);
 
                                             }
 
@@ -408,7 +408,7 @@ public class m_conf_maschine extends AppCompatActivity {
                                             if (check_response == "null")
                                             {
                                                 String response = mdo.add_manschine(data);
-                                                if(response.equals("null") == true)
+                                                if(response.equals("null"))
                                                 {
                                                     bsf.error_msg("Machine wurde NICHT Gespeichert! \n Fehler beim Speichern!",m_conf_maschine.this);
                                                     // Toast.makeText(context,"Machine wurde NICHT Gespeichert!",Toast.LENGTH_SHORT).show();
@@ -418,7 +418,7 @@ public class m_conf_maschine extends AppCompatActivity {
                                                     String masch_id = response;
                                                     String msg_text = "";
                                                     Boolean init_done =mdo.add_log_entry_init(masch_id,data.get("NR").toString(),data.get("NAME").toString(),data.get("COUNTER").toString());
-                                                    if(init_done == true)
+                                                    if(init_done)
                                                     {
                                                         msg_text ="->Maschine Erfolgreich Geschpeichert!("+"ID: "+response+")\n ";
                                                         msg_text +="->Init Eintrag Erfolgreich Geschpeichert!\n ";
@@ -500,7 +500,6 @@ public class m_conf_maschine extends AppCompatActivity {
                 View find_promptsView = getLayoutInflater().inflate(R.layout.m_search_dialog, null);
 
                 AutoCompleteTextView find_value = find_promptsView.findViewById(R.id.search_field);
-                ;
                 ImageButton reset_search = find_promptsView.findViewById(R.id.m_search_reset_button);
                 m_database_ops mdops = new m_database_ops(context);
 
@@ -603,7 +602,7 @@ public class m_conf_maschine extends AppCompatActivity {
                             //Machinen Abfragen in Datenbank
                             String [] data= mdo.filter_maschine_category(categorys);
 
-                            if(data[0].equals("null") ==false)
+                            if(!data[0].equals("null"))
                             {
                                  mcma.add_data(data);
                             }
@@ -739,10 +738,10 @@ public class m_conf_maschine extends AppCompatActivity {
         File photoFile = null;
         try {
 
-            File storageDir = new File(bsf.APP_DCIM_MASCHINEN);
+            File storageDir = new File(Basic_funct.APP_DCIM_MASCHINEN);
             File image=null;
 
-            if(storageDir.exists() == false)
+            if(!storageDir.exists())
             {
                 storageDir.mkdirs();
             }
@@ -831,7 +830,7 @@ public class m_conf_maschine extends AppCompatActivity {
 
             String [] data = mdo.filter_maschine_date(bsf.convert_date(date,"format_database"));
 
-            if(data[0].equals("null")== false)
+            if(!data[0].equals("null"))
             {
 
                 mcma.add_data(data);
@@ -863,7 +862,7 @@ public class m_conf_maschine extends AppCompatActivity {
 
     private void exmsg(String msg,Exception e)
     {
-        Log.e("Exception: m_conf_maschine->","ID: "+msg+" Message:" +e.getMessage().toString());
+        Log.e("Exception: m_conf_maschine->","ID: "+msg+" Message:" + e.getMessage());
         e.printStackTrace();
     }
 

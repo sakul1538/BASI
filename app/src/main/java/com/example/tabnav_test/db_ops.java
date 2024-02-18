@@ -128,15 +128,7 @@ public class db_ops extends SQLiteOpenHelper implements SQL_finals
             dbr.close();
             cursor.close();
 
-            if(items>0)
-            {
-                return true;
-
-            }
-            else
-            {
-                return false;
-            }
+            return items > 0;
 
         } catch (Exception e)
         {
@@ -157,14 +149,7 @@ public class db_ops extends SQLiteOpenHelper implements SQL_finals
             throw new RuntimeException(e);
         }
 
-        if(row_nr ==-1)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        return row_nr != -1;
     }
 
     public boolean update(String tablename, ContentValues update_data)
@@ -180,14 +165,7 @@ public class db_ops extends SQLiteOpenHelper implements SQL_finals
             throw new RuntimeException(e);
         }
 
-        if(response ==-1)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        return response != -1;
     }
 }
 

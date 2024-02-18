@@ -165,26 +165,23 @@ public class Basic_funct {
         int year = 0;
         String date_new = "";
 
-        switch (mode) {
-            default:
-                try {
-                    s = date.split("[.]");
-                    day = Integer.valueOf(s[0]);
-                    month = Integer.valueOf(s[1]) - 1; //Monate Fangen bei 0 An zu zählen!
-                    year = Integer.valueOf(s[2]);
+        try {
+            s = date.split("[.]");
+            day = Integer.valueOf(s[0]);
+            month = Integer.valueOf(s[1]) - 1; //Monate Fangen bei 0 An zu zählen!
+            year = Integer.valueOf(s[2]);
 
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.set(year, month, day);
-                    calendar.add(Calendar.DATE, shift_value);
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(year, month, day);
+            calendar.add(Calendar.DATE, shift_value);
 
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
 
-                    date_new = dateFormat.format(calendar.getTime());
+            date_new = dateFormat.format(calendar.getTime());
 
-                } catch (Exception e) {
-                    date_new = date;
-                    Log.w("BASI", e.getMessage().toString());
-                }
+        } catch (Exception e) {
+            date_new = date;
+            Log.w("BASI", e.getMessage());
         }
 
         return date_new;
@@ -271,7 +268,7 @@ public class Basic_funct {
 
             new_date = "null";
 
-            Log.d("BASI", e.getMessage().toString());
+            Log.d("BASI", e.getMessage());
         }
 
         return new_date;
@@ -470,7 +467,7 @@ public class Basic_funct {
         Log.d("pre_extension", path);
         String extension;
         try {
-            extension = path.substring(path.lastIndexOf("."), path.length());
+            extension = path.substring(path.lastIndexOf("."));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -491,14 +488,14 @@ public class Basic_funct {
     public String double_round(String value, int lenght) {
         String new_value = "";
 
-        if (value.contains(".") == true) {
+        if (value.contains(".")) {
             try {
                 String[] part = value.split("[.]");
                 new_value = part[0] + ".";
                 new_value += part[1].substring(0, lenght);
             } catch (Exception e) {
                 new_value = value;
-                Log.d(LOG_ERRORT_AG + "double_round()", e.getMessage().toString());
+                Log.d(LOG_ERRORT_AG + "double_round()", e.getMessage());
             }
         } else {
             new_value = value;
@@ -519,7 +516,7 @@ public class Basic_funct {
         switch(type)
         {
             case "default":
-                output = lieferant + "_LSNR_" + ls_nr +"@" + date + "_ID_" + String.valueOf(System.currentTimeMillis()); //Name der Datei
+                output = lieferant + "_LSNR_" + ls_nr +"@" + date + "_ID_" + System.currentTimeMillis(); //Name der Datei
                 break;
 
             case "default_NO_ID":
@@ -527,11 +524,11 @@ public class Basic_funct {
                 break;
 
                 case "default_JUST_ID":
-                    output =  "_ID_" + String.valueOf(System.currentTimeMillis()); //Name der Datei
+                    output =  "_ID_" + System.currentTimeMillis(); //Name der Datei
                 break;
 
             default:
-                output = lieferant + "_LSNR_" + ls_nr +"@" + date + "_ID_" + String.valueOf(System.currentTimeMillis()); //Name der Datei
+                output = lieferant + "_LSNR_" + ls_nr +"@" + date + "_ID_" + System.currentTimeMillis(); //Name der Datei
         }
         return output;
     }
@@ -569,7 +566,7 @@ public class Basic_funct {
 
         } catch (IOException e)
         {
-            Toast.makeText(context, "Backup erstellen Fehlgeschlagen!:  \n"+e.getMessage().toString(), Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Backup erstellen Fehlgeschlagen!:  \n"+ e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 

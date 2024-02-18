@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -79,11 +80,11 @@ public class Backup extends SQLiteOpenHelper implements SQL_finals
                 try {
                     if(c.equals("ID"))
                     {
-                        t.put(c, cursor.getString(cursor.getColumnIndexOrThrow(c.toString())));
+                        t.put(c, cursor.getString(cursor.getColumnIndexOrThrow(c)));
                     }
                     else
                     {
-                        t.put(c, bsf.URLencode(cursor.getString(cursor.getColumnIndexOrThrow(c.toString()))));
+                        t.put(c, bsf.URLencode(cursor.getString(cursor.getColumnIndexOrThrow(c))));
                     }
 
                 } catch (JSONException e) {
@@ -126,7 +127,7 @@ public class Backup extends SQLiteOpenHelper implements SQL_finals
 
         } catch (IOException e)
         {
-            Toast.makeText(context, "Backup erstellen Fehlgeschlagen!:  \n"+e.getMessage().toString(), Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Backup erstellen Fehlgeschlagen!:  \n"+ e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
     public void restore_backup(String table,String filename) throws FileNotFoundException
@@ -156,7 +157,7 @@ public class Backup extends SQLiteOpenHelper implements SQL_finals
         try {
             in2 = new FileInputStream(new File(source_path));
             try {
-                JsonReader reader = new JsonReader(new InputStreamReader(in2,"UTF-8"));
+                JsonReader reader = new JsonReader(new InputStreamReader(in2, StandardCharsets.UTF_8));
                 reader.beginArray();
                 while(reader.hasNext())
                 {

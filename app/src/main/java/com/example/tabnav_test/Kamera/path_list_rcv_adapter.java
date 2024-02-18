@@ -52,8 +52,8 @@ public class path_list_rcv_adapter extends RecyclerView.Adapter<path_list_rcv_ad
         public ViewHolder(@NonNull View itemView)
         {
             super(itemView);
-            name = (TextView) itemView.findViewById(R.id.textView68);
-            select_src = (RadioButton) itemView.findViewById(R.id.radioButton);
+            name = itemView.findViewById(R.id.textView68);
+            select_src = itemView.findViewById(R.id.radioButton);
 
         }
         public  TextView get_name(){return name;}

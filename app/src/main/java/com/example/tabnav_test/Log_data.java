@@ -84,15 +84,15 @@ public class Log_data extends AppCompatActivity
         log_fav spinnerops = new log_fav(getApplicationContext());
 
 
-        rcv1 = (RecyclerView) findViewById(log_data_view);
+        rcv1 = findViewById(log_data_view);
 
-        log_search = (ImageButton) findViewById(log_search_button);
-        log_search_edit = (EditText) findViewById(log_search_field);
-        log_filter_reset = (ImageButton) findViewById(log_show_reset_button);
-        log_search_filter_dialog = (ImageButton) findViewById(log_search_filter_dialog_button);
+        log_search = findViewById(log_search_button);
+        log_search_edit = findViewById(log_search_field);
+        log_filter_reset = findViewById(log_show_reset_button);
+        log_search_filter_dialog = findViewById(log_search_filter_dialog_button);
 
 
-        log_action_data_button = (ImageButton) findViewById(log_actions_data);
+        log_action_data_button = findViewById(log_actions_data);
 
         log_action_data_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -167,24 +167,24 @@ public class Log_data extends AppCompatActivity
             public void onClick(View view) {
                 View promptsView = getLayoutInflater().inflate(R.layout.log_search_filter_dialog, null);
 
-                ImageButton date_refresh = (ImageButton) promptsView.findViewById(log_filter_refresh_date);
-                TextView date_from = (TextView) promptsView.findViewById(R.id.textView23);
-                TextView date_to = (TextView) promptsView.findViewById(R.id.textView21);
+                ImageButton date_refresh = promptsView.findViewById(log_filter_refresh_date);
+                TextView date_from = promptsView.findViewById(R.id.textView23);
+                TextView date_to = promptsView.findViewById(R.id.textView21);
 
-                log_filter_radio_check_true =(RadioButton) promptsView.findViewById(erledigt_true);
-                log_filter_radio_check_false=(RadioButton) promptsView.findViewById(erledigt_false);
-                log_filter_check_fav_state =(CheckBox) promptsView.findViewById(check_fav_state);
+                log_filter_radio_check_true = promptsView.findViewById(erledigt_true);
+                log_filter_radio_check_false= promptsView.findViewById(erledigt_false);
+                log_filter_check_fav_state = promptsView.findViewById(check_fav_state);
 
-                filter_reset =(Button) promptsView.findViewById(R.id.log_filter_reset);
-
-
+                filter_reset = promptsView.findViewById(R.id.log_filter_reset);
 
 
-                date_from.setText(bsf.date_refresh_database().toString());
-                date_to.setText(bsf.date_refresh_database().toString());
 
 
-                Spinner log_search_filter_category = (Spinner) promptsView.findViewById(R.id.log_search_category_field);
+                date_from.setText(bsf.date_refresh_database());
+                date_to.setText(bsf.date_refresh_database());
+
+
+                Spinner log_search_filter_category = promptsView.findViewById(R.id.log_search_category_field);
 
                 filter_reset.setOnClickListener(new View.OnClickListener()
                 {
@@ -196,8 +196,8 @@ public class Log_data extends AppCompatActivity
                         log_filter_radio_check_true.setChecked(false);
                         log_filter_radio_check_false.setChecked(false);
                         log_filter_check_fav_state.setChecked(false);
-                        date_from.setText(bsf.date_refresh_database().toString());
-                        date_to.setText(bsf.date_refresh_database().toString());
+                        date_from.setText(bsf.date_refresh_database());
+                        date_to.setText(bsf.date_refresh_database());
                         log_search_filter_category.setSelection(0);
 
                         String date_from_value = null;
@@ -214,7 +214,7 @@ public class Log_data extends AppCompatActivity
                     @Override
                     public void onClick(View view)
                     {
-                        if(log_filter_radio_check_true.isChecked() ==true)
+                        if(log_filter_radio_check_true.isChecked())
                         {
                             check_state="TRUE";
                             Log.d("BASI: ",check_state);
@@ -229,7 +229,7 @@ public class Log_data extends AppCompatActivity
                     @Override
                     public void onClick(View view)
                     {
-                        if(log_filter_radio_check_false.isChecked() ==true)
+                        if(log_filter_radio_check_false.isChecked())
                         {
                             check_state="FALSE";
                             Log.d("BASI: ",check_state);
@@ -244,14 +244,14 @@ public class Log_data extends AppCompatActivity
                     @Override
                     public void onClick(View view)
                     {
-                        if(log_filter_check_fav_state.isChecked() ==true)
+                        if(log_filter_check_fav_state.isChecked())
                         {
                             fav_state="TRUE";
                             Log.d("BASI: ",fav_state);
 
                         }
 
-                        if(log_filter_check_fav_state.isChecked() ==false)
+                        if(!log_filter_check_fav_state.isChecked())
                         {
                             fav_state="FALSE";
                             Log.d("BASI: ",fav_state);
@@ -301,8 +301,8 @@ public class Log_data extends AppCompatActivity
                 date_refresh.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        date_from.setText(bsf.date_refresh_database().toString());
-                        date_to.setText(bsf.date_refresh_database().toString());
+                        date_from.setText(bsf.date_refresh_database());
+                        date_to.setText(bsf.date_refresh_database());
 
                     }
                 });
@@ -310,7 +310,7 @@ public class Log_data extends AppCompatActivity
                 //Kategorie
 
 
-                String items[] = spinnerops.getallcategorys();
+                String[] items = spinnerops.getallcategorys();
 
                 ArrayAdapter<String> log_category_items = new ArrayAdapter<String>(Log_data.this, android.R.layout.simple_dropdown_item_1line, items);
                 log_search_filter_category.setAdapter(log_category_items);

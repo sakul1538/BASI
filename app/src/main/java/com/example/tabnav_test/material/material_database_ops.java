@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -124,7 +125,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         {
             if(e.contains(filename))
             {
-                Log.d("FILE: ",e.toString());
+                Log.d("FILE: ", e);
                 File f= new File(search_path+"/"+e);
                 f.delete();
             }
@@ -198,10 +199,10 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
             File f2 = new File(proj_src+"/"+file);
             if(f2.isFile())
             {
-                if(file.contains(file_idenifer_old) == true)
+                if(file.contains(file_idenifer_old))
                 {
                     Log.d("File found:",f2.getPath());
-                    String filename_ID = file.substring(file.lastIndexOf("_ID_",file.length()));
+                    String filename_ID = file.substring(file.lastIndexOf("_ID_"));
                     File new_filename = new File(proj_src+"/"+file_idenifer_new+filename_ID);
                     f2.renameTo(new_filename);
                     Log.d("File Rename to:",new_filename.getPath());
@@ -472,7 +473,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         } catch (IllegalArgumentException e)
         {
             id="0";
-            bsf.error_msg("Kein ausgewähltes Projekt gefunden! \n return=0\n"+e.getMessage().toString(),context);
+            bsf.error_msg("Kein ausgewähltes Projekt gefunden! \n return=0\n"+ e.getMessage(),context);
             throw new RuntimeException(e);
         }
         return  id;
@@ -550,7 +551,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         try {
             in2 = new FileInputStream(new File(source_path));
             try {
-                JsonReader reader = new JsonReader(new InputStreamReader(in2,"UTF-8"));
+                JsonReader reader = new JsonReader(new InputStreamReader(in2, StandardCharsets.UTF_8));
 
                 int insert_counter=0;
                 int update_counter=0;
@@ -578,7 +579,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
                         }
                         else
                         {
-                            if (overwrite_mode == true)
+                            if (overwrite_mode)
                             {
                                 String[] update_selectionArgs = { output_data.get("NAME").toString() };
                                 String where = "NAME=?";
@@ -948,7 +949,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
             File f2 = new File(proj_src+"/"+files);
             if(f2.isFile())
             {
-                if(files.contains(idenifer) == true)
+                if(files.contains(idenifer))
                 {
                     localImageSet +=proj_src+"/"+files+",";
                 }
@@ -1034,7 +1035,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         try {
             in2 = new FileInputStream(new File(source_path));
             try {
-                JsonReader reader = new JsonReader(new InputStreamReader(in2,"UTF-8"));
+                JsonReader reader = new JsonReader(new InputStreamReader(in2, StandardCharsets.UTF_8));
 
                 int insert_counter=0;
                 int update_counter=0;
@@ -1062,7 +1063,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
                     }
                     else
                     {
-                        if (overwrite_mode == true)
+                        if (overwrite_mode)
                         {
                             String[] update_selectionArgs = { output_data.get("NAME").toString() };
                             String where = "NAME=?";
@@ -1161,7 +1162,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         int c =0;
         while(arg_list.hasNext())
         {
-            arg_array[c] = arg_list.next().toString();
+            arg_array[c] = arg_list.next();
             c++;
         }
 

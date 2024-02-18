@@ -21,6 +21,7 @@ public class kamera_spinner<ID> extends SQLiteOpenHelper implements db_controlls
 
     public kamera_spinner(@Nullable Context context)
     {
+
         super(context, DB_NAME, null, 1);
     }
 
@@ -112,7 +113,7 @@ public class kamera_spinner<ID> extends SQLiteOpenHelper implements db_controlls
             
         }catch (Exception e)
         {
-            Toast.makeText(context,e.getMessage().toString(),Toast.LENGTH_LONG).show();
+            Toast.makeText(context, e.getMessage(),Toast.LENGTH_LONG).show();
         }
      
 

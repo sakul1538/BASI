@@ -68,7 +68,7 @@ public class m_log_entrys_adapter_main extends RecyclerView.Adapter<m_log_entrys
         mdo = new m_database_ops(context);
         bsf = new Basic_funct();
 
-        if(this.datalist.get(0).equals("") == true)
+        if(this.datalist.get(0).equals(""))
         {
 
             holder.itemView.setVisibility(View.GONE);
@@ -271,7 +271,7 @@ public class m_log_entrys_adapter_main extends RecyclerView.Adapter<m_log_entrys
                             }
                             else
                             {
-                                bsf.succes_msg("Es wurden "+ String.valueOf(response)+" geändert!",context);
+                                bsf.succes_msg("Es wurden "+ response +" geändert!",context);
                                 mdo.refresh_counter(data[1]);
                                 ArrayList new_data = bsf.to_ArrayList(mdo.get_log_entrys_byid(data[1]));
                                 Collections.reverse(new_data);
@@ -326,12 +326,12 @@ public class m_log_entrys_adapter_main extends RecyclerView.Adapter<m_log_entrys
         {
             super(itemView);
 
-            m_date_value = (TextView) itemView.findViewById(R.id.m_date_value);
-            m_time_value = (TextView) itemView.findViewById(R.id.m_time_value);
-            m_counter_value = (TextView) itemView.findViewById(R.id.m_counter_value);
-            m_counter_diff_value = (TextView) itemView.findViewById(R.id.m_counter_diff_value);
-            m_delet_imgbutton = (ImageButton) itemView.findViewById(R.id.m_delet_imgbutton);
-            m_update_imgbutton = (ImageButton) itemView.findViewById(R.id.m_update_imgbutton);
+            m_date_value = itemView.findViewById(R.id.m_date_value);
+            m_time_value = itemView.findViewById(R.id.m_time_value);
+            m_counter_value = itemView.findViewById(R.id.m_counter_value);
+            m_counter_diff_value = itemView.findViewById(R.id.m_counter_diff_value);
+            m_delet_imgbutton = itemView.findViewById(R.id.m_delet_imgbutton);
+            m_update_imgbutton = itemView.findViewById(R.id.m_update_imgbutton);
         }
     }
 

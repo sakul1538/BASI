@@ -170,38 +170,38 @@ public class fragment_maschinen extends Fragment
         Calendar calendar = Calendar.getInstance();
 
         //TextViews
-        m_date = (TextView)  view.findViewById(R.id.m_date);
-        m_time = (TextView)  view. findViewById(R.id.m_time);
-        m_counter_status = (TextView)  view. findViewById(R.id.m_counter_status);
-        m_entry_label = (TextView)  view. findViewById(R.id.m_entry_label);
+        m_date = view.findViewById(R.id.m_date);
+        m_time = view. findViewById(R.id.m_time);
+        m_counter_status = view. findViewById(R.id.m_counter_status);
+        m_entry_label = view. findViewById(R.id.m_entry_label);
 
 
         //ImageButtons
-        m_refresh_timedate_button =  (ImageButton) view.findViewById(R.id.m_refresh_datetime);
-        m_settings_button = (ImageButton) view.findViewById(R.id.m_settings);
-        m_maschine_get_maschine_infos = (ImageButton) view.findViewById(R.id.m_maschine_get_maschine_infos);
-        m_maschine_reset_field = (ImageButton) view.findViewById(R.id.m_maschine_reset_field);
-        m_save_entry = (ImageButton) view.findViewById(R.id.m_save_entry);
-        m_reset_form = (ImageButton) view.findViewById(R.id.m_reset_form);
-        m_date_forward = (ImageButton) view.findViewById(R.id.imageButton20);
-        m_date_backward = (ImageButton) view.findViewById(R.id.imageButton23);
-        time_preset = (ImageButton) view.findViewById(R.id.time_preset);
+        m_refresh_timedate_button = view.findViewById(R.id.m_refresh_datetime);
+        m_settings_button = view.findViewById(R.id.m_settings);
+        m_maschine_get_maschine_infos = view.findViewById(R.id.m_maschine_get_maschine_infos);
+        m_maschine_reset_field = view.findViewById(R.id.m_maschine_reset_field);
+        m_save_entry = view.findViewById(R.id.m_save_entry);
+        m_reset_form = view.findViewById(R.id.m_reset_form);
+        m_date_forward = view.findViewById(R.id.imageButton20);
+        m_date_backward = view.findViewById(R.id.imageButton23);
+        time_preset = view.findViewById(R.id.time_preset);
 
         //Layouts
-        m_time_and_date_frame = (LinearLayout) view.findViewById(R.id.m_time_and_date_frame);
-        m_maschine_autocomplete_select_layout = (LinearLayout) view.findViewById(R.id.m_maschine_autocomplete_select_layout);
+        m_time_and_date_frame = view.findViewById(R.id.m_time_and_date_frame);
+        m_maschine_autocomplete_select_layout = view.findViewById(R.id.m_maschine_autocomplete_select_layout);
 
         //TextEdit
-        m_counter_new_value = (EditText) view.findViewById(R.id.m_counter_new_value);
-        m_maschine_autocomplete_select = (AutoCompleteTextView)view.findViewById(R.id.m_maschine_autocomplete_select);
+        m_counter_new_value = view.findViewById(R.id.m_counter_new_value);
+        m_maschine_autocomplete_select = view.findViewById(R.id.m_maschine_autocomplete_select);
 
         //RadioButtons
-        m_radiobutton_addition = (RadioButton) view.findViewById(R.id.m_radiobutton_addition);
-        m_radiobutton_zaehlerstand = (RadioButton) view.findViewById(R.id.m_radiobutton_zaehlerstand);
-        m_counter_type = (RadioGroup) view.findViewById(R.id.m_counter_type);
+        m_radiobutton_addition = view.findViewById(R.id.m_radiobutton_addition);
+        m_radiobutton_zaehlerstand = view.findViewById(R.id.m_radiobutton_zaehlerstand);
+        m_counter_type = view.findViewById(R.id.m_counter_type);
 
         //RecyclerView
-        m_log_entrys = (RecyclerView) view.findViewById(R.id.m_log_entrys);
+        m_log_entrys = view.findViewById(R.id.m_log_entrys);
 
 
         String [] dataset = {""};
@@ -254,7 +254,7 @@ public class fragment_maschinen extends Fragment
             @Override
             public void onClick(View view)
             {
-             m_date.setText(bsf.time_day_shift(m_date.getText().toString(),"",1));   ;
+             m_date.setText(bsf.time_day_shift(m_date.getText().toString(),"",1));
 
             }
         });
@@ -436,7 +436,7 @@ public class fragment_maschinen extends Fragment
 
                             m_info_last_entry_value.setText(last_entry);
 
-                            Bitmap m_info_pic = bsfimg.Bitmap_adjust(bsfimg.APP_DCIM_MASCHINEN+"/"+cv.get("PIC_SRC").toString(),0);
+                            Bitmap m_info_pic = bsfimg.Bitmap_adjust(Basic_funct.APP_DCIM_MASCHINEN +"/"+cv.get("PIC_SRC").toString(),0);
 
                             m_info_imageview.setImageBitmap(m_info_pic);
 
@@ -469,7 +469,7 @@ public class fragment_maschinen extends Fragment
                     }
                 }catch (Exception e)
                 {
-                    Log.d("BASI",e.getMessage().toString());
+                    Log.d("BASI", e.getMessage());
                     bsf.error_msg("Keine Maschine Gefunden oder Keine Gültige Eingabe!",context);
                 }
 
@@ -486,13 +486,13 @@ public class fragment_maschinen extends Fragment
                 String[] values = new String[5];
                 ContentValues  entry = new ContentValues();
 
-                if(m_maschine_autocomplete_select.getText().toString() =="" || m_maschine_autocomplete_select.getText().toString().isEmpty() ==true)
+                if(m_maschine_autocomplete_select.getText().toString() =="" || m_maschine_autocomplete_select.getText().toString().isEmpty())
                 {
                     error_msg += "- Keine Maschine Ausgewählt!\n";
 
                 }
 
-                if(m_counter_new_value.getText().toString() =="" || m_counter_new_value.getText().toString().isEmpty() ==true)
+                if(m_counter_new_value.getText().toString() =="" || m_counter_new_value.getText().toString().isEmpty())
                 {
                     error_msg += "- Zählerstand nicht voranden! \n";
                 }
@@ -517,7 +517,7 @@ public class fragment_maschinen extends Fragment
 
                     } catch (Exception e)
                     {
-                        error_msg += "- Datumskonventierung fehlgeschlagen! (Exeption:" + e.getMessage().toString() + ")\n";
+                        error_msg += "- Datumskonventierung fehlgeschlagen! (Exeption:" + e.getMessage() + ")\n";
 
                     }
 
@@ -542,12 +542,12 @@ public class fragment_maschinen extends Fragment
                             entry.put("MASCH_ID",masch_id);
 
 
-                                if (m_radiobutton_zaehlerstand.isChecked() == true)
+                                if (m_radiobutton_zaehlerstand.isChecked())
                                 {
                                     entry.put("COUNTER",m_counter_new_value.getText().toString());
                                 }
 
-                                if (m_radiobutton_addition.isChecked() == true)
+                                if (m_radiobutton_addition.isChecked())
                                 {
 
                                     Double int_counter_new = Double.valueOf(m_counter_new_value.getText().toString());
@@ -564,12 +564,12 @@ public class fragment_maschinen extends Fragment
 
                     } catch (Exception e)
                     {
-                        error_msg += "- Maschine nicht gefunden! (Exception:" + e.getMessage().toString() + ")\n";
+                        error_msg += "- Maschine nicht gefunden! (Exception:" + e.getMessage() + ")\n";
                         masch_id = "null";
                     }
                 }
 
-                if(error_msg.equals("") == true)
+                if(error_msg.equals(""))
                 {
 
                     Double int_counter_new = Double.valueOf(entry.get("COUNTER").toString());
@@ -673,7 +673,7 @@ public class fragment_maschinen extends Fragment
     {
         final int MARK_COLOR = R.color.orange;
         //RadioButtons farbsteuerung Zähler
-        if( m_radiobutton_zaehlerstand.isChecked() == true)
+        if(m_radiobutton_zaehlerstand.isChecked())
         {
             m_radiobutton_zaehlerstand.setTextColor(getResources().getColor(MARK_COLOR));
         }
@@ -684,7 +684,7 @@ public class fragment_maschinen extends Fragment
 
         //RadioButtons farbsteuerung addierung
 
-        if( m_radiobutton_addition.isChecked() == true)
+        if(m_radiobutton_addition.isChecked())
         {
             m_radiobutton_addition.setTextColor(getResources().getColor(MARK_COLOR));
         }

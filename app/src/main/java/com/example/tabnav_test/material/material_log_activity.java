@@ -51,7 +51,7 @@ public class material_log_activity extends AppCompatActivity
 
     public static String  filePath;
     private AppBarConfiguration appBarConfiguration;
-    private static String TAG="BASI";
+    private static final String TAG="BASI";
 
    public static Basic_func_img bsfi = new Basic_func_img(); //Globale Instan von bsfi
 
@@ -88,7 +88,7 @@ public class material_log_activity extends AppCompatActivity
                     {
                         Basic_funct bsf =new Basic_funct();
                         File source_file = new File(source_file_path);
-                        bsf.copyFileUsingStream(source_file, new File(filePath)); //Kopieren von-zu
+                        Basic_funct.copyFileUsingStream(source_file, new File(filePath)); //Kopieren von-zu
                         gad.reload_images();
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -115,7 +115,7 @@ public class material_log_activity extends AppCompatActivity
                     {
                         Basic_funct bsf =new Basic_funct();
                         File source_file = new File(source_file_path);
-                        bsf.copyFileUsingStream(source_file, new File(filePath+file_extension)); //Kopieren von-zu
+                        Basic_funct.copyFileUsingStream(source_file, new File(filePath+file_extension)); //Kopieren von-zu
                         gad.reload_images();
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -140,9 +140,9 @@ public class material_log_activity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_material_log_activity);
 
-        viewpager = (ViewPager2) findViewById(R.id.viewPager_log_material);
+        viewpager = findViewById(R.id.viewPager_log_material);
 
-        tabLayout = (TabLayout) findViewById((R.id.material_log_tab_layout));
+        tabLayout = findViewById((R.id.material_log_tab_layout));
         slide_adapter = new material_log_slidePagerAdapter(this);
 
 

@@ -211,7 +211,7 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
         public ViewHolder(@NonNull View itemView)
         {
             super(itemView);
-            image =(ImageView)  itemView.findViewById(R.id.imageView5);
+            image = itemView.findViewById(R.id.imageView5);
         }
         public ImageView Image_view(){return image;}
     }
@@ -231,15 +231,15 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
 
                 TextView path_value = pic_view_UI.findViewById(R.id.textView65);
 
-                photo_viewer = (ImageView) pic_view_UI.findViewById(R.id.imageView4);
+                photo_viewer = pic_view_UI.findViewById(R.id.imageView4);
 
 
-                ImageButton refresh_image = (ImageButton) pic_view_UI.findViewById(R.id.imageButton60);
+                ImageButton refresh_image = pic_view_UI.findViewById(R.id.imageButton60);
                 refresh_image.setVisibility(View.GONE);
-                ImageButton open_file = (ImageButton) pic_view_UI.findViewById(R.id.imageButton63);
+                ImageButton open_file = pic_view_UI.findViewById(R.id.imageButton63);
                 open_file.setVisibility(View.GONE);
 
-                ImageButton rotate_right = (ImageButton) pic_view_UI.findViewById(R.id.imageButton62);
+                ImageButton rotate_right = pic_view_UI.findViewById(R.id.imageButton62);
 
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
 

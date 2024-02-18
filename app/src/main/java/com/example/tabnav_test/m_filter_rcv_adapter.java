@@ -72,14 +72,14 @@ public class m_filter_rcv_adapter extends RecyclerView.Adapter<m_filter_rcv_adap
           @Override
           public void onCheckedChanged(CompoundButton compoundButton, boolean b)
           {
-              if(b == true)
+              if(b)
               {
                   categorys[posi] = categorys[posi].substring(0,categorys[posi].length()-1);
                   categorys[posi]=categorys[posi]+"1";
                   holder.m_switch_cat_name.setChecked(true);
 
               }
-              if(b == false)
+              if(!b)
               {
 
                   categorys[posi] = categorys[posi].substring(0,categorys[posi].length()-1);
@@ -114,7 +114,7 @@ public class m_filter_rcv_adapter extends RecyclerView.Adapter<m_filter_rcv_adap
             {
                String[] t = i.split(",");
 
-               if(t[1].contains("1") ==true) //Kategoirenamen drüfen KEINE 1 oder 0 enthalten
+               if(t[1].contains("1")) //Kategoirenamen drüfen KEINE 1 oder 0 enthalten
                {
                    selectet.add(t[0]);
                }
@@ -138,14 +138,14 @@ public class m_filter_rcv_adapter extends RecyclerView.Adapter<m_filter_rcv_adap
         {
             super(itemView);
 
-            m_switch_cat_name = (Switch) itemView.findViewById(R.id.m_switch_cat_name);
+            m_switch_cat_name = itemView.findViewById(R.id.m_switch_cat_name);
 
         }
     }
 
     private void exmsg(String msg,Exception e)
     {
-        Log.e("Exception: m_filter_rcv_adapter->","ID: "+msg+" Message:" +e.getMessage().toString());
+        Log.e("Exception: m_filter_rcv_adapter->","ID: "+msg+" Message:" + e.getMessage());
         e.printStackTrace();
     }
 

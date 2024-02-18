@@ -218,7 +218,7 @@ public class Basic_func_img extends Basic_funct
 
     private void exmsg(String msg,Exception e)
     {
-        Log.e("Exception: Basic_func_img->","ID: "+msg+" Message:" +e.getMessage().toString());
+        Log.e("Exception: Basic_func_img->","ID: "+msg+" Message:" + e.getMessage());
 
     }
 

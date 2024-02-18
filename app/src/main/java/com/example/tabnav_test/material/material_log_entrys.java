@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -63,51 +64,43 @@ public class material_log_entrys extends Fragment
         material_database_ops mdo = new material_database_ops(getContext());
         Basic_funct bsf = new Basic_funct();
 
-        switch(requestCode)
-        {
+        if (requestCode == 1) { //restrore Backup
 
-            case 1: //restrore Backup
-
-                Uri  uri = data.getData();
-                String source_path = uri.getPath();//document/primary:DCIM/Baustellen /CBB E03/Lieferscheine/CBB E03[23210014]dataset_ls@20231028.json
-                String backup_file_import_url = source_path.replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
+            Uri uri = data.getData();
+            String source_path = uri.getPath();//document/primary:DCIM/Baustellen /CBB E03/Lieferscheine/CBB E03[23210014]dataset_ls@20231028.json
+            String backup_file_import_url = source_path.replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
 
 
-                InputStream in2 = null;
+            InputStream in2 = null;
+            try {
+                in2 = new FileInputStream(new File(backup_file_import_url));
                 try {
-                    in2 = new FileInputStream(new File(backup_file_import_url));
-                    try {
-                        JsonReader reader = new JsonReader(new InputStreamReader(in2,"UTF-8"));
-                        int counter = 0;
-                        reader.beginArray();
-                        while(reader.hasNext())
-                        {
-                            reader.beginObject();
-                            ContentValues output_data = new ContentValues();
-                            while (reader.hasNext())
-                            {
-                                output_data.put(reader.nextName(),reader.nextString());
-                            }
-                            mdo.add_material_log_entry(output_data);
-                            reader.endObject();
-                            counter++;
+                    JsonReader reader = new JsonReader(new InputStreamReader(in2, StandardCharsets.UTF_8));
+                    int counter = 0;
+                    reader.beginArray();
+                    while (reader.hasNext()) {
+                        reader.beginObject();
+                        ContentValues output_data = new ContentValues();
+                        while (reader.hasNext()) {
+                            output_data.put(reader.nextName(), reader.nextString());
                         }
-                        reader.endArray();
-                        Toast.makeText(getContext(), counter +" Einträge Importiert!", Toast.LENGTH_SHORT).show();
-                        lslogrcv.refresh_dataset(getContext());
-
-                    } catch (UnsupportedEncodingException e)
-                    {
-                        throw new RuntimeException(e);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        mdo.add_material_log_entry(output_data);
+                        reader.endObject();
+                        counter++;
                     }
+                    reader.endArray();
+                    Toast.makeText(getContext(), counter + " Einträge Importiert!", Toast.LENGTH_SHORT).show();
+                    lslogrcv.refresh_dataset(getContext());
 
-                } catch (FileNotFoundException e) {
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
 
-                break;
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
 
     }
@@ -453,7 +446,7 @@ public class material_log_entrys extends Fragment
         {
             case "create":
                 File dir = new File(paht);
-                if(dir.exists()==false)
+                if(!dir.exists())
                 {
                     dir.mkdirs();
                 }
@@ -515,7 +508,7 @@ public class material_log_entrys extends Fragment
 
                 paht= mdo.get_projekt_root_paht()+Material.backup_dir+"JSON/";
                 File dir = new File(paht);
-                if(dir.exists() == false )
+                if(!dir.exists())
                 {
                     dir.mkdirs();
                 }
@@ -556,7 +549,7 @@ public class material_log_entrys extends Fragment
 
                 paht= mdo.get_projekt_root_paht()+Material.backup_dir+"CSV/";
                 dir = new File(paht);
-                if(dir.exists() == false )
+                if(!dir.exists())
                 {
                     dir.mkdirs();
                 }
@@ -601,13 +594,13 @@ public class material_log_entrys extends Fragment
                                     string_loop +=  "\""+nr[1]+"\",";
                                 break;
                                 case "NOTIZ":
-                                    if(nr[1].contains("null") == false)
+                                    if(!nr[1].contains("null"))
                                     {
                                         string_loop += "\""+bsf.URLdecode(nr[1])+"\"\n";
                                     }
                                     else
                                     {
-                                        string_loop += "\""+"-"+"\"\n";;
+                                        string_loop += "\""+"-"+"\"\n";
                                     }
                                 break;
                         }
@@ -642,7 +635,7 @@ public class material_log_entrys extends Fragment
                         material_database_ops mdo = new material_database_ops(getContext());
                         long deletet_rows =mdo.delet_all_material_log_entry(mdo.get_selectet_projekt_root_data().split(",")[1]);
                         lslogrcv.refresh_dataset(getContext());
-                        Toast.makeText(getContext(), String.valueOf(deletet_rows)+" Einträge gelöscht!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), deletet_rows +" Einträge gelöscht!", Toast.LENGTH_SHORT).show();
                     }
                 });
         del_confirm_dialog.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
@@ -690,7 +683,7 @@ public class material_log_entrys extends Fragment
             Toast.makeText(getContext(),"Export  Erfolgreich als Datei "+filename, Toast.LENGTH_SHORT).show();
         } catch (IOException e)
         {
-            Toast.makeText(getContext(),"Export  Fehlgeschlagen\n"+e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(),"Export  Fehlgeschlagen\n"+ e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 

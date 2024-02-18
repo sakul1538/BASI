@@ -81,7 +81,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
                    String nr =cursor.getString(cursor.getColumnIndexOrThrow("NR"));
                    String name =cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
 
-                   while(id.contains(data.get("ID").toString()) == true)
+                   while(id.contains(data.get("ID").toString()))
                    {
                        data.put("ID", bsf.gen_ID()); //Neue ID Generieren
                        Log.w("BASI","ID Vorhanden, neue ID Generieren");
@@ -109,7 +109,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
 
             }catch (Exception e)
             {
-                Log.d("BASI","add_manschine:"+e.toString());
+                Log.d("BASI","add_manschine:"+ e);
 
             }
             return response;
@@ -173,13 +173,10 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
         while (cursor.moveToNext())
         {
             String value = null;
-            
-            switch(type)
-            {
-                case "NAME":
-                    value = cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
-                    value +="["+cursor.getString(cursor.getColumnIndexOrThrow("NR"))+"]";
-                    break;
+
+            if (type.equals("NAME")) {
+                value = cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
+                value += "[" + cursor.getString(cursor.getColumnIndexOrThrow("NR")) + "]";
             }
             
             strings[i]=value;
@@ -207,7 +204,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
             response = db.delete(TB_NAME_MASCHINEN_ENTRYS,where,selectionArgs);
             }catch (Exception e)
         {
-            Log.d("Error->",e.getMessage().toString());
+            Log.d("Error->", e.getMessage());
             response=-1;
         }
         return response;
@@ -261,7 +258,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
             {
                 cursor.moveToFirst();
                 counter= cursor.getString(cursor.getColumnIndexOrThrow("COUNTER"));
-                if(counter.contains("null")== true)
+                if(counter.contains("null"))
                 {
                     counter ="0";
                 }
@@ -275,7 +272,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
 
         }catch (Exception e)
         {
-            Log.w("BASI",e.getMessage().toString());
+            Log.w("BASI", e.getMessage());
         }
         return  counter;
 
@@ -307,7 +304,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
 
         }catch (Exception e)
         {
-            Log.w("BASI",e.getMessage().toString());
+            Log.w("BASI", e.getMessage());
         }
         return  id;
 
@@ -410,7 +407,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
         Basic_funct bsf = new Basic_funct();
         long newRowId = -1;
 
-        if(data.containsKey("ID") == false)
+        if(!data.containsKey("ID"))
         {
                 data.put("ID", bsf.gen_ID());
                 while(collisiontest(data.get("ID").toString()) >0)
@@ -437,7 +434,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
         ContentValues data  = new ContentValues();
         Double d_counter= Double.parseDouble(counter);
         data.put("ID", bsf.gen_ID());
-        data.put("PROJ_NR",bsf.PROJ_NR);
+        data.put("PROJ_NR", Basic_funct.PROJ_NR);
         data.put("MASCH_ID",id);
         data.put("DATE",bsf.date_refresh_database());
         data.put("TIME",bsf.time_refresh());
@@ -451,19 +448,11 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
 
             SQLiteDatabase db = this.getWritableDatabase();
             long newRowId = db.insert(TB_NAME_MASCHINEN_ENTRYS,null,data);
-            if(newRowId == -1)
-            {
-                response =false;
-            }
-            else
-            {
-
-                response =true;
-            }
+            response = newRowId != -1;
 
         }catch (Exception e)
         {
-            Log.d("BASI","add_log_entry:"+e.toString());
+            Log.d("BASI","add_log_entry:"+ e);
 
         }
         return response;
@@ -566,7 +555,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
                         Double current_counter_value = Double.parseDouble(cursor.getString(cursor.getColumnIndexOrThrow("COUNTER")));
                         Double counter_diff = current_counter_value - last_counter_value;
                         last_counter_value = current_counter_value;
-                        data += ",+" + counter_diff.toString();
+                        data += ",+" + counter_diff;
                         //Log.d("BASI", data);
 
                         data_array[c] = data;
@@ -617,7 +606,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
         Cursor cursor = rdb.query(TB_NAME_MASCHINEN_ENTRYS,columns,where,selectionArgs,null,null,null);
         cursor.moveToFirst();
         String max = String.valueOf(cursor.getString(0));
-        if(max.equals("null")== true)
+        if(max.equals("null"))
         {
             max="0";
         }
@@ -684,11 +673,11 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
                 Log.d("ONOFF_FLAG __>",onoff_flag);
 
 
-                if(onoff_flag.contains("true") == true )
+                if(onoff_flag.contains("true"))
                 {
                     response=true;
                 }
-                if(onoff_flag.contains("false") == false)
+                if(!onoff_flag.contains("false"))
                 {
                     response=false;
                 }
@@ -702,12 +691,12 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
                 SQLiteDatabase wdb = this.getWritableDatabase();
                 ContentValues data = new ContentValues();
 
-                if(state == true)
+                if(state)
                 {
                     data.put("ONOFF_FLAG","true");
                     Log.d("ONOFF_FLAG","TRUE");
                 }
-                if(state == false)
+                if(!state)
                 {
                     data.put("ONOFF_FLAG","false");
                     Log.d("ONOFF_FLAG","FALSE");
@@ -715,14 +704,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
 
                 long r  = wdb.update(TB_NAME_MASCHINEN_ITEMS,data,where,selectionArgs);
 
-                if(r == 1)
-                {
-                    response=true;
-                }
-                else
-                {
-                    response=false;
-                }
+                response= r == 1;
 
                 wdb.close();
                 break;
@@ -928,14 +910,14 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
        while(quantity >0)
        {
            data.put("ID", bsf.gen_ID());
-           data.put("PROJ_NR", bsf.PROJ_NR);
+           data.put("PROJ_NR", Basic_funct.PROJ_NR);
            data.put("MASCH_ID", masch_id);
 
            String r = String.valueOf(rm.nextInt());
            r = r.substring(r.length()-1);
 
            calendar.add(DAY_OF_MONTH, Integer.parseInt(r));
-           data.put("DATE", dateFormat.format(calendar.getTime()).toString());
+           data.put("DATE", dateFormat.format(calendar.getTime()));
            data.put("TIME", bsf.time_refresh());
            data.put("NR", cv.get("NR").toString());
            data.put("NAME", cv.get("NAME").toString());
@@ -950,7 +932,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
                long newRowId = db.insert(TB_NAME_MASCHINEN_ENTRYS, null, data);
 
            } catch (Exception e) {
-               Log.d("BASI", "add_log_entry:" + e.toString());
+               Log.d("BASI", "add_log_entry:" + e);
 
            }
            counter = counter + Double.parseDouble(r);
@@ -964,7 +946,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
 
     private void exmsg(String msg,Exception e)
     {
-        Log.e("Exception: m_database_ops ->","ID: "+msg+" Message:" +e.getMessage().toString());
+        Log.e("Exception: m_database_ops ->","ID: "+msg+" Message:" + e.getMessage());
         e.printStackTrace();
     }
 
@@ -1021,7 +1003,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
         Log.d("CSV",file_write_string);
          material_database_ops mdo  = new material_database_ops(context2);
 
-         String path = mdo.get_projekt_root_paht().toString()+ static_finals.export_dir_csv;
+         String path = mdo.get_projekt_root_paht() + static_finals.export_dir_csv;
          Log.d("BASI_ppaht",path);
          String filename= "maschinen_report@"+bsf.get_date_for_filename()+".csv";
          write_csv(path,filename,file_write_string);
@@ -1045,7 +1027,7 @@ public class m_database_ops  extends SQLiteOpenHelper implements SQL_finals
              toast.show();
 
          } catch (IOException e) {
-             Toast.makeText(context2, "Export CSV Datei Fehlgeschladen: \n"+e.getMessage().toString(), Toast.LENGTH_LONG).show();
+             Toast.makeText(context2, "Export CSV Datei Fehlgeschladen: \n"+ e.getMessage(), Toast.LENGTH_LONG).show();
              throw new RuntimeException(e);
          }
      }

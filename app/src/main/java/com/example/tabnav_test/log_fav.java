@@ -18,6 +18,8 @@ import java.util.Arrays;
 
 public class log_fav extends SQLiteOpenHelper implements SQL_finals
 {
+
+    //Dokumente ersetzen
     private  String where ="";
     private Context context;
     static final String RROJ_NR="0";
@@ -152,7 +154,7 @@ public class log_fav extends SQLiteOpenHelper implements SQL_finals
 
         }catch (Exception e)
         {
-            Toast.makeText(context,e.getMessage().toString(),Toast.LENGTH_LONG).show();
+            Toast.makeText(context, e.getMessage(),Toast.LENGTH_LONG).show();
         }
 
         return newRowId;
@@ -186,7 +188,7 @@ public class log_fav extends SQLiteOpenHelper implements SQL_finals
 
         }catch (Exception e)
         {
-            Toast.makeText(context,e.getMessage().toString(),Toast.LENGTH_LONG).show();
+            Toast.makeText(context, e.getMessage(),Toast.LENGTH_LONG).show();
         }
 
         return newRowId;
@@ -310,7 +312,7 @@ public class log_fav extends SQLiteOpenHelper implements SQL_finals
         int response;
         SQLiteDatabase db = this.getWritableDatabase();
 
-        if(b==true)
+        if(b)
         {
 
             String[] selectionArgs = {proj_id,"ITHEM_FAV",name};
@@ -508,17 +510,17 @@ public class log_fav extends SQLiteOpenHelper implements SQL_finals
 
         where=" WHERE (PROJ_NR="+proj_id+")"; //Start 0
 
-       if(search_arg[0].equals("null")==false) //SEARCHVALUE
+       if(!search_arg[0].equals("null")) //SEARCHVALUE
         {
             where +=  " AND (NOTE LIKE '%"+search_arg[0]+"%')";
          }
 
-      if(search_arg[1].equals("null")==false) //DATE
+      if(!search_arg[1].equals("null")) //DATE
         {
            where +=  " AND (DATE BETWEEN '"+search_arg[1]+"' AND '"+search_arg[2]+"')";
 
        }
-        if(search_arg[3].equals("null") ||search_arg[3].equals("None")==false) //CATEGORY
+        if(search_arg[3].equals("null") || !search_arg[3].equals("None")) //CATEGORY
         {
             where +=  " AND (CATEGORY='"+search_arg[3]+"')";
         }
@@ -564,7 +566,7 @@ public class log_fav extends SQLiteOpenHelper implements SQL_finals
 
     private void exmsg(String msg,Exception e)
     {
-        Log.e("Exception: lov_fav ->","ID: "+msg+" Message:" +e.getMessage().toString());
+        Log.e("Exception: lov_fav ->","ID: "+msg+" Message:" + e.getMessage());
         e.printStackTrace();
     }
 

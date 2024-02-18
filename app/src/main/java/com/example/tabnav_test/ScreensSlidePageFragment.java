@@ -21,7 +21,7 @@ public class ScreensSlidePageFragment extends Fragment
 {
 
     // TODO: Rename and change types of parameters
-    private int seite;
+    private final int seite;
 
 
     public ScreensSlidePageFragment(int seite)
@@ -53,7 +53,7 @@ public class ScreensSlidePageFragment extends Fragment
     {
         // Inflte the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_screens_slide_page, container, false);
-        TextView t1 = (TextView)view.findViewById(R.id.tv1);
+        TextView t1 = view.findViewById(R.id.tv1);
         t1.setText(String.valueOf(seite));
         return view;
 

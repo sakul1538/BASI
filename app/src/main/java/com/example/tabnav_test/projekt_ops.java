@@ -51,6 +51,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -279,7 +280,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                                     browser.projekt_info_dialog(output);
                                 } catch (Exception e)
                                 {
-                                    Toast.makeText(context, "Error \n"+e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, "Error \n"+ e.getMessage(), Toast.LENGTH_SHORT).show();
 
                                     throw new RuntimeException(e);
                                 }
@@ -384,8 +385,8 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
     public static class backup extends projekt_ops
     {
 
-        private  Basic_funct bsf = new Basic_funct();
-        private  material_database_ops mdo= new material_database_ops(context);
+        private final Basic_funct bsf = new Basic_funct();
+        private final material_database_ops mdo= new material_database_ops(context);
         public String backup_filename = "BACKUP_BASI_PROJEKTE@"+bsf.get_date_for_filename()+".json";
         public String backup_path=Environment.getExternalStorageDirectory()+static_finals.backup_and_export_dir;
         public Boolean import_backup_overwrite =false;
@@ -405,7 +406,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
             try {
                 in2 = new FileInputStream(new File(file));
                 try {
-                    JsonReader reader = new JsonReader(new InputStreamReader(in2,"UTF-8"));
+                    JsonReader reader = new JsonReader(new InputStreamReader(in2, StandardCharsets.UTF_8));
                     reader.beginArray();
                     while(reader.hasNext())
                     {
@@ -415,7 +416,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                         {
                             String name =reader.nextName();
                             String value =reader.nextString();
-                            if(name.equals("ID") ==false)
+                            if(!name.equals("ID"))
                             {
                                 value =bsf.URLdecode(value);
                             }
@@ -433,7 +434,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
                             case 1:
 
-                                if(overwrite_mode ==true)
+                                if(overwrite_mode)
                                 {
                                     dbw.update(BASI_PROJEKTE,output_data,"ID=?",new String[]{output_data.get("ID").toString()});
                                     updated++;
@@ -449,9 +450,9 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                     }
                     reader.endArray();
                     reader.close();
-                    String rapport_message = "Importiert: "+String.valueOf(imported)+"\n";
-                    rapport_message += "Aktuallisiert: "+String.valueOf(updated)+"\n";
-                    rapport_message += "Übersprungen: "+String.valueOf(skipt)+"\n";
+                    String rapport_message = "Importiert: "+ imported +"\n";
+                    rapport_message += "Aktuallisiert: "+ updated +"\n";
+                    rapport_message += "Übersprungen: "+ skipt +"\n";
                     Toast.makeText(context, rapport_message, Toast.LENGTH_LONG).show();
                 }
                 catch (UnsupportedEncodingException e)
@@ -488,13 +489,13 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                         switch(c)
                         {
                             case "ID":
-                                t.put(c, cursor.getString(cursor.getColumnIndexOrThrow(c.toString())));
+                                t.put(c, cursor.getString(cursor.getColumnIndexOrThrow(c)));
                                 break;
                             case "STATUS_FLAG":
                                 t.put(c,"0");
                                 break;
                             default:
-                                t.put(c, bsf.URLencode(cursor.getString(cursor.getColumnIndexOrThrow(c.toString()))));
+                                t.put(c, bsf.URLencode(cursor.getString(cursor.getColumnIndexOrThrow(c))));
                         }
 
                     } catch (JSONException e) {
@@ -536,7 +537,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
             } catch (IOException e)
             {
-                Toast.makeText(context, "Backup erstellen Fehlgeschlagen!:  \n"+e.getMessage().toString(), Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Backup erstellen Fehlgeschlagen!:  \n"+ e.getMessage(), Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -563,7 +564,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
         String name= i.substring(0,i.lastIndexOf("["));
 
-        String nr =  i.substring(i.lastIndexOf("["),i.length());
+        String nr =  i.substring(i.lastIndexOf("["));
         nr =  nr.replace("[","");
         nr = nr.replace("]","");
 
@@ -719,7 +720,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                         value_root_dir = Environment.getExternalStorageDirectory().toString();
                     }
 
-                    if(do_projekt_exist(value_nr,value_name) == true)
+                    if(do_projekt_exist(value_nr, value_name))
                     {
                         Toast.makeText(context, "ERROR: \n Projekt nicht angelegt, da es schon existert!", Toast.LENGTH_LONG).show();
                     }
@@ -743,7 +744,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
                         } catch (Exception e)
                         {
-                            Toast.makeText(context, "ERROR: \n Projekt konte nicht angelegt werden\n"+e.getMessage().toString(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, "ERROR: \n Projekt konte nicht angelegt werden\n"+ e.getMessage(), Toast.LENGTH_LONG).show();
                             throw new RuntimeException(e);
                         }
 
@@ -782,19 +783,19 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                     {
                         boolean del_check = delet_projekt(output.get("ID").toString());
 
-                        if(del_check == true)
+                        if(del_check)
                         {
-                            message  ="Projekt wurde entfernt! \n Response: "+String.valueOf(del_check);
+                            message  ="Projekt wurde entfernt! \n Response: "+ del_check;
                             projekt_spinner_reload();
 
                         }else
                         {
-                            message  ="Projekt konnte NICHT entfernt werden! \n Response:"+String.valueOf(del_check);
+                            message  ="Projekt konnte NICHT entfernt werden! \n Response:"+ del_check;
 
                         }
                     }catch (Exception e)
                     {
-                        message  ="Projekt konnte NICHT entfernt werden! \n Error:"+e.getMessage().toString();
+                        message  ="Projekt konnte NICHT entfernt werden! \n Error:"+ e.getMessage();
 
                     }
                     Toast.makeText(context,message,Toast.LENGTH_LONG).show();
@@ -850,27 +851,20 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
             for(String key: info.keySet())
             {
-                switch(key.toString())
-                {
-                    case "DIR_SUB":
-                        message_sub_dirs += key.toString()+":\n";
-                        try {
-                            JSONArray a = new JSONArray(info.get(key).toString());
-                            for(int c= 0;c < a.length();c++)
-                            {
-                                JSONObject o = new JSONObject(a.get(c).toString());
-                                message_sub_dirs += "+ "+bsf.URLdecode(o.getString("NAME"))+"\n";
-                            }
-
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
+                if (key.equals("DIR_SUB")) {
+                    message_sub_dirs += key + ":\n";
+                    try {
+                        JSONArray a = new JSONArray(info.get(key).toString());
+                        for (int c = 0; c < a.length(); c++) {
+                            JSONObject o = new JSONObject(a.get(c).toString());
+                            message_sub_dirs += "+ " + bsf.URLdecode(o.getString("NAME")) + "\n";
                         }
-                        break;
 
-                    default:
-
-                            message += key.toString()+": "+ info.get(key)+"\n";
-
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    message += key + ": " + info.get(key) + "\n";
                 }
             }
             message+=message_sub_dirs;
@@ -1005,7 +999,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                             }
                             else
                             {
-                                if(do_projekt_exist(value_nr,value_name) == true)
+                                if(do_projekt_exist(value_nr, value_name))
                                 {
                                     bsf.error_msg("ERROR: \n Projekt konnte nicht geändert werden: \n -> Datenkollision",context);
                                 }
@@ -1036,7 +1030,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
             try {
 
                 boolean resonse = dbo.update(SQL_finals.BASI_PROJEKTE,projekt_data);
-                if(resonse == true)
+                if(resonse)
                 {
                     projekt_spinner_reload();
                     bsf.succes_msg( "Projektdaten wurden abgeändert!\n Response :"+resonse,context);
@@ -1047,7 +1041,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                 }
             } catch (Exception e)
             {
-                bsf.error_msg("ERROR: \n ->"+e.getMessage().toString(),context);
+                bsf.error_msg("ERROR: \n ->"+ e.getMessage(),context);
                 throw new RuntimeException(e);
             }
         }
@@ -1061,9 +1055,9 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
                 if(selected_id != "0")
                 {
-                   if(projekt_set_unselect(selected_id) == true)
+                   if(projekt_set_unselect(selected_id))
                    {
-                      if(projekt_set_select(new_selected_id) == true)
+                      if(projekt_set_select(new_selected_id))
                       {
                           current_selectet.setText(get_selectet_projekt());
 
@@ -1080,7 +1074,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                 }
                 else
                 {
-                    if(projekt_set_select(new_selected_id) == true)
+                    if(projekt_set_select(new_selected_id))
                     {
                         current_selectet.setText(get_selectet_projekt());
                     }
@@ -1093,7 +1087,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
             }
             catch (Exception e)
             {
-                bsf.error_msg("Error (Exception \n"+e.getMessage().toString(),context);
+                bsf.error_msg("Error (Exception \n"+ e.getMessage(),context);
                 throw new RuntimeException(e);
             }
         }
@@ -1275,18 +1269,11 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
             } catch (Exception e)
             {
-                Toast.makeText(context, e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                 throw new RuntimeException(e);
             }
 
-            if(response_sql == -1)
-            {
-                return false;
-            }
-            else
-            {
-                return  true;
-            }
+            return response_sql != -1;
         }
 
     }
