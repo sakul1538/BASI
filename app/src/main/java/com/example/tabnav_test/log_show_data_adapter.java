@@ -1,22 +1,16 @@
 package com.example.tabnav_test;
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.transition.TransitionValues;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,23 +19,28 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import com.example.tabnav_test.Log.log_database_ops;
+
+import java.util.Arrays;
 
 public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHolder>
 {
-    private String[] localDataSet;
+    public String[] localDataSet;
     Context context;
     ViewGroup par;
     log_fav spinnerops;
     static final String RROJ_NR="0";
     Basic_funct bsf;
+    log_database_ops log_dbops;
+    projekt_ops projekt;
 
     public log_show_data_adapter(String[] localDataSet)
     {
         this.localDataSet = localDataSet;
+        spinnerops =new log_fav(context);
+        bsf=new Basic_funct();
+        log_dbops = new log_database_ops(context);
+        projekt = new projekt_ops(context);
     }
 
     @NonNull
@@ -51,8 +50,6 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
         context =parent.getContext();
         par = parent;
         View view = LayoutInflater.from(context).inflate(R.layout.log_show_data_layout, parent, false);
-        spinnerops =new log_fav(context);
-        bsf=new Basic_funct();
 
         return new ViewHolder(view);
     }
@@ -61,156 +58,126 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position)
     {
-        String[] dataset;
-        String flag_state=null;
-        int posi = position;
-        String note_encoded = null;
-        dataset = localDataSet[position].split(",");
-
-        try {
-            viewHolder.datum.setText(bsf.convert_date(dataset[2],"format_database_to_readable"));
-        } catch (Exception e)
+        ContentValues data = new ContentValues();
+        if(this.localDataSet[position] != null )
         {
-            viewHolder.datum.setText(dataset[2]);
-            exmsg("050220231110",e);
-            e.printStackTrace();
-        }
+            String[] colum_names = new String[]{"ID","PROJEKT_NR","DATE","TIME","NOTE" ,"CHECK_FLAG" ,"FAV_FLAG"};
 
-        viewHolder.zeit.setText(dataset[3]);
-        viewHolder.kategorie.setText(dataset[4]);
+            try {
+                String[] entry_data = this.localDataSet[position].split(",");
 
-        try {
-            viewHolder.notiz.setText(bsf.URLdecode(dataset[5]));
-        } catch (Exception e)
-        {
-            viewHolder.notiz.setText("");
-            exmsg("050220231111",e);
-            e.printStackTrace();
-        }
+                int item_pos=0;
+                for(String c : colum_names)
+                {
+                   data.put(c, entry_data[item_pos]);
+                   item_pos++;
+                }
+                Log.d("BASI", data.toString());
 
-        flag_state = spinnerops.log_get_flag_value(dataset[0],dataset[1],"FAV_FLAG");
-        //Hin und herschalten (Toogeln)
-        switch(flag_state)
-        {
+                try {
+                    viewHolder.datum.setText(bsf.convert_date(data.get("DATE").toString(),"format_database_to_readable"));
+                } catch (Exception e)
+                {
+                    viewHolder.datum.setText(data.get("DATE").toString());
+                    exmsg("050220231110",e);
+                    e.printStackTrace();
+                }
 
-            case "TRUE":
+                viewHolder.zeit.setText(data.get("TIME").toString());
 
-                viewHolder.log_set_unset_star.setBackgroundColor(ContextCompat.getColor(context,R.color.yellow));
+                try {
+                    viewHolder.notiz.setText(bsf.URLdecode(data.get("NOTE").toString()));
+                } catch (Exception e)
+                {
+                    viewHolder.notiz.setText("");
+                    exmsg("050220231111",e);
+                    e.printStackTrace();
+                }
 
-                break;
-
-            case "FALSE":
-                viewHolder.log_set_unset_star.setBackgroundColor(ContextCompat.getColor(context,R.color.purple_200));
-
-                break;
-            default:
-
-        }
-
-        flag_state = spinnerops.log_get_flag_value(dataset[0],dataset[1],"CHECK_FLAG");
-        //Hin und herschalten (Toogeln)
-        switch(flag_state)
-        {
-
-            case "TRUE":
-
-                viewHolder.log_set_unset_check.setBackgroundColor( ContextCompat.getColor(context, R.color.hellgrün));
-                break;
-
-            case "FALSE":
-                viewHolder.log_set_unset_check.setBackgroundColor(ContextCompat.getColor(context, R.color.purple_200));
-
-                break;
-            default:
-
-        }
-
-
-
-        viewHolder.delete_entry.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-                alertDialogBuilder.setTitle("Bestätige:");
-                alertDialogBuilder.setMessage("Element aus der Datenbank entfernen?");
-                alertDialogBuilder.setPositiveButton("Ja", new DialogInterface.OnClickListener()
+                viewHolder.delete_entry.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i)
+                    public void onClick(View view)
                     {
-                        int response= spinnerops.delet_log_entry(dataset[0],dataset[1]);
-                        Toast.makeText(context.getApplicationContext(),String.valueOf(response),Toast.LENGTH_SHORT).show();
-                        localDataSet = spinnerops.getalllogdata(RROJ_NR);
-                        notifyItemRemoved(posi);
-                        notifyItemRangeChanged(posi,localDataSet.length);
 
-                    }
-                });
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+                        alertDialogBuilder.setTitle("Bestätige:");
+                        alertDialogBuilder.setMessage("Element aus der Datenbank entfernen?");
+                        alertDialogBuilder.setPositiveButton("Ja", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                                //int response= spinnerops.delet_log_entry(dataset[0],dataset[1]);
+                                // Toast.makeText(context.getApplicationContext(),String.valueOf(response),Toast.LENGTH_SHORT).show();
+                                //  localDataSet = spinnerops.getalllogdata(RROJ_NR);
+                                //  notifyItemRemoved(posi);
+                                // notifyItemRangeChanged(posi,localDataSet.length);
 
-                alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Toast.makeText(context, "Aktion abgebrochen!", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                            }
+                        });
 
-                alertDialogBuilder.show();
-            }});
+                        alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Toast.makeText(context, "Aktion abgebrochen!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
 
-        viewHolder.log_set_unset_star.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
+                        alertDialogBuilder.show();
+                    }});
 
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-                alertDialogBuilder.setTitle("Bestätige:");
-                alertDialogBuilder.setMessage("Ausgewählter Eintrag aus den Favoriten entfernen/hinzüfügen?");
-                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener()
+                viewHolder.log_set_unset_star.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i)
+                    public void onClick(View view)
                     {
-                        String flag_state =spinnerops.log_set_unset_flags(dataset[0],dataset[1],"FAV_FLAG");
+
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+                        alertDialogBuilder.setTitle("Bestätige:");
+                        alertDialogBuilder.setMessage("Ausgewählter Eintrag aus den Favoriten entfernen/hinzüfügen?");
+                        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                     /*   String flag_state =spinnerops.log_set_unset_flags(dataset[0],dataset[1],"FAV_FLAG");
                         //Hin und herschalten (Toogeln)
                         switch(flag_state)
                         {
 
                             case "TRUE":
-                                view.setBackgroundColor(ContextCompat.getColor(context,R.color.yellow));
+                                view.setBackgroundColor(ContextCompat.getColor(context,R.color.grey));
                                 break;
                             case "FALSE":
-                                view.setBackgroundColor(ContextCompat.getColor(context,R.color.purple_200));
+                                view.setBackgroundColor(ContextCompat.getColor(context,R.color.yellow));
 
                                 break;
                             default:
 
-                        }
+                        }*/
+                            }
+                        });
+
+                        alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Toast.makeText(context, "Aktion abgebrochen!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                        alertDialogBuilder.show();
+
                     }
                 });
 
-                alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener()
+                viewHolder.log_set_unset_check.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Toast.makeText(context, "Aktion abgebrochen!", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                alertDialogBuilder.show();
-
-            }
-        });
-
-        viewHolder.log_set_unset_check.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-
+                    public void onClick(View view)
+                    {
+            /*
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
                 alertDialogBuilder.setTitle("Bestätige:");
 
@@ -259,21 +226,30 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                 });
 
                 alertDialogBuilder.show();
-
-            }
-        });
-        viewHolder.log_clipboard.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
+            */
+                    }
+                });
+                viewHolder.log_clipboard.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    { /*
                 ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                 // Creates a new text clip to put on the clipboard
                 ClipData clip = ClipData.newPlainText("LOG", bsf.URLdecode(dataset[5]));
                 clipboard.setPrimaryClip(clip);
-                Toast.makeText(context, "Notiz in die Zwischenablage kopiert!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Notiz in die Zwischenablage kopiert!", Toast.LENGTH_SHORT).show(); */
+                    }
+                });
+
+
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-        });
+
+        }
+
     }
 
     @Override
@@ -288,7 +264,7 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
         private final TextView datum;
         private final TextView zeit;
         private final TextView notiz;
-        private final TextView kategorie;
+
         private final ImageButton delete_entry;
         private final ImageButton log_set_unset_star;
         private final ImageButton log_set_unset_check;
@@ -303,7 +279,6 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
             datum = itemView.findViewById(R.id.textView3);
             zeit = itemView.findViewById(R.id.textView10);
             notiz = itemView.findViewById(R.id.textView16);
-            kategorie = itemView.findViewById(R.id.textView20);
             delete_entry = itemView.findViewById(R.id.show_log_delet_entry);
             log_set_unset_star = itemView.findViewById(R.id.log_set_star);
             log_set_unset_check = itemView.findViewById(R.id.log_check_button);

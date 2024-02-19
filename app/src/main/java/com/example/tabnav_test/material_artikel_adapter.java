@@ -57,7 +57,6 @@ public class material_artikel_adapter extends RecyclerView.Adapter<material_arti
 
         holder.getTextView().setText(artikel +" ("+einheit+")");
 
-
         holder.update_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)

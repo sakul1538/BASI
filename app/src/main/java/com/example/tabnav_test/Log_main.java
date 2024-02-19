@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,6 +32,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.tabnav_test.Log.log_database_ops;
 import com.example.tabnav_test.config_favorite_strings.config_fav;
 import com.example.tabnav_test.config_favorite_strings.config_fav_ops;
 import com.example.tabnav_test.material.material_database_ops;
@@ -272,27 +274,34 @@ public class Log_main extends Fragment
             public void onClick(View view)
             {
                 try {
-                    String d = bsf.convert_date(date.getText().toString(),"format_database");
+                    projekt_ops projekt = new projekt_ops(context);
+                    log_database_ops log_dbops = new log_database_ops(getContext());
 
-                    String t = time.getText().toString();
-                    String c = kategory.getSelectedItem().toString();
-                    String n = acTextView.getText().toString();
-                    n = bsf.URLencode(n);
+                    ContentValues data = new ContentValues();
 
+                    data.put("ID",bsf.gen_UUID());
+                    data.put("PROJEKT_NR",projekt.projekt_get_selected_id());
+                    data.put("DATE",bsf.convert_date(date.getText().toString(),"format_database"));
+                    data.put("TIME",time.getText().toString());
+                    data.put("NOTE",bsf.URLencode(acTextView.getText().toString()));
+                    data.put("CHECK_FLAG",0);
+                    data.put("FAV_FLAG",0);
 
-                    //Fixme speichern der Log Einträge
+                    if(log_dbops.add(data))
+                    {
 
-                   // int response= (int) spinnerops.log_add_entry(RROJ_NR,d,t,c,n);
+                        Toast.makeText(context, "Eintrag erstellt", Toast.LENGTH_SHORT).show();
 
-                  //  Toast.makeText(getContext(),"Antwort_"+response,Toast.LENGTH_LONG).show();
+                    }else
+                    {
+                        Toast.makeText(context, "Eintrag konnte nicht erstellt werden!", Toast.LENGTH_SHORT).show();
 
-                    hideKeyboard(context,view);
-
+                    }
 
                 } catch (Exception e)
                 {
                     exmsg("050220231057",e);
-                    bsf.error_msg("Es konnte kein Eintrag erstellt werden",context);
+                    bsf.error_msg("Es konnte kein Eintrag erstellt werden\n"+e.getMessage().toString(),context);
                 }
 
             }

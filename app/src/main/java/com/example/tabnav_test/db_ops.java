@@ -60,6 +60,7 @@ public class db_ops extends SQLiteOpenHelper implements SQL_finals
     {
 
         sqLiteDatabase.execSQL("CREATE TABLE "+BASI_PROJEKTE+" (ID TEXT,DATE TEXT,PROJEKT_NR TEXT,NAME TEXT,DIR_ROOT TEXT,DIR_SUB TEXT,STATUS_FLAG TEXT)");
+        sqLiteDatabase.execSQL("CREATE TABLE "+BASI_LOG+" (ID TEXT,PROJEKT_NR TEXT,DATE TEXT,TIME TEXT,NOTE TEXT,CHECK_FLAG TEXT,FAV_FLAG TEXT)");
 
         //Alte Tabellen
         sqLiteDatabase.execSQL("CREATE TABLE "+TB_NAME_KAMERA_CONF+" (ID TEXT,NAME TEXT,DIR TEXT)");

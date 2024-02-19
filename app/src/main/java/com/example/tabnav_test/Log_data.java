@@ -38,11 +38,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tabnav_test.Log.log_database_ops;
+
 import java.util.Calendar;
 
 public class Log_data extends AppCompatActivity
 {
-
     RecyclerView rcv1;
     ImageButton log_search;
     ImageButton log_filter_reset;
@@ -107,11 +108,14 @@ public class Log_data extends AppCompatActivity
 
         log_fav log_data = new log_fav(getApplicationContext());
 
-        recv_daten= log_data.getalllogdata(RROJ_NR);
+        log_database_ops log_dbops = new log_database_ops(getApplicationContext());
+
+        projekt_ops projekt =new projekt_ops(getApplicationContext());
+
+        recv_daten= log_dbops.get_entrys(projekt.projekt_get_selected_id());
 
         log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
         rcv1.setAdapter(lca);
-
 
         rcv1.setLayoutManager(new LinearLayoutManager(Log_data.this));
 

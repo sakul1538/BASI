@@ -12,12 +12,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/yellow"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         tools:layout_editor_absoluteX="1dp"
         tools:layout_editor_absoluteY="1dp">
 
         <LinearLayout
-            android:layout_width="409dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="1dp"
             android:layout_marginTop="1dp"
@@ -56,7 +56,7 @@
 
             <TextView
                 android:id="@+id/textView11"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="@string/note"
@@ -64,13 +64,11 @@
 
             <TextView
                 android:id="@+id/textView16"
-                android:layout_width="380dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:background="@color/white"
                 android:inputType="textMultiLine|text|textImeMultiLine"
-                android:lines="4"
-                android:maxLines="4"
                 android:text="@string/empty"
                 android:textColor="@color/black" />
 
@@ -90,8 +88,9 @@
                     android:background="@color/yellow"
                     app:srcCompat="@drawable/ic_baseline_delete_24" />
 
+
                 <ImageButton
-                    android:id="@+id/show_log_delet_entry"
+                    android:id="@+id/show_log_update_entry"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="5dp"
@@ -133,6 +132,18 @@
                     android:layout_weight="1"
                     android:background="@color/yellow"
                     app:srcCompat="@drawable/ic_baseline_auto_awesome_motion_24" />
+
+
+                <ImageButton
+                    android:id="@+id/log_share_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_weight="1"
+                    android:background="@color/yellow"
+                    app:srcCompat="@drawable/ic_baseline_share_24" />
 
             </LinearLayout>
 

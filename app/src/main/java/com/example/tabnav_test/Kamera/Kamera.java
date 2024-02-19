@@ -2,11 +2,13 @@ package com.example.tabnav_test.Kamera;
 
 import static java.util.Arrays.sort;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,6 +22,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
@@ -59,6 +62,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.Permission;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.zip.Inflater;
@@ -139,7 +143,7 @@ public class Kamera<onActivityResult> extends Fragment {
     public void onResume() {
         super.onResume();
         refresh_fav_auto_complete();
-        refresh_spinner();
+        ///refresh_spinner();
 
     }
 
@@ -540,6 +544,7 @@ public class Kamera<onActivityResult> extends Fragment {
         media_label.setVisibility(visibility);
     }
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         this.requestCode = requestCode;
@@ -630,11 +635,10 @@ public class Kamera<onActivityResult> extends Fragment {
                     if (tags == "")
                     {
 
-                        photostamp = projekt_name+": "+ save_dir + "  " + datum + " [KW" + kw + "]";
+                        photostamp = projekt_name+"  " + datum + " [KW" + kw + "]";
                     } else {
-                        photostamp =projekt_name+": "+ save_dir + "  #" + tags + "    " + datum + " [KW" + kw + "]";
+                        photostamp =projekt_name+"   #" + tags + "    " + datum + " [KW" + kw + "]";
                     }
-
 
                     //Bitmap erstellen
                     BitmapFactory.Options options = new BitmapFactory.Options();
@@ -647,13 +651,15 @@ public class Kamera<onActivityResult> extends Fragment {
 
                     try {
 
+
                         ExifInterface exif = new ExifInterface(path + filename);
                         int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
 
                         int width = exif.getAttributeInt(ExifInterface.TAG_PIXEL_X_DIMENSION, 0);
                         int height = exif.getAttributeInt(ExifInterface.TAG_PIXEL_Y_DIMENSION, 0);
 
-                        if (width == 0 || height == 0) {
+                        if (width == 0 || height == 0)
+                        {
                             width = bMap.getWidth();
                             height = bMap.getHeight();
                         }
@@ -749,7 +755,7 @@ public class Kamera<onActivityResult> extends Fragment {
                     }
                 } catch (Exception e) {
                     exmsg("120220231031A", e);
-                    bsf.error_msg("Bild wurde verworfen", getContext());
+                    bsf.error_msg("Bild wurde verworfen\n"+e.getMessage().toString(), getContext());
                     camera_photo.setImageResource(0);
                     try {
                         File f = new File(path + filename);
@@ -948,14 +954,15 @@ public class Kamera<onActivityResult> extends Fragment {
 
     private void dispatchTakePictureIntent(String path, String title, boolean tag_on, String tag, String date) {
 
+
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
 
         // Create the File where the photo should go
         File photoFile = null;
         try {
-
-            photoFile = createImageFile(path, title, tag_on, tag, date);
+            String projekt_name= projekt.get_selectet_projekt();
+            photoFile = createImageFile(path, projekt_name, tag_on, tag, date);
         } catch (IOException ex) {
             // Error occurred while creating the File
 
@@ -976,8 +983,6 @@ public class Kamera<onActivityResult> extends Fragment {
 
     private File createImageFile(String path, String title, boolean tag_on, String tag, String date) throws IOException
     {
-
-
 
         Basic_funct bsf = new Basic_funct();
 
@@ -1104,10 +1109,11 @@ public class Kamera<onActivityResult> extends Fragment {
         }
 
 
-        public void update(String name_old, String name_new, String path_new) throws JSONException {
+        public void update(String name_old, String name_new, String path_new) throws JSONException
+        {
             Basic_funct bsf = new Basic_funct();
 
-            if(!kamera_subdir_exist(name_new))
+            if(!kamera_subdir_exist(name_new) || name_new.equals(name_old))
             {
                 String json = directory.get_dir(directory.projekt_get_selected_id());
 
@@ -1140,7 +1146,7 @@ public class Kamera<onActivityResult> extends Fragment {
             }
             else
             {
-              bsf.error_msg("Error: Überschneidungen mit bestehenden Einträgen!",getContext());
+                Toast.makeText(context, "Error: Überschneidungen mit bestehenden Einträgen!", Toast.LENGTH_SHORT).show();
             }
         }
 

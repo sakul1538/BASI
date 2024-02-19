@@ -2,8 +2,10 @@ package com.example.tabnav_test.Log;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -14,15 +16,16 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
 {
     Context context;
 
-    public log_database_ops(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
+    public log_database_ops(@Nullable Context context)
+    {
         super(context, DB_NAME, null,1);
-
     }
+
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase)
     {
-        sqLiteDatabase.execSQL("CREATE TABLE "+BASI_LOG+" (ID TEXT,PROJEKT_NR TEXT,DATE TEXT,TIME TEXT,NOTE TEXT,CHECK_FLAG TEXT,FAV_FLAG TEXT)");
+
     }
 
     @Override
@@ -30,9 +33,8 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
     {
     }
 
-    public boolean add(String projekt_id, ContentValues data)
+    public boolean add( ContentValues data)
     {
-
         try {
             SQLiteDatabase dbw = this.getWritableDatabase();
 
@@ -50,7 +52,6 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 
     public  boolean udpate(String id,ContentValues update_data)
@@ -82,4 +83,74 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
 
     }
 
+    public String[] get_entrys(String projekt_id)
+    {
+        SQLiteDatabase dbr = this.getReadableDatabase();
+
+        Cursor c  =dbr.query(BASI_LOG,null,"PROJEKT_NR=?",new String[]{projekt_id},null,null,null);
+
+        if(c.getCount() >0)
+        {
+            String[] output = new String[c.getCount()];
+            while(c.moveToNext())
+            {
+                String row = "";
+
+                for(String name : c.getColumnNames())
+                {
+                    row += c.getString(c.getColumnIndexOrThrow(name))+",";
+                }
+                output[c.getPosition()] = row.substring(0,row.length()-1).toString();
+            }
+
+            dbr.close();
+            c.close();
+            return output;
+        }
+        else
+        {
+            String[] output = new String[1];
+            String row_alt = "";
+
+            for(String name : c.getColumnNames())
+            {
+                row_alt += "NULL,";
+            }
+
+            output[0]=row_alt.substring(0,row_alt.length()-1);
+            dbr.close();
+            c.close();
+
+            return output;
+        }
+    }
+
+    public int entry_count(String projekt_id)
+    {
+        SQLiteDatabase dbr = this.getReadableDatabase();
+
+        Cursor c  =dbr.query(BASI_LOG,null,"PROJEKT_NR=?",new String[]{projekt_id},null,null,null);
+        dbr.close();
+        c.close();
+
+        return c.getCount();
+    }
+
+    public String[] get_colum_names()
+    {
+        SQLiteDatabase dbr = this.getReadableDatabase();
+
+        Cursor c  =dbr.query(BASI_LOG,null,null,null,null,null,null);
+        String[] colums = c.getColumnNames();
+
+        for(String i:colums)
+        {
+            Log.d("BASI",i);
+
+        }
+        dbr.close();
+        c.close();
+
+        return colums;
+    }
 }
