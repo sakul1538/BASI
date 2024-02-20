@@ -78,9 +78,15 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
     {
         SQLiteDatabase dbw = this.getWritableDatabase();
         long colum   = dbw.delete(BASI_LOG,"ID=?",new String[]{id});
-        
-        return  false;
 
+        if(colum >-1)
+        {
+            return  true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public String[] get_entrys(String projekt_id)

@@ -31,7 +31,7 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
     log_fav spinnerops;
     static final String RROJ_NR="0";
     Basic_funct bsf;
-    log_database_ops log_dbops;
+    log_database_ops log;
     projekt_ops projekt;
 
     public log_show_data_adapter(String[] localDataSet)
@@ -39,7 +39,7 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
         this.localDataSet = localDataSet;
         spinnerops =new log_fav(context);
         bsf=new Basic_funct();
-        log_dbops = new log_database_ops(context);
+        log = new log_database_ops(context);
         projekt = new projekt_ops(context);
     }
 
@@ -108,12 +108,21 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i)
                             {
-                                //int response= spinnerops.delet_log_entry(dataset[0],dataset[1]);
-                                // Toast.makeText(context.getApplicationContext(),String.valueOf(response),Toast.LENGTH_SHORT).show();
-                                //  localDataSet = spinnerops.getalllogdata(RROJ_NR);
-                                //  notifyItemRemoved(posi);
-                                // notifyItemRangeChanged(posi,localDataSet.length);
-
+                                try {
+                                    if (log.delet(data.get("ID").toString()))
+                                    {
+                                        Toast.makeText(context, "Eintrag gelöscht!", Toast.LENGTH_SHORT).show();
+                                        localDataSet = log.get_entrys(projekt.projekt_get_selected_id());
+                                        notifyItemRemoved(position);
+                                        notifyItemRangeChanged(position,localDataSet.length);
+                                    } else
+                                    {
+                                        Toast.makeText(context, "Error: response false\n Eintrag wurde nicht gelöscht! ", Toast.LENGTH_SHORT).show();
+                                    }
+                                } catch (Exception e)
+                                {
+                                    throw new RuntimeException(e);
+                                }
                             }
                         });
 
@@ -126,6 +135,30 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
 
                         alertDialogBuilder.show();
                     }});
+
+                viewHolder.log_update_entry.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        View update_view = getL
+
+                        AlertDialog.Builder update_dialog = new AlertDialog.Builder(context);
+
+                        update_dialog.setTitle("Eintrag ändern");
+                        update_dialog.setView();
+                        update_dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                            }
+                        });
+
+
+
+                    }
+                });
+
+
 
                 viewHolder.log_set_unset_star.setOnClickListener(new View.OnClickListener()
                 {
@@ -266,6 +299,7 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
         private final TextView notiz;
 
         private final ImageButton delete_entry;
+        private final ImageButton log_update_entry;
         private final ImageButton log_set_unset_star;
         private final ImageButton log_set_unset_check;
         private final ImageButton log_clipboard;
@@ -280,6 +314,7 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
             zeit = itemView.findViewById(R.id.textView10);
             notiz = itemView.findViewById(R.id.textView16);
             delete_entry = itemView.findViewById(R.id.show_log_delet_entry);
+            log_update_entry = itemView.findViewById(R.id.log_update_entry);
             log_set_unset_star = itemView.findViewById(R.id.log_set_star);
             log_set_unset_check = itemView.findViewById(R.id.log_check_button);
             log_clipboard = itemView.findViewById(R.id.log_clipboard_button);

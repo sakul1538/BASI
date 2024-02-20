@@ -90,7 +90,7 @@
 
 
                 <ImageButton
-                    android:id="@+id/show_log_update_entry"
+                    android:id="@+id/log_update_entry"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="5dp"
