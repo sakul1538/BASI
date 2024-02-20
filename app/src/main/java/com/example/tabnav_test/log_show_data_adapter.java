@@ -140,12 +140,13 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                     @Override
                     public void onClick(View view)
                     {
-                        View update_view = getLi
+                        LayoutInflater inflater  = LayoutInflater.from(context);
+                        View update_dialog_view = inflater.inflate(R.layout.log_show_data_layout_update_dialog,par,false);
 
                         AlertDialog.Builder update_dialog = new AlertDialog.Builder(context);
 
                         update_dialog.setTitle("Eintrag ändern");
-                        update_dialog.setView();
+                        update_dialog.setView(update_dialog_view);
                         update_dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
