@@ -140,7 +140,7 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                     @Override
                     public void onClick(View view)
                     {
-                        View update_view = getL
+                        View update_view = getLi
 
                         AlertDialog.Builder update_dialog = new AlertDialog.Builder(context);
 
