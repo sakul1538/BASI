@@ -5,11 +5,6 @@ import static com.example.tabnav_test.R.id.delet_check_true;
 
 import static com.example.tabnav_test.R.id.log_actions_data;
 import static com.example.tabnav_test.R.id.log_data_view;
-import static com.example.tabnav_test.R.id.log_filter_refresh_date;
-import static com.example.tabnav_test.R.id.log_search_button;
-import static com.example.tabnav_test.R.id.log_search_field;
-import static com.example.tabnav_test.R.id.log_search_filter_dialog_button;
-import static com.example.tabnav_test.R.id.log_show_reset_button;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -17,43 +12,35 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.DatePickerDialog;
+
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
+
+
 import android.widget.CheckBox;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
-import android.widget.RadioButton;
+
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tabnav_test.Log.log_database_ops;
 
-import java.util.Calendar;
-
 public class Log_data extends AppCompatActivity
 {
     RecyclerView rcv1;
-    ImageButton log_search;
-    ImageButton log_filter_reset;
-    ImageButton log_date_filter_dialog;
+    ImageButton log_filter_button;
     ImageButton log_action_data_button;
     EditText log_search_edit;
 
-    Button filter_reset;
 
-
-    RadioButton log_filter_radio_check_true;
-    RadioButton log_filter_radio_check_false;
-    CheckBox    log_filter_check_fav_state;
 
 
     //Suchvariablen
@@ -62,13 +49,11 @@ public class Log_data extends AppCompatActivity
     String date_to_value = null;
     String text_value = null;
     String category_value = "None";
-    String check_state="None";
-    String fav_state="None";
+
     static final String RROJ_NR = "0";
 
     //Akueller datensatz
     String[] recv_daten;
-
 
     @Nullable
     @Override
@@ -78,21 +63,16 @@ public class Log_data extends AppCompatActivity
         setContentView(R.layout.activity_log_data);
 
         Basic_funct bsf = new Basic_funct();
-        Calendar calendar = Calendar.getInstance();
+
 
         log_database_ops log = new log_database_ops(getApplicationContext());
-        log_fav spinnerops = new log_fav(getApplicationContext());
 
 
         rcv1 = findViewById(log_data_view);
 
-        log_search = findViewById(log_search_button);
-        log_search_edit = findViewById(log_search_field);
-        log_filter_reset = findViewById(log_show_reset_button);
-        log_date_filter_dialog = findViewById(log_search_filter_dialog_button);
-
-
         log_action_data_button = findViewById(log_actions_data);
+
+        log_filter_button  =findViewById(R.id.log_filter_button);
 
         log_action_data_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,185 +85,61 @@ public class Log_data extends AppCompatActivity
 
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
-        log_fav log_data = new log_fav(getApplicationContext());
-
-        log_database_ops log_dbops = new log_database_ops(getApplicationContext());
-
         projekt_ops projekt =new projekt_ops(getApplicationContext());
 
         recv_daten= log.get_entrys(projekt.projekt_get_selected_id());
-
         log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
         rcv1.setAdapter(lca);
 
         rcv1.setLayoutManager(new LinearLayoutManager(Log_data.this));
 
-        log_search_edit.setOnClickListener(new View.OnClickListener() {
+        log_filter_button.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View view) {
-                log_search_edit.setText(""); //Löschen des Suchfelder
-
-            }
-        });
-
-        log_search.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                reset_search_values();
-
-                text_value = bsf.URLencode(log_search_edit.getText().toString());
-
-                recv_daten = log.search_text(projekt.projekt_get_selected_id(),text_value);
-
-                // Toast.makeText(Log_data.this,t,Toast.LENGTH_SHORT).show();
-
-                log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
-                rcv1.setAdapter(lca);
-                inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-
-            }
-        });
-
-        log_filter_reset.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                reset_search_values();
-
-                log_search_edit.setText(""); //Löschen des Suchfelder
-
-
-
-                recv_daten= log_dbops.get_entrys(projekt.projekt_get_selected_id());
-
-                log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
-                rcv1.setAdapter(lca);
-
-                inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-
-            }
-        });
-
-        log_date_filter_dialog.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+            public void onClick(View view)
+            {
+                AlertDialog.Builder filter_dialog = new AlertDialog.Builder(Log_data.this);
                 View promptsView = getLayoutInflater().inflate(R.layout.log_search_filter_dialog, null);
+                filter_dialog.setView(promptsView);
+                filter_dialog.setTitle("x");
+                filter_dialog.show();
 
-                ImageButton date_refresh = promptsView.findViewById(log_filter_refresh_date);
-                TextView date_from = promptsView.findViewById(R.id.textView23);
-                TextView date_to = promptsView.findViewById(R.id.textView21);
+                TextView date_from = promptsView.findViewById(R.id.date_from);
+                TextView date_to= promptsView.findViewById(R.id.date_to);
+                EditText search_text_value = promptsView.findViewById(R.id.search_text_value);
 
-                date_from.setText(bsf.date_refresh_database());
-                date_to.setText(bsf.date_refresh_database());
+                ImageButton refresh_date = promptsView.findViewById(R.id.refresh_date);
+
+                CheckBox check_date = promptsView.findViewById(R.id.check_date);
+                CheckBox check_text = promptsView.findViewById(R.id.check_text);
+                CheckBox done_flag = promptsView.findViewById(R.id.done_flag);
+                CheckBox undone_flag = promptsView.findViewById(R.id.undone_flag);
+                CheckBox favorite_flag = promptsView.findViewById(R.id.favorite_flag);
 
 
-
-                //Datum
-
-                date_from.setOnClickListener(new View.OnClickListener() {
+                filter_dialog.setPositiveButton("OK", new DialogInterface.OnClickListener()
+                {
                     @Override
-                    public void onClick(View view) {
-                        DatePickerDialog dpd = new DatePickerDialog(Log_data.this, new DatePickerDialog.OnDateSetListener() {
-                            @Override
-                            public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-                                String date = bsf.convert_time_for_database(i, i1, i2);
-                                date_from.setText(date);
-                                //date_to.setText(date);
-                            }
-                        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-                        dpd.show();
-                    }
-
-                });
-
-                date_to.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        DatePickerDialog dpd = new DatePickerDialog(Log_data.this, new DatePickerDialog.OnDateSetListener() {
-                            @Override
-                            public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-
-                                date_to.setText(bsf.convert_time_for_database(i, i1, i2));
-                            }
-                        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-                        dpd.show();
-
-                    }
-
-                });
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
 
 
-                date_refresh.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        date_from.setText(bsf.date_refresh_database());
-                        date_to.setText(bsf.date_refresh_database());
-
-                    }
-                });
-
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Log_data.this);
-
-                // set prompts.xml to alertdialog builder
-                alertDialogBuilder.setView(promptsView);
-
-                alertDialogBuilder.setTitle(R.string.log_search_filter_dialog_title);
-
-
-                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                        text_value = log_search_edit.getText().toString();
-                        date_from_value = date_from.getText().toString();
-                        date_to_value = date_to.getText().toString();
-
-                       // recv_daten = log_data.log_search_data(RROJ_NR, pack_search_values());
-
-
-                       // log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
-                       // rcv1.setAdapter(lca);
-
-                        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-
-
-                    }
-
-                });
-                alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
                     }
                 });
 
 
 
 
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                // show it
-                alertDialog.show();
+
+
 
 
             }
         });
-
-
     }
 
-
-    public void reset_search_values()
+    public String pack_search_values()
     {
-        String date_from_value = null;
-        String date_to_value = null;
-        String text_value = null;
-        String category_value = "None";
-        String check_state="None";
-        String fav_state="None";
-
-    }
-
-    public String pack_search_values() {
 
         String search_filter_arg = "";
         search_filter_arg += text_value + ",";

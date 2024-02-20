@@ -96,17 +96,17 @@
     <string name="Maschinen_label_stundne">Zählerstand:</string>
 
 
-    <string name="log_search_filter_dialog_title">Suchfilter:</string>
-    <string name="log_label_filter_date">Datum:</string>
+    <string name="log_search_filter_dialog_title">Suchfilter</string>
+    <string name="log_search_filter_text_label">Suchtext</string>
+    <string name="log_search_filter_flags_label">Marker</string>
+    <string name="log_label_filter_date">Datum</string>
     <string name="log_label_filter_date_vonbis">bis</string>
-    <string name="log_label_filter_category">Kategorie:</string>
-    <string name="log_label_filter_checked">Erledigt:</string>
+    <string name="log_label_filter_checked">erledigt</string>
     <string name="log_label_filter_true">erledigt</string>
     <string name="log_label_filter_false">unerledigt</string>
-    <string name="log_label_filter_fav">Nur Favoriten</string>
+    <string name="log_label_filter_fav">Favorit</string>
 
 
-    <string name="log_add_kategorie_dialog_title">Neue Kategorie anlegen:</string>
     <string name="log_actions_delet">Löschen</string>
     <string name="log_actions_delet_all">Alle Einträge</string>
     <string name="log_actions_delet_all_check_true">Erledigte</string>

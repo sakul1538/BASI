@@ -43,37 +43,42 @@
                     android:id="@+id/back"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="left"
                     android:layout_margin="5dp"
                     android:background="@color/grey"
+                    android:gravity="right"
                     android:orientation="horizontal"
                     android:padding="5dp">
 
-                    <EditText
-                        android:id="@+id/log_search_field"
-                        android:layout_width="235dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:ems="10"
-                        android:inputType="textPersonName"
-                        android:text="@string/empty"
-                        android:visibility="visible" />
-
                     <ImageButton
-                        android:id="@+id/log_search_button"
+                        android:id="@+id/log_filter_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="left"
                         android:layout_margin="5dp"
-                        android:layout_weight="1"
+                        android:layout_weight="0"
                         android:background="#00C6FF00"
                         android:padding="5dp"
-                        app:srcCompat="@drawable/ic_baseline_search_24" />
+                        app:srcCompat="@drawable/ic_baseline_filter_alt_24" />
+
+                    <ImageButton
+                        android:id="@+id/log_reload"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_margin="5dp"
+                        android:layout_weight="0"
+                        android:background="#00FFFFFF"
+                        android:padding="5dp"
+                        app:srcCompat="@drawable/ic_baseline_cached_24" />
 
                     <ImageButton
                         android:id="@+id/log_actions_data"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="left"
                         android:layout_margin="5dp"
-                        android:layout_weight="1"
+                        android:layout_weight="0"
                         android:background="#00C6FF00"
                         android:padding="5dp"
                         app:srcCompat="@drawable/ic_baseline_settings_24" />

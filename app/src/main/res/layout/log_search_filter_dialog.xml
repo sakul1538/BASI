@@ -37,7 +37,6 @@
                 android:text="@string/log_label_filter_date"
                 android:textSize="16sp"
                 android:textStyle="bold" />
-
         </LinearLayout>
 
         <LinearLayout
@@ -46,10 +45,11 @@
             android:layout_margin="5dp">
 
             <TextView
-                android:id="@+id/textView23"
+                android:id="@+id/date_from"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:padding="5sp"
                 android:text="@string/date_sample" />
@@ -59,50 +59,137 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:padding="5sp"
                 android:text="@string/log_label_filter_date_vonbis" />
 
             <TextView
-                android:id="@+id/textView21"
+                android:id="@+id/date_to"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:padding="5sp"
                 android:text="@string/date_sample" />
 
             <ImageButton
-                android:id="@+id/log_filter_refresh_date"
+                android:id="@+id/refresh_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_weight="1"
                 android:background="#00FFFFFF"
                 android:padding="5dp"
-                app:srcCompat="@drawable/ic_baseline_cached_24" />
+                app:srcCompat="@drawable/ic_baseline_cached_24"
+                android:layout_margin="5dp" />
+
+            <CheckBox
+                android:id="@+id/check_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:padding="5dp"
+                android:text="@string/empty" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textView20"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/yellow"
+                android:padding="5dp"
+                android:text="@string/log_search_filter_text_label"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/search_text_value"
+                android:layout_width="305dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5sp"
+                android:layout_weight="1"
+                android:ems="10"
+                android:inputType="text"
+                android:text="@string/empty" />
+
+            <CheckBox
+                android:id="@+id/check_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:padding="5dp"
+                android:text="@string/empty" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <RadioGroup
+            <TextView
+                android:id="@+id/textView22"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="0"
+                android:background="@color/yellow"
+                android:padding="5dp"
+                android:text="@string/log_search_filter_flags_label"
+                android:textSize="16sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal" />
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/done_flag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="@string/log_label_filter_checked" />
+
+            <CheckBox
+                android:id="@+id/undone_flag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="@string/log_label_filter_false" />
+
+            <CheckBox
+                android:id="@+id/favorite_flag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="@string/log_label_filter_fav" />
+        </LinearLayout>
 
     </LinearLayout>
 
