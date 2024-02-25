@@ -1,10 +1,13 @@
 package com.example.tabnav_test;
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.transition.TransitionValues;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -142,17 +145,14 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                     @Override
                     public void onClick(View view)
                     {
-
                         LayoutInflater inflater  = LayoutInflater.from(context);
                         View update_dialog_view = inflater.inflate(R.layout.log_show_data_layout_update_dialog,par,false);
 
                         TextInputEditText log_update_text_Edit = update_dialog_view.findViewById(R.id.log_update_text_Edit);
 
-                        log_update_text_Edit.setText(data.get("NOTE").toString());
+                        log_update_text_Edit.setText(bsf.URLdecode(data.get("NOTE").toString()));
 
                         AlertDialog.Builder update_dialog = new AlertDialog.Builder(context);
-
-
 
                         update_dialog.setTitle("Eintrag ändern");
                         update_dialog.setView(update_dialog_view);
@@ -183,52 +183,58 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                     }
                 });
 
+
+                if(log.get_check(data.get("ID").toString())==true)
+                {
+                    viewHolder.log_set_unset_check.setBackgroundColor(ContextCompat.getColor(context, R.color.grün));
+                }
+                else
+                {
+                    viewHolder.log_set_unset_check.setBackgroundColor(ContextCompat.getColor(context, R.color.yellow));
+                }
+
                 viewHolder.log_set_unset_check.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
                     public void onClick(View view)
                     {
+                        Boolean state = log.get_check(data.get("ID").toString());
 
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+                        alertDialogBuilder.setTitle("Bestätige:");
 
-            /*
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-                alertDialogBuilder.setTitle("Bestätige:");
-
-                String flag_state =  spinnerops.log_get_flag_value(dataset[0],dataset[1],"CHECK_FLAG");
-
-                Toast.makeText(context, flag_state, Toast.LENGTH_SHORT).show();
-
-                switch(flag_state)
-                {
-                    case "TRUE":
-                        alertDialogBuilder.setMessage("Ausgewählter Eintrag zu unerledigt abändern?");
-                        break;
-                    case "FALSE":
-                        alertDialogBuilder.setMessage("Ausgewählter Eintrag zu erledigt abändern?");
-                        break;
-                    default:
-                }
-
-                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i)
-                    {
-                        String flag_state =spinnerops.log_set_unset_flags(dataset[0],dataset[1],"CHECK_FLAG");
-                        //Hin und herschalten (Toogeln)
-                        switch(flag_state)
+                        if (state)
                         {
-                            case "TRUE":
-                                view.setBackgroundColor(ContextCompat.getColor(context, R.color.hellgrün));
-                                break;
-                            case "FALSE":
-                                view.setBackgroundColor(ContextCompat.getColor(context, R.color.purple_200));
-
-                                break;
-                            default:
+                            alertDialogBuilder.setMessage("Ausgewählter Eintrag zu unerledigt abändern?");
+                        } else if (!(state))
+                        {
+                            alertDialogBuilder.setMessage("Ausgewählter Eintrag zu erledigt abändern?");
                         }
-                    }
-                });
+
+                        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener()
+                        {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i)
+                        {
+                            //Hin und herschalten (Toogeln)
+                            if (state) {
+                                if (log.set_check(data.get("ID").toString(), false)) {
+                                    view.setBackgroundColor(ContextCompat.getColor(context, R.color.yellow));
+                                } else {
+                                    Toast.makeText(context, "Error: Write Response false", Toast.LENGTH_SHORT).show();
+                                }
+                            } else if (!(state)) {
+
+
+                                if (log.set_check(data.get("ID").toString(), true)) {
+                                    view.setBackgroundColor(ContextCompat.getColor(context, R.color.grün));
+
+                                } else {
+                                    Toast.makeText(context, "Error: Write Response false", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                    });
 
                 alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener()
                 {
@@ -239,39 +245,70 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                 });
 
                 alertDialogBuilder.show();
-            */
                     }
                 });
+
+
+                if(log.get_flav_flag(data.get("ID").toString())==true)
+                {
+                    viewHolder.log_set_unset_star.setBackgroundColor(ContextCompat.getColor(context, R.color.orange));
+                }
+                else
+                {
+                    viewHolder.log_set_unset_star.setBackgroundColor(ContextCompat.getColor(context, R.color.yellow));
+                }
 
                 viewHolder.log_set_unset_star.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
                     public void onClick(View view)
                     {
+                        String entry_id = data.get("ID").toString();
+
+                        Boolean status = log.get_flav_flag(entry_id);
 
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
                         alertDialogBuilder.setTitle("Bestätige:");
-                        alertDialogBuilder.setMessage("Ausgewählter Eintrag aus den Favoriten entfernen/hinzüfügen?");
+
+                        if(status == true)
+                        {
+                            alertDialogBuilder.setMessage("Ausgewählter Eintrag aus den Favoriten entfernen?");
+
+                        }
+                        else
+                        {
+                            alertDialogBuilder.setMessage("Ausgewählter Eintrag aus den Favoriten hinzüfügen?");
+                        }
+
                         alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener()
                         {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i)
                             {
-                     /*   String flag_state =spinnerops.log_set_unset_flags(dataset[0],dataset[1],"FAV_FLAG");
-                        //Hin und herschalten (Toogeln)
-                        switch(flag_state)
-                        {
+                                if (status == true)
+                                {
+                                    if(log.set_fav_flag(entry_id,false)  == true)
+                                    {
+                                        view.setBackgroundColor(ContextCompat.getColor(context, R.color.yellow));
+                                    }
+                                    else
+                                    {
+                                        Toast.makeText(context, "Error: Write Response false", Toast.LENGTH_SHORT).show();
+                                    }
 
-                            case "TRUE":
-                                view.setBackgroundColor(ContextCompat.getColor(context,R.color.grey));
-                                break;
-                            case "FALSE":
-                                view.setBackgroundColor(ContextCompat.getColor(context,R.color.yellow));
+                                } else if (status== false)
+                                {
 
-                                break;
-                            default:
+                                    if(log.set_fav_flag(entry_id,true)  == true)
+                                    {
+                                        view.setBackgroundColor(ContextCompat.getColor(context, R.color.orange));
+                                    }
+                                    else
+                                    {
+                                        Toast.makeText(context, "Error: Write Response false", Toast.LENGTH_SHORT).show();
 
-                        }*/
+                                    }
+                                }
                             }
                         });
 
@@ -293,15 +330,28 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                 {
                     @Override
                     public void onClick(View view)
-                    { /*
+                    {
                 ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                 // Creates a new text clip to put on the clipboard
-                ClipData clip = ClipData.newPlainText("LOG", bsf.URLdecode(dataset[5]));
+                ClipData clip = ClipData.newPlainText("LOG", remove_private_notes(bsf.URLdecode(data.get("NOTE").toString())));
                 clipboard.setPrimaryClip(clip);
-                Toast.makeText(context, "Notiz in die Zwischenablage kopiert!", Toast.LENGTH_SHORT).show(); */
+                Toast.makeText(context, "Notiz in die Zwischenablage kopiert!", Toast.LENGTH_SHORT).show();
                     }
                 });
 
+                viewHolder.log_share_button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        Intent sendIntent = new Intent();
+                        sendIntent.setAction(Intent.ACTION_SEND);
+                        sendIntent.putExtra(Intent.EXTRA_TEXT,remove_private_notes(bsf.URLdecode(data.get("NOTE").toString())));
+                        sendIntent.setType("text/plain");
+
+                        Intent shareIntent = Intent.createChooser(sendIntent, null);
+                        context.startActivity(shareIntent,null);
+                    }
+                });
 
 
             } catch (Exception e) {
@@ -317,6 +367,19 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
     {
         return localDataSet.length;
     }
+    public String remove_private_notes(String input)
+    {
+        if(input.contains("#"))
+        {
+            String[] part = input.split("#");
+            return part[2];
+        }
+        else
+        {
+            return input;
+        }
+    }
+
 
 
 
@@ -337,6 +400,7 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
         private final ImageButton log_set_unset_star;
         private final ImageButton log_set_unset_check;
         private final ImageButton log_clipboard;
+        private final ImageButton log_share_button;
         public TransitionValues rec_view_background;
 
 
@@ -352,10 +416,7 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
             log_set_unset_star = itemView.findViewById(R.id.log_set_star);
             log_set_unset_check = itemView.findViewById(R.id.log_check_button);
             log_clipboard = itemView.findViewById(R.id.log_clipboard_button);
-
-
-
-
+            log_share_button = itemView.findViewById(R.id.log_share_button);
 
 
         }

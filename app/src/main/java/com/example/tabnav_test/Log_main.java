@@ -284,8 +284,8 @@ public class Log_main extends Fragment
                     data.put("DATE",bsf.convert_date(date.getText().toString(),"format_database"));
                     data.put("TIME",time.getText().toString());
                     data.put("NOTE",bsf.URLencode(acTextView.getText().toString()));
-                    data.put("CHECK_FLAG",0);
-                    data.put("FAV_FLAG",0);
+                    data.put("CHECK_FLAG","false");
+                    data.put("FAV_FLAG","false");
 
                     if(log_dbops.add(data))
                     {

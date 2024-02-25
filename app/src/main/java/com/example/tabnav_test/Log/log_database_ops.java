@@ -181,22 +181,89 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
 
     public Boolean get_check(String id)
     {
+        Boolean state = false;
         SQLiteDatabase dbr = this.getReadableDatabase();
-        Cursor cursor = dbr.query(BASI_LOG,new String[]{"CHECK_FLAG"},"ID=?",new String[]{id},null,null,null);
+        Cursor cursor = dbr.query(BASI_LOG,null,"ID=?",new String[]{id},null,null,null);
+        cursor.moveToNext();
         if(cursor.getCount() == 1)
         {
-            //Rückgabewert als Return
+            if(cursor.getString(cursor.getColumnIndexOrThrow("CHECK_FLAG")).equals("true"))
+            {
+                state =true;
 
+            }
         }
-
-            return false;
+            return state;
 
     }
 
-    public void set_check(String id)
+    public Boolean set_check(String id,Boolean set_state)
     {
 
+        SQLiteDatabase dbw = this.getWritableDatabase();
+        ContentValues update_data = new ContentValues();
+
+        if (set_state ==true)
+        {
+            update_data.put("CHECK_FLAG", "true");
+
+        } else if (set_state == false)
+        {
+            update_data.put("CHECK_FLAG", "false");
+        }
+
+       long response=  dbw.update(BASI_LOG,update_data,"ID=?",new String[]{id});
+        if(response ==1)
+        {
+            return true;
+        }else
+        {
+            return  false;
+        }
     }
+
+    public Boolean get_flav_flag(String id)
+    {
+        Boolean state = false;
+        SQLiteDatabase dbr = this.getReadableDatabase();
+        Cursor cursor = dbr.query(BASI_LOG,null,"ID=?",new String[]{id},null,null,null);
+        cursor.moveToNext();
+        if(cursor.getCount() == 1)
+        {
+            if(cursor.getString(cursor.getColumnIndexOrThrow("FAV_FLAG")).equals("true"))
+            {
+                state =true;
+            }
+        }
+        return state;
+
+    }
+
+    public Boolean set_fav_flag(String id,Boolean set_state)
+    {
+        SQLiteDatabase dbw = this.getWritableDatabase();
+        ContentValues update_data = new ContentValues();
+
+        if (set_state ==true)
+        {
+            update_data.put("FAV_FLAG", "true");
+
+        } else if (set_state == false)
+        {
+            update_data.put("FAV_FLAG", "false");
+        }
+
+        long response=  dbw.update(BASI_LOG,update_data,"ID=?",new String[]{id});
+        if(response ==1)
+        {
+            return true;
+        }else
+        {
+            return  false;
+        }
+    }
+
+
 
 
 

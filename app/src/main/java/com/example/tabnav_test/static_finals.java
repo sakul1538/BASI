@@ -19,4 +19,7 @@ public interface static_finals
     int mark_color =R.color.orange;
     int un_mark_color =R.color.grey;
 
+    int log_set_fav_color = R.color.orange;
+    int log_unset_fav_color = R.color.yellow;
+
 }
