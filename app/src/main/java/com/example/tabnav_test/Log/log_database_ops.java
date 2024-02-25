@@ -107,7 +107,6 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
             return false;
         }
     }
-
     public String[] get_entrys(String projekt_id)
     {
         SQLiteDatabase dbr = this.getReadableDatabase();
@@ -262,6 +261,95 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
             return  false;
         }
     }
+
+    public String get_time(String id)
+    {
+        String time= "NULL";
+        SQLiteDatabase dbr = this.getReadableDatabase();
+        Cursor cursor = dbr.query(BASI_LOG,null,"ID=?",new String[]{id},null,null,null);
+        cursor.moveToNext();
+        if(cursor.getCount() == 1)
+        {
+          time= cursor.getString(cursor.getColumnIndexOrThrow("TIME"));
+
+        }
+        return time;
+    }
+
+    public Boolean set_time(String id,String new_time)
+    {
+        SQLiteDatabase dbw = this.getWritableDatabase();
+        ContentValues update_data = new ContentValues();
+        update_data.put("TIME", new_time);
+
+        long response=  dbw.update(BASI_LOG,update_data,"ID=?",new String[]{id});
+        if(response ==1)
+        {
+            return true;
+        }else
+        {
+            return  false;
+        }
+    }
+    public String get_date(String id)
+    {
+        String date= "NULL";
+        SQLiteDatabase dbr = this.getReadableDatabase();
+        Cursor cursor = dbr.query(BASI_LOG,null,"ID=?",new String[]{id},null,null,null);
+        cursor.moveToNext();
+        if(cursor.getCount() == 1)
+        {
+            date= cursor.getString(cursor.getColumnIndexOrThrow("DATE"));
+        }
+        return date;
+    }
+    public Boolean set_date(String id,String new_date)
+    {
+        SQLiteDatabase dbw = this.getWritableDatabase();
+        ContentValues update_data = new ContentValues();
+        update_data.put("DATE",new_date);
+
+        long response=  dbw.update(BASI_LOG,update_data,"ID=?",new String[]{id});
+        if(response ==1)
+        {
+            return true;
+        }else
+        {
+            return  false;
+        }
+    }
+    public String[] search_text(String projekt_id, String text_value)
+    {
+        SQLiteDatabase dbr = this.getReadableDatabase();
+        Cursor cursor = dbr.query(BASI_LOG, null, "PROJEKT_NR=? AND (NOTE LIKE '%"+text_value+"%')", new String[]{projekt_id}, null, null, null);
+        String[] output =  new String[cursor.getCount()];
+
+        if (cursor.getCount() > 0)
+        {
+            output = new String[cursor.getCount()];
+            while (cursor.moveToNext())
+            {
+                String row = "";
+
+                for (String name : cursor.getColumnNames())
+                {
+                    row += cursor.getString(cursor.getColumnIndexOrThrow(name)) + ",";
+                }
+                output[cursor.getPosition()] = row.substring(0, row.length() - 1).toString();
+
+            }
+        }
+
+        return output;
+    }
+
+
+
+
+
+
+
+
 
 
 

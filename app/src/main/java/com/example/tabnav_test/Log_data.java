@@ -1,9 +1,8 @@
 package com.example.tabnav_test;
 
-import static com.example.tabnav_test.R.id.check_fav_state;
+
 import static com.example.tabnav_test.R.id.delet_check_true;
-import static com.example.tabnav_test.R.id.erledigt_false;
-import static com.example.tabnav_test.R.id.erledigt_true;
+
 import static com.example.tabnav_test.R.id.log_actions_data;
 import static com.example.tabnav_test.R.id.log_data_view;
 import static com.example.tabnav_test.R.id.log_filter_refresh_date;
@@ -26,7 +25,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -34,7 +32,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.RadioButton;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,7 +44,7 @@ public class Log_data extends AppCompatActivity
     RecyclerView rcv1;
     ImageButton log_search;
     ImageButton log_filter_reset;
-    ImageButton log_search_filter_dialog;
+    ImageButton log_date_filter_dialog;
     ImageButton log_action_data_button;
     EditText log_search_edit;
 
@@ -82,6 +79,8 @@ public class Log_data extends AppCompatActivity
 
         Basic_funct bsf = new Basic_funct();
         Calendar calendar = Calendar.getInstance();
+
+        log_database_ops log = new log_database_ops(getApplicationContext());
         log_fav spinnerops = new log_fav(getApplicationContext());
 
 
@@ -90,7 +89,7 @@ public class Log_data extends AppCompatActivity
         log_search = findViewById(log_search_button);
         log_search_edit = findViewById(log_search_field);
         log_filter_reset = findViewById(log_show_reset_button);
-        log_search_filter_dialog = findViewById(log_search_filter_dialog_button);
+        log_date_filter_dialog = findViewById(log_search_filter_dialog_button);
 
 
         log_action_data_button = findViewById(log_actions_data);
@@ -112,7 +111,7 @@ public class Log_data extends AppCompatActivity
 
         projekt_ops projekt =new projekt_ops(getApplicationContext());
 
-        recv_daten= log_dbops.get_entrys(projekt.projekt_get_selected_id());
+        recv_daten= log.get_entrys(projekt.projekt_get_selected_id());
 
         log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
         rcv1.setAdapter(lca);
@@ -134,11 +133,7 @@ public class Log_data extends AppCompatActivity
 
                 text_value = bsf.URLencode(log_search_edit.getText().toString());
 
-                String search_string = pack_search_values();
-
-                Toast.makeText(Log_data.this, search_string, Toast.LENGTH_LONG).show();
-
-                recv_daten = log_data.log_search_data(RROJ_NR, search_string);
+                recv_daten = log.search_text(projekt.projekt_get_selected_id(),text_value);
 
                 // Toast.makeText(Log_data.this,t,Toast.LENGTH_SHORT).show();
 
@@ -156,7 +151,9 @@ public class Log_data extends AppCompatActivity
 
                 log_search_edit.setText(""); //Löschen des Suchfelder
 
-                recv_daten= log_data.getalllogdata(RROJ_NR);
+
+
+                recv_daten= log_dbops.get_entrys(projekt.projekt_get_selected_id());
 
                 log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
                 rcv1.setAdapter(lca);
@@ -166,7 +163,7 @@ public class Log_data extends AppCompatActivity
             }
         });
 
-        log_search_filter_dialog.setOnClickListener(new View.OnClickListener() {
+        log_date_filter_dialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 View promptsView = getLayoutInflater().inflate(R.layout.log_search_filter_dialog, null);
@@ -175,96 +172,10 @@ public class Log_data extends AppCompatActivity
                 TextView date_from = promptsView.findViewById(R.id.textView23);
                 TextView date_to = promptsView.findViewById(R.id.textView21);
 
-                log_filter_radio_check_true = promptsView.findViewById(erledigt_true);
-                log_filter_radio_check_false= promptsView.findViewById(erledigt_false);
-                log_filter_check_fav_state = promptsView.findViewById(check_fav_state);
-
-                filter_reset = promptsView.findViewById(R.id.log_filter_reset);
-
-
-
-
                 date_from.setText(bsf.date_refresh_database());
                 date_to.setText(bsf.date_refresh_database());
 
 
-                Spinner log_search_filter_category = promptsView.findViewById(R.id.log_search_category_field);
-
-                filter_reset.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View view)
-                    {
-
-
-                        log_filter_radio_check_true.setChecked(false);
-                        log_filter_radio_check_false.setChecked(false);
-                        log_filter_check_fav_state.setChecked(false);
-                        date_from.setText(bsf.date_refresh_database());
-                        date_to.setText(bsf.date_refresh_database());
-                        log_search_filter_category.setSelection(0);
-
-                        String date_from_value = null;
-                        String date_to_value = null;
-                        String text_value = null;
-                        String category_value = "None";
-                        String check_state="None";
-                        String fav_state="None";
-                    }
-                });
-
-                log_filter_radio_check_true.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View view)
-                    {
-                        if(log_filter_radio_check_true.isChecked())
-                        {
-                            check_state="TRUE";
-                            Log.d("BASI: ",check_state);
-
-                        }
-
-                    }
-                });
-
-                log_filter_radio_check_false.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View view)
-                    {
-                        if(log_filter_radio_check_false.isChecked())
-                        {
-                            check_state="FALSE";
-                            Log.d("BASI: ",check_state);
-
-                        }
-
-                    }
-                });
-
-                log_filter_check_fav_state.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View view)
-                    {
-                        if(log_filter_check_fav_state.isChecked())
-                        {
-                            fav_state="TRUE";
-                            Log.d("BASI: ",fav_state);
-
-                        }
-
-                        if(!log_filter_check_fav_state.isChecked())
-                        {
-                            fav_state="FALSE";
-                            Log.d("BASI: ",fav_state);
-
-                        }
-
-
-                    }
-                });
 
                 //Datum
 
@@ -283,7 +194,6 @@ public class Log_data extends AppCompatActivity
                     }
 
                 });
-
 
                 date_to.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -311,15 +221,6 @@ public class Log_data extends AppCompatActivity
                     }
                 });
 
-                //Kategorie
-
-
-                String[] items = spinnerops.getallcategorys();
-
-                ArrayAdapter<String> log_category_items = new ArrayAdapter<String>(Log_data.this, android.R.layout.simple_dropdown_item_1line, items);
-                log_search_filter_category.setAdapter(log_category_items);
-
-
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Log_data.this);
 
                 // set prompts.xml to alertdialog builder
@@ -335,14 +236,12 @@ public class Log_data extends AppCompatActivity
                         text_value = log_search_edit.getText().toString();
                         date_from_value = date_from.getText().toString();
                         date_to_value = date_to.getText().toString();
-                        category_value = log_search_filter_category.getSelectedItem().toString();
+
+                       // recv_daten = log_data.log_search_data(RROJ_NR, pack_search_values());
 
 
-                        recv_daten = log_data.log_search_data(RROJ_NR, pack_search_values());
-
-
-                        log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
-                        rcv1.setAdapter(lca);
+                       // log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
+                       // rcv1.setAdapter(lca);
 
                         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 

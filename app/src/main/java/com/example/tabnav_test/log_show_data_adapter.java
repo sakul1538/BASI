@@ -2,6 +2,8 @@ package com.example.tabnav_test;
 import static androidx.core.content.ContextCompat.startActivity;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentValues;
@@ -13,8 +15,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,7 +29,9 @@ import androidx.recyclerview.widget.RecyclerView.Adapter;
 import com.example.tabnav_test.Log.log_database_ops;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 
 public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHolder>
 {
@@ -81,6 +87,40 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
 
                 try {
                     viewHolder.datum.setText(bsf.convert_date(data.get("DATE").toString(),"format_database_to_readable"));
+                    viewHolder.datum.setOnClickListener(new View.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(View view)
+                        {
+                            String []datum = log.get_date(data.get("ID").toString()).split("-"); //2024-02-25
+
+
+                            DatePickerDialog pickdate = new DatePickerDialog(context, new DatePickerDialog.OnDateSetListener()
+                            {
+                                @Override
+                                public void onDateSet(DatePicker datePicker, int i, int i1, int i2)
+                                {
+                                    Calendar calendar = Calendar.getInstance();
+                                    calendar.set(i,i1 , i2);
+
+                                    SimpleDateFormat dateFormat =new SimpleDateFormat("yyyy-MM-dd");
+                                    String date_value = dateFormat.format(calendar.getTime());
+
+                                    if(log.set_date(data.get("ID").toString(), date_value))
+                                    {
+                                        localDataSet  = log.get_entrys(projekt.projekt_get_selected_id());
+                                        notifyDataSetChanged();
+                                    }
+
+
+
+                                }
+                            }, Integer.valueOf(datum[0]), Integer.valueOf(datum[1]), Integer.valueOf(datum[2]));
+
+                            pickdate.show();
+
+                        }
+                    });
                 } catch (Exception e)
                 {
                     viewHolder.datum.setText(data.get("DATE").toString());
@@ -88,7 +128,32 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                     e.printStackTrace();
                 }
 
+
                 viewHolder.zeit.setText(data.get("TIME").toString());
+                viewHolder.zeit.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        String[] time_old = log.get_time(data.get("ID").toString()).split((":"));
+                        TimePickerDialog set_time  = new TimePickerDialog(context, new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker timePicker, int i, int i1)
+                            {
+                                String hour = String.valueOf(i);
+                                String min = String.valueOf(i1);
+
+                                if( log.set_time(data.get("ID").toString(),hour+":"+min))
+                                {
+                                    localDataSet  = log.get_entrys(projekt.projekt_get_selected_id());
+                                    notifyDataSetChanged();
+                                }
+
+                            }
+                        },Integer.valueOf(time_old[0]),Integer.valueOf(time_old[1]),true);
+                        set_time.show();
+
+                    }
+                });
 
                 try {
                     viewHolder.notiz.setText(bsf.URLdecode(data.get("NOTE").toString()));

@@ -50,12 +50,13 @@
 
                     <EditText
                         android:id="@+id/log_search_field"
-                        android:layout_width="186dp"
+                        android:layout_width="235dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_weight="0"
                         android:ems="10"
                         android:inputType="textPersonName"
-                        android:text="@string/empty" />
+                        android:text="@string/empty"
+                        android:visibility="visible" />
 
                     <ImageButton
                         android:id="@+id/log_search_button"
@@ -68,16 +69,6 @@
                         app:srcCompat="@drawable/ic_baseline_search_24" />
 
                     <ImageButton
-                        android:id="@+id/log_search_filter_dialog_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:layout_weight="1"
-                        android:background="#00C6FF00"
-                        android:padding="5dp"
-                        app:srcCompat="@drawable/ic_baseline_filter_alt_24" />
-
-                    <ImageButton
                         android:id="@+id/log_actions_data"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -87,15 +78,6 @@
                         android:padding="5dp"
                         app:srcCompat="@drawable/ic_baseline_settings_24" />
 
-                    <ImageButton
-                        android:id="@+id/log_show_reset_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:layout_weight="1"
-                        android:background="#00C6FF00"
-                        android:padding="5dp"
-                        app:srcCompat="@drawable/ic_baseline_cancel_24" />
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
