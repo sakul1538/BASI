@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 
 import com.example.tabnav_test.Log.log_database_ops;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Arrays;
 
@@ -39,8 +40,7 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
         this.localDataSet = localDataSet;
         spinnerops =new log_fav(context);
         bsf=new Basic_funct();
-        log = new log_database_ops(context);
-        projekt = new projekt_ops(context);
+
     }
 
     @NonNull
@@ -49,6 +49,8 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
     {
         context =parent.getContext();
         par = parent;
+        log = new log_database_ops(context);
+        projekt = new projekt_ops(context);
         View view = LayoutInflater.from(context).inflate(R.layout.log_show_data_layout, parent, false);
 
         return new ViewHolder(view);
@@ -140,69 +142,44 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                     @Override
                     public void onClick(View view)
                     {
+
                         LayoutInflater inflater  = LayoutInflater.from(context);
                         View update_dialog_view = inflater.inflate(R.layout.log_show_data_layout_update_dialog,par,false);
 
+                        TextInputEditText log_update_text_Edit = update_dialog_view.findViewById(R.id.log_update_text_Edit);
+
+                        log_update_text_Edit.setText(data.get("NOTE").toString());
+
                         AlertDialog.Builder update_dialog = new AlertDialog.Builder(context);
+
+
 
                         update_dialog.setTitle("Eintrag ändern");
                         update_dialog.setView(update_dialog_view);
                         update_dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-
-                            }
-                        });
-
-
-
-                    }
-                });
-
-
-
-                viewHolder.log_set_unset_star.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View view)
-                    {
-
-                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-                        alertDialogBuilder.setTitle("Bestätige:");
-                        alertDialogBuilder.setMessage("Ausgewählter Eintrag aus den Favoriten entfernen/hinzüfügen?");
-                        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener()
-                        {
-                            @Override
                             public void onClick(DialogInterface dialogInterface, int i)
                             {
-                     /*   String flag_state =spinnerops.log_set_unset_flags(dataset[0],dataset[1],"FAV_FLAG");
-                        //Hin und herschalten (Toogeln)
-                        switch(flag_state)
-                        {
+                                try {
 
-                            case "TRUE":
-                                view.setBackgroundColor(ContextCompat.getColor(context,R.color.grey));
-                                break;
-                            case "FALSE":
-                                view.setBackgroundColor(ContextCompat.getColor(context,R.color.yellow));
+                                    data.put("NOTE",bsf.URLencode(log_update_text_Edit.getText().toString()));
+                                    log.udpate(data);
+                                    localDataSet  = log.get_entrys(projekt.projekt_get_selected_id());
+                                    notifyDataSetChanged();
 
-                                break;
-                            default:
-
-                        }*/
+                                } catch (Exception e)
+                                {
+                                    throw new RuntimeException(e);
+                                }
                             }
                         });
-
-                        alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener()
-                        {
+                        update_dialog.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                Toast.makeText(context, "Aktion abgebrochen!", Toast.LENGTH_SHORT).show();
+                                dialogInterface.cancel();
                             }
                         });
-
-                        alertDialogBuilder.show();
-
+                        update_dialog.show();
                     }
                 });
 
@@ -211,6 +188,8 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                     @Override
                     public void onClick(View view)
                     {
+
+
             /*
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
                 alertDialogBuilder.setTitle("Bestätige:");
@@ -263,6 +242,53 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
             */
                     }
                 });
+
+                viewHolder.log_set_unset_star.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+                        alertDialogBuilder.setTitle("Bestätige:");
+                        alertDialogBuilder.setMessage("Ausgewählter Eintrag aus den Favoriten entfernen/hinzüfügen?");
+                        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                     /*   String flag_state =spinnerops.log_set_unset_flags(dataset[0],dataset[1],"FAV_FLAG");
+                        //Hin und herschalten (Toogeln)
+                        switch(flag_state)
+                        {
+
+                            case "TRUE":
+                                view.setBackgroundColor(ContextCompat.getColor(context,R.color.grey));
+                                break;
+                            case "FALSE":
+                                view.setBackgroundColor(ContextCompat.getColor(context,R.color.yellow));
+
+                                break;
+                            default:
+
+                        }*/
+                            }
+                        });
+
+                        alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Toast.makeText(context, "Aktion abgebrochen!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                        alertDialogBuilder.show();
+
+                    }
+                });
+
+
                 viewHolder.log_clipboard.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
@@ -292,6 +318,13 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
         return localDataSet.length;
     }
 
+
+
+    private  void refresh_dataset(String [] new_dataset)
+    {
+        this.localDataSet = new_dataset;
+        notifyDataSetChanged();
+    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder
     {

@@ -19,6 +19,7 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
     public log_database_ops(@Nullable Context context)
     {
         super(context, DB_NAME, null,1);
+
     }
 
 
@@ -53,13 +54,34 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
             throw new RuntimeException(e);
         }
     }
-
-    public  boolean udpate(String id,ContentValues update_data)
+    public  ContentValues get_entry(String id)
     {
-        try {
+        SQLiteDatabase dbr  = this.getReadableDatabase();
+
+        ContentValues output = new ContentValues();
+        Cursor cursor  = dbr.query(BASI_LOG,null,"ID=?",new String[]{id},null,null,null);
+
+
+        if(cursor.getCount() ==1)
+        {
+            cursor.moveToNext();
+
+            for (String colum :cursor.getColumnNames())
+            {
+               output.put(colum,cursor.getString(cursor.getColumnIndexOrThrow(colum)));
+            }
+        }
+        cursor.close();
+        dbr.close();
+        return output;
+    }
+
+    public  boolean udpate(ContentValues update_data)
+    {
             SQLiteDatabase dbw = this.getWritableDatabase();
-            long colum  = dbw.update(BASI_LOG,update_data,"ID=?",new String[]{id});
+            long colum  = dbw.update(BASI_LOG,update_data,"ID=?",new String[]{update_data.get("ID").toString()});
             dbw.close();
+
             if(colum != -1)
             {
                 return true;
@@ -68,10 +90,7 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
             {
                 return false;
             }
-        } catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
+
     }
 
     public Boolean delet(String id)
@@ -159,4 +178,27 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
 
         return colums;
     }
+
+    public Boolean get_check(String id)
+    {
+        SQLiteDatabase dbr = this.getReadableDatabase();
+        Cursor cursor = dbr.query(BASI_LOG,new String[]{"CHECK_FLAG"},"ID=?",new String[]{id},null,null,null);
+        if(cursor.getCount() == 1)
+        {
+            //Rückgabewert als Return
+
+        }
+
+            return false;
+
+    }
+
+    public void set_check(String id)
+    {
+
+    }
+
+
+
+
 }

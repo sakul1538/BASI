@@ -1,3 +1,6 @@
+//Layout Inflater für AlertDialoge
+ LayoutInflater inflater  = LayoutInflater.from(context);
+ View update_dialog_view = inflater.inflate(R.layout.log_show_data_layout_update_dialog,par,false);
 
  //Dialogfelder
  View pro
