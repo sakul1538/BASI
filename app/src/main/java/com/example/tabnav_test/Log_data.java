@@ -1,6 +1,7 @@
 package com.example.tabnav_test;
 
 
+import static com.example.tabnav_test.R.id.check_date;
 import static com.example.tabnav_test.R.id.delet_check_true;
 
 import static com.example.tabnav_test.R.id.log_actions_data;
@@ -13,6 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import android.app.DatePickerDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +27,7 @@ import android.view.inputmethod.InputMethodManager;
 
 
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
@@ -32,6 +36,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tabnav_test.Log.log_database_ops;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.ConcurrentModificationException;
 
 public class Log_data extends AppCompatActivity
 {
@@ -102,7 +110,7 @@ public class Log_data extends AppCompatActivity
                 View promptsView = getLayoutInflater().inflate(R.layout.log_search_filter_dialog, null);
                 filter_dialog.setView(promptsView);
                 filter_dialog.setTitle("x");
-                filter_dialog.show();
+
 
                 TextView date_from = promptsView.findViewById(R.id.date_from);
                 TextView date_to= promptsView.findViewById(R.id.date_to);
@@ -116,27 +124,101 @@ public class Log_data extends AppCompatActivity
                 CheckBox undone_flag = promptsView.findViewById(R.id.undone_flag);
                 CheckBox favorite_flag = promptsView.findViewById(R.id.favorite_flag);
 
+                date_from.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+
+                        String[] pre_date = date_from.getText().toString().split("[.]");
+
+                        int year = Integer.parseInt(pre_date[2]);
+                        int month = Integer.parseInt(pre_date[1])-1;
+                        int day = Integer.parseInt(pre_date[0]);
+                        DatePickerDialog dpd = new DatePickerDialog(Log_data.this, new DatePickerDialog.OnDateSetListener()
+                        {
+                            @Override
+                            public void onDateSet(DatePicker datePicker, int i, int i1, int i2)
+                            {
+
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.set(i,i1 , i2);
+
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+                                String date_value = dateFormat.format(calendar.getTime());
+
+                                date_from.setText(date_value);
+                            }
+                        },year,month,day);
+                        dpd.show();
+                    }});
+
+                date_to.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+
+                        String[] pre_date = date_to.getText().toString().split("[.]");
+
+                        int year = Integer.parseInt(pre_date[2]);
+                        int month = Integer.parseInt(pre_date[1])-1;
+                        int day = Integer.parseInt(pre_date[0]);
+                        DatePickerDialog dpd = new DatePickerDialog(Log_data.this, new DatePickerDialog.OnDateSetListener()
+                        {
+                            @Override
+                            public void onDateSet(DatePicker datePicker, int i, int i1, int i2)
+                            {
+
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.set(i,i1 , i2);
+
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+                                String date_value = dateFormat.format(calendar.getTime());
+
+                                date_to.setText(date_value);
+                            }
+                        },year,month,day);
+                        dpd.show();
+                    }});
+
+                refresh_date.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        date_to.setText(bsf.date_refresh());
+
+                    }
+                });
 
                 filter_dialog.setPositiveButton("OK", new DialogInterface.OnClickListener()
                 {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
+                        String where = "";
+                        String [] where_args ={};
+
+
+                        if(check_date.isChecked())
+                        {
+                         where += "DATE BETWEEN "+bsf.convert_date(date_from.toString(),"format_database")+" AND "+bsf.convert_date(date_to.toString(),"format_database");
+                         Log.d("BASI", where);
+
+                        }
+
 
 
                     }
                 });
-
-
-
-
-
-
-
+                filter_dialog.show();
 
             }
         });
     }
+
+
+
 
     public String pack_search_values()
     {
