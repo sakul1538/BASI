@@ -37,6 +37,7 @@ import android.widget.Toast;
 
 import com.example.tabnav_test.Log.log_database_ops;
 
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.ConcurrentModificationException;
@@ -198,21 +199,54 @@ public class Log_data extends AppCompatActivity
                     {
                         String where = "";
                         String [] where_args ={};
-
+                        //Erstelle gültige SQLi anfragen
 
                         if(check_date.isChecked())
                         {
-                         where += "DATE BETWEEN "+bsf.convert_date(date_from.toString(),"format_database")+" AND "+bsf.convert_date(date_to.toString(),"format_database");
-                         Log.d("BASI", where);
+                            String date_from_value= date_from.getText().toString();
+                            String date_to_value= date_to.getText().toString();
+                            String[] temp = date_from_value.split("[.]");
+                            date_from_value =temp[2]+"-"+temp[1]+"-"+temp[0];
+                            temp = date_to_value.split("[.]");
+                            date_to_value =temp[2]+"-"+temp[1]+"-"+temp[0];
 
+                            where += "DATE BETWEEN "+date_from_value+ " AND "  +date_to_value;
+                        }
+                        if(check_text.isChecked())
+                        {
+                            where += " AND NOTIZ="+ bsf.URLencode(search_text_value.getText().toString());
                         }
 
 
+                        Boolean done= done_flag.isChecked();
+                        Boolean undone =undone_flag.isChecked();
 
+                        if(done && undone == true)
+                        {
+                            where += " AND CHECK_FLAG=true OR CHECK_FLAG=false ";
+                            }
+                        else
+                            {
+                                if(done == true)
+                                {
+                                    where += " AND CHECK_FLAG=true";
+                                }
+                                    if(undone == true)
+                                {
+                                    where += "AND  CHECK_FLAG=false";
+
+                                }
+                        }
+
+                        if(favorite_flag.isChecked())
+                        {
+
+                           where += " AND FAV_FLAG=true";
+                        }
+                        Log.d("BASI",where);
                     }
                 });
                 filter_dialog.show();
-
             }
         });
     }
