@@ -21,7 +21,12 @@
 
             <item android:id="@+id/sync_db_settings"
                 android:title="Sync Einstellungen" > </item>
+            <item
+                android:id="@+id/get_dummy_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:title="Generiere Dummys" />
         </menu>
         <!-- "file" submenu -->
     </item>
-    </menu>
+</menu>

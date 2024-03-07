@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 
 import com.example.tabnav_test.SQL_finals;
 import com.example.tabnav_test.db_controlls;
+import com.example.tabnav_test.projekt_ops;
 
 public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
 {
@@ -107,6 +108,22 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
             return false;
         }
     }
+
+    public Boolean delet_all(String projekt_id)
+    {
+        SQLiteDatabase dbw = this.getWritableDatabase();
+        long colum   = dbw.delete(BASI_LOG,"PROJEKT_NR=?",new String[]{projekt_id});
+
+        if(colum >-1)
+        {
+            return  true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public String[] get_entrys(String projekt_id)
     {
         SQLiteDatabase dbr = this.getReadableDatabase();
@@ -341,6 +358,42 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
         }
 
         return output;
+    }
+
+    public void full_search(String projekt_id,String where, String []where_args)
+    {
+        try {
+            SQLiteDatabase dbr = this.getReadableDatabase();
+
+
+            Cursor cursor = dbr.query(BASI_LOG,null,where,where_args,null,null,null);
+
+            if(cursor.getCount() >0)
+            {
+                while(cursor.moveToNext())
+                {
+                    String output = "" ;
+
+                    for(String colum: cursor.getColumnNames())
+                    {
+                        output += colum+"="+cursor.getString(cursor.getColumnIndexOrThrow(colum))+",";
+                    }
+                    Log.d("BASI",output);
+                }
+            }
+            else
+            {
+                Log.d("BASI","CURSOR<1");
+            }
+        } catch (IllegalArgumentException e)
+        {
+
+            Log.d("BASI",e.getMessage().toString());
+
+            throw new RuntimeException(e);
+        }
+
+
     }
 
 

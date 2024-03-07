@@ -4,8 +4,10 @@ package com.example.tabnav_test;
 import static com.example.tabnav_test.R.id.check_date;
 import static com.example.tabnav_test.R.id.delet_check_true;
 
+import static com.example.tabnav_test.R.id.get_dummy_data;
 import static com.example.tabnav_test.R.id.log_actions_data;
 import static com.example.tabnav_test.R.id.log_data_view;
+import static com.example.tabnav_test.R.id.m_conf_reset_search_maschine;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -16,8 +18,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -41,6 +45,7 @@ import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.ConcurrentModificationException;
+import java.util.Random;
 
 public class Log_data extends AppCompatActivity
 {
@@ -197,6 +202,8 @@ public class Log_data extends AppCompatActivity
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
+                        String projekt_id = projekt.projekt_get_selected_id();
+
                         String where = "";
                         String [] where_args ={};
                         //Erstelle gültige SQLi anfragen
@@ -294,24 +301,12 @@ public class Log_data extends AppCompatActivity
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i)
                             {
+                                //alle einträge löschen und recycler view aktuallisueren
 
-                                for (int n = 0; n < recv_daten.length; n++)
-                                {
-                                    String[] recv_daten_parts = recv_daten[n].split(",");
 
-                                    int response =log.delet_log_entry(recv_daten_parts[0],RROJ_NR);
+                                projekt_ops projekt = new projekt_ops(getApplicationContext());
+                                log_database_ops log_dbops = new log_database_ops(getApplicationContext());
 
-                                    if(response == 1)
-                                    {
-                                        Log.d("BASI:DELET ENTRY ID;",recv_daten_parts[0]);
-                                    }
-                                    else
-                                    {
-                                        Log.d("BASI:ERROR ENTRY ID;",recv_daten_parts[0]);
-
-                                    }
-
-                                }
                                 recv_daten = log.getalllogdata(RROJ_NR);
 
                                 log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
@@ -351,6 +346,47 @@ public class Log_data extends AppCompatActivity
                         rcv1.setAdapter(lca);
 
                         break;
+
+
+                    case get_dummy_data:
+
+                        Context context = getApplicationContext();
+                        Basic_funct bsf =new Basic_funct();
+                        projekt_ops projekt = new projekt_ops(context);
+                        log_database_ops log_dbops = new log_database_ops(context);
+
+                        //Zufällige datums generierne
+                        Random random = new Random();
+
+                        Calendar calendar = Calendar.getInstance();
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+                        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+                        String date ="";
+                        String time ="";
+
+                        int entry_value = 10;
+
+                        for (int i=0; i<100;i++)
+                        {
+                            calendar.set(calendar.get(Calendar.YEAR),random.nextInt(11)+1,random.nextInt(30),random.nextInt(24),random.nextInt(60));
+
+                            date = dateFormat.format(calendar.getTime());
+                            time = timeFormat.format(calendar.getTime());
+
+                            ContentValues data = new ContentValues();
+
+                            data.put("ID",bsf.gen_UUID());
+                            data.put("PROJEKT_NR",projekt.projekt_get_selected_id());
+                            data.put("DATE",bsf.convert_date(date,"format_database"));
+                            data.put("TIME",time);
+                            data.put("NOTE",bsf.URLencode("NONE"));
+                            data.put("CHECK_FLAG","false");
+                            data.put("FAV_FLAG","false");
+                            log_dbops.add(data);
+                        }
+                        break;
+
+
                 }
                 return false;
             }
