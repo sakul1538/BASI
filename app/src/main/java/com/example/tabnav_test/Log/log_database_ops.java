@@ -128,7 +128,7 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
     {
         SQLiteDatabase dbr = this.getReadableDatabase();
 
-        Cursor c  =dbr.query(BASI_LOG,null,"PROJEKT_NR=?",new String[]{projekt_id},null,null,null);
+        Cursor c  =dbr.query(BASI_LOG,null,"PROJEKT_NR=?",new String[]{projekt_id},null,null,"DATE DESC, TIME DESC");
 
         if(c.getCount() >0)
         {

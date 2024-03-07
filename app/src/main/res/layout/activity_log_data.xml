@@ -62,7 +62,7 @@
                         app:srcCompat="@drawable/ic_baseline_filter_alt_24" />
 
                     <ImageButton
-                        android:id="@+id/log_reload"
+                        android:id="@+id/log_reload_dataset"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
