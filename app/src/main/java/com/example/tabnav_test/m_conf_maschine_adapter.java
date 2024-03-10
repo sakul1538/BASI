@@ -122,13 +122,30 @@ public class m_conf_maschine_adapter extends RecyclerView.Adapter<ViewHolder>
         Uri img_uri = null;
         String[] datasplit = localDataSet[posi].split(",");
 
-        holder.m_name.setText("[" + datasplit[3] + "] " + datasplit[4]);
+        holder.m_name.setText(datasplit[4]+"   [" + datasplit[3] + "] " );
         holder.m_category.setText(datasplit[5]);
         holder.m_counter.setText(mdo.get_counter(datasplit[0]));
 
         if(datasplit[8].contains("NULL"))
         {
-            holder.m_view_pic.setImageResource(R.drawable.ic_baseline_agriculture_24);
+            switch(datasplit[5])
+            {
+
+                case "Bagger":
+                    holder.m_view_pic.setImageResource(R.drawable.pictogrammers_material_excavator);
+                    break;
+                    case "Dumper":
+                    holder.m_view_pic.setImageResource(R.drawable.dumper);
+                    break;
+
+                case "Radlader":
+                    holder.m_view_pic.setImageResource(R.drawable.backhoe);
+                    break;
+                default:
+                    holder.m_view_pic.setImageResource(R.drawable.ic_baseline_agriculture_24);
+                    Log.d("BASI",datasplit[5]);
+            }
+
         }
         else
         {

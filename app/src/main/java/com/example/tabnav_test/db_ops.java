@@ -92,8 +92,6 @@ public class db_ops extends SQLiteOpenHelper implements SQL_finals
             SQLiteDatabase dbw = this.getWritableDatabase();
             ContentValues init_data = new ContentValues();
 
-
-
             init_data.put("ID",bsf.gen_UUID());
             init_data.put("DATE",bsf.date_refresh_database());
             init_data.put("PROJEKT_NR",("1"));

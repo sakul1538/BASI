@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/hellgrün"
+    android:background="@color/grey"
     tools:context=".m_conf_maschine">
 
     <LinearLayout
@@ -28,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:background="@color/purple_500"
+                android:background="@color/yellow"
                 android:padding="5dp"
                 app:srcCompat="@drawable/ic_baseline_table_rows_24" />
 
@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:background="@color/purple_500"
+                android:background="@color/yellow"
                 android:padding="5dp"
                 app:srcCompat="@drawable/ic_baseline_search_24" />
 
@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:background="@color/purple_500"
+                android:background="@color/yellow"
                 android:padding="5dp"
                 app:srcCompat="@drawable/ic_baseline_filter_alt_24" />
 
@@ -58,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:background="@color/purple_500"
+                android:background="@color/yellow"
                 android:padding="5dp"
                 app:srcCompat="@drawable/ic_baseline_calendar_month_24" />
 
@@ -68,7 +68,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:background="@color/purple_500"
+                android:background="@color/yellow"
                 android:padding="5dp"
                 app:srcCompat="@drawable/ic_baseline_cancel_24" />
         </LinearLayout>

@@ -229,6 +229,7 @@
     <string-array name="m_categorys">
         <item>None</item>
         <item>Bagger</item>
+        <item>Radlader</item>
         <item>Dumper</item>
         <item>Hukys</item>
         <item>Verdichtungsgeräte</item>

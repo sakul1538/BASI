@@ -255,6 +255,7 @@ public class fragment_maschinen extends Fragment
             public void onClick(View view)
             {
              m_date.setText(bsf.time_day_shift(m_date.getText().toString(),"",1));
+             m_time_and_date_frame.setBackgroundColor(getResources().getColor(R.color.orange));
 
             }
         });
@@ -265,6 +266,7 @@ public class fragment_maschinen extends Fragment
             public void onClick(View view)
             {
                 m_date.setText(bsf.time_day_shift(m_date.getText().toString(),"",-1));
+                m_time_and_date_frame.setBackgroundColor(getResources().getColor(R.color.orange));
             }
         });
 
@@ -304,6 +306,7 @@ public class fragment_maschinen extends Fragment
             public void onClick(View view)
             {
                m_time.setText("17:00");
+                m_time_and_date_frame.setBackgroundColor(getResources().getColor(R.color.orange));
             }
         });
 
@@ -314,7 +317,7 @@ public class fragment_maschinen extends Fragment
             {
                 m_date.setText(bsf.date_refresh());
                 m_time.setText(bsf.time_refresh());
-                m_time_and_date_frame.setBackgroundColor(getResources().getColor(R.color.hellgrün));
+                m_time_and_date_frame.setBackgroundColor(getResources().getColor(R.color.grey));
 
             }
         });
