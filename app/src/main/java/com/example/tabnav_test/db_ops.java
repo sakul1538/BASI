@@ -18,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,16 +91,25 @@ public class db_ops extends SQLiteOpenHelper implements SQL_finals
             Basic_funct bsf = new Basic_funct();
             SQLiteDatabase dbw = this.getWritableDatabase();
             ContentValues init_data = new ContentValues();
+
+
+
             init_data.put("ID",bsf.gen_UUID());
             init_data.put("DATE",bsf.date_refresh_database());
             init_data.put("PROJEKT_NR",("1"));
             init_data.put("NAME","DEFAULT");
-            init_data.put("DIR_ROOT", Environment.getExternalStorageDirectory().toString());
-            init_data.put("DIR_SUB","[{\"NAME\":\"DEFAULT\",\"DIR\":\"\"}]");
+            String root_dir =Environment.getExternalStorageDirectory().toString()+"/BASI/"+init_data.get("NAME").toString()+"["+init_data.get("PROJEKT_NR").toString()+"]";
+            init_data.put("DIR_ROOT",root_dir);
+            init_data.put("DIR_SUB","[{\"NAME\":\"DEFAULT\",\"DIR\":\""+root_dir+"/Bilder\"}]");
             init_data.put("STATUS_FLAG","1");
 
             try {
                 dbw.insert(BASI_PROJEKTE,null,init_data);
+                File f= new File(init_data.get("DIR_ROOT").toString());
+                if(!f.exists())
+                {
+                   f.mkdirs();
+                }
 
             } catch (Exception e)
             {

@@ -803,7 +803,8 @@ public class Kamera<onActivityResult> extends Fragment {
 
                 alertDialogBuilder.setTitle(R.string.add_title_dir_name);
 
-                paht.setOnClickListener(new View.OnClickListener() {
+                paht.setOnClickListener(new View.OnClickListener()
+                {
                     @Override
                     public void onClick(View view) {
                         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
@@ -997,6 +998,10 @@ public class Kamera<onActivityResult> extends Fragment {
 
         }
         File storageDir = new File(path);
+        if(!storageDir.exists())
+        {
+            storageDir.mkdirs();
+        }
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
                 ".jpeg",         /* suffix */

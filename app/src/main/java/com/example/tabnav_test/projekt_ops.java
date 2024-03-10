@@ -717,16 +717,15 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                     }
                     if(value_root_dir.isEmpty())
                     {
-                        value_root_dir = Environment.getExternalStorageDirectory().toString();
-                    }
+                        value_root_dir = Environment.getExternalStorageDirectory().toString()+"/BASI/";
 
+                    }
                     if(do_projekt_exist(value_nr, value_name))
                     {
                         Toast.makeText(context, "ERROR: \n Projekt nicht angelegt, da es schon existert!", Toast.LENGTH_LONG).show();
                     }
                     else
                     {
-
                         try {
 
                             ContentValues insert_data = new ContentValues();
@@ -734,8 +733,9 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                             insert_data.put("DATE",bsf.date_refresh_database());
                             insert_data.put("PROJEKT_NR",value_nr);
                             insert_data.put("NAME",value_name);
+                            value_root_dir +=insert_data.get("NAME").toString()+"["+insert_data.get("PROJEKT_NR").toString()+"]";
                             insert_data.put("DIR_ROOT",value_root_dir);
-                            insert_data.put("DIR_SUB","[{\"NAME\":\"DEFAULT\",\"DIR\":\"\"}]");
+                            insert_data.put("DIR_SUB","[{\"NAME\":\"DEFAULT\",\"DIR\":\""+value_root_dir+"/Bilder\"}]");
                             insert_data.put("STATUS_FLAG","0");
                             dbo.insert(SQL_finals.BASI_PROJEKTE,insert_data);
                             Toast.makeText(context, "Projekt angelegt!", Toast.LENGTH_LONG).show();

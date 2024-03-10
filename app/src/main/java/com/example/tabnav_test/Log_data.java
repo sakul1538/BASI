@@ -3,6 +3,8 @@ package com.example.tabnav_test;
 
 
 
+import static com.example.tabnav_test.R.id.colay_main;
+import static com.example.tabnav_test.R.id.config_tag;
 import static com.example.tabnav_test.R.id.get_dummy_data;
 import static com.example.tabnav_test.R.id.log_actions_data;
 import static com.example.tabnav_test.R.id.log_data_view;
@@ -20,6 +22,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.service.notification.NotificationListenerService;
 import android.text.BoringLayout;
 import android.util.Log;
 import android.view.MenuInflater;
@@ -40,6 +43,8 @@ import android.widget.Toast;
 import com.example.tabnav_test.Log.log_database_ops;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Random;
 
@@ -50,6 +55,8 @@ public class Log_data extends AppCompatActivity
     ImageButton log_action_data_button;
     ImageButton log_reload_dataset;
     EditText log_search_edit;
+
+    TextView log_title;
 
 
 
@@ -83,6 +90,8 @@ public class Log_data extends AppCompatActivity
 
         log_filter_button  =findViewById(R.id.log_filter_button);
         log_reload_dataset  =findViewById(R.id.log_reload_dataset);
+        log_title= findViewById(R.id.textView6);
+
 
         load_dataset();
         log_reload_dataset.setOnClickListener(new View.OnClickListener()
@@ -106,10 +115,6 @@ public class Log_data extends AppCompatActivity
         });
 
 
-
-
-
-
         log_filter_button.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -118,7 +123,7 @@ public class Log_data extends AppCompatActivity
                 AlertDialog.Builder filter_dialog = new AlertDialog.Builder(Log_data.this);
                 View promptsView = getLayoutInflater().inflate(R.layout.log_search_filter_dialog, null);
                 filter_dialog.setView(promptsView);
-                filter_dialog.setTitle("x");
+                filter_dialog.setTitle("Einträge Filtern");
 
 
                 TextView date_from = promptsView.findViewById(R.id.date_from);
@@ -132,6 +137,9 @@ public class Log_data extends AppCompatActivity
                 CheckBox done_flag = promptsView.findViewById(R.id.done_flag);
                 CheckBox undone_flag = promptsView.findViewById(R.id.undone_flag);
                 CheckBox favorite_flag = promptsView.findViewById(R.id.favorite_flag);
+
+                date_from.setText(bsf.date_refresh());
+                date_to.setText(bsf.date_refresh());
 
                 date_from.setOnClickListener(new View.OnClickListener()
                 {
@@ -206,6 +214,7 @@ public class Log_data extends AppCompatActivity
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
                         projekt_ops projekt =new projekt_ops(getApplicationContext());
+                        log_database_ops log_dbops = new log_database_ops(getApplicationContext());
                         String projekt_id = projekt.projekt_get_selected_id();
 
                         String where = "";
@@ -221,11 +230,12 @@ public class Log_data extends AppCompatActivity
                             temp = date_to_value.split("[.]");
                             date_to_value =temp[2]+"-"+temp[1]+"-"+temp[0];
 
-                            where += "DATE BETWEEN "+date_from_value+ " AND "  +date_to_value;
+                            where += "(DATE BETWEEN '"+date_from_value+ "' AND '"  +date_to_value+"') AND ";
+
                         }
                         if(check_text.isChecked())
                         {
-                            where += " AND NOTIZ="+ bsf.URLencode(search_text_value.getText().toString());
+                            where += " (NOTE LIKE '%"+ bsf.URLencode(search_text_value.getText().toString())+"%') AND ";
                         }
 
 
@@ -234,17 +244,17 @@ public class Log_data extends AppCompatActivity
 
                         if(done && undone == true)
                         {
-                            where += " AND CHECK_FLAG=true OR CHECK_FLAG=false ";
+                            where += " (CHECK_FLAG='true' OR CHECK_FLAG='false') AND ";
                             }
                         else
                             {
                                 if(done == true)
                                 {
-                                    where += " AND CHECK_FLAG=true";
+                                    where += " CHECK_FLAG='true' AND ";
                                 }
                                     if(undone == true)
                                 {
-                                    where += "AND  CHECK_FLAG=false";
+                                    where += " CHECK_FLAG='false' AND ";
 
                                 }
                         }
@@ -252,9 +262,36 @@ public class Log_data extends AppCompatActivity
                         if(favorite_flag.isChecked())
                         {
 
-                           where += " AND FAV_FLAG=true";
+                           where += " FAV_FLAG='true' AND ";
                         }
-                        Log.d("BASI",where);
+
+                        try {
+                            if(!where.equals(""))
+                            {
+                                where = where.substring(0,where.length()-4);
+                                String[] search_output  = log_dbops.full_search(projekt_id,where);
+                                if(!search_output[0].contains("NULL,NULL"))
+                                {
+                                    log_show_data_adapter lca = new log_show_data_adapter(search_output);
+                                    rcv1.setAdapter(lca);
+                                    rcv1.setVisibility(View.VISIBLE);
+                                }
+                                else
+                                {
+                                    rcv1.setVisibility(View.INVISIBLE);
+                                    Toast.makeText(Log_data.this, "Keine Einträge gefunden!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            else
+                            {
+                                Toast.makeText(Log_data.this, "Keine oder Ungültige Argumente!", Toast.LENGTH_SHORT).show();
+                            }
+
+
+                        } catch (Exception e)
+                        {
+                            Toast.makeText(Log_data.this,e.getMessage().toString() , Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
                 filter_dialog.show();
@@ -262,16 +299,25 @@ public class Log_data extends AppCompatActivity
         });
     }
 
-    public void load_dataset()
-    {
-            projekt_ops projekt = new projekt_ops(getApplicationContext());
-            log_database_ops log_dbops = new log_database_ops(getApplicationContext());
+    public void load_dataset() {
 
-            recv_daten = log_dbops.get_entrys(projekt.projekt_get_selected_id());
+        projekt_ops projekt = new projekt_ops(getApplicationContext());
+        log_database_ops log_dbops = new log_database_ops(getApplicationContext());
+
+        recv_daten = log_dbops.get_entrys(projekt.projekt_get_selected_id());
+        if (!recv_daten[0].contains("NULL,NULL"))
+        {
+            rcv1.setVisibility(View.VISIBLE);
             log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
             rcv1.setAdapter(lca);
-    }
+        }
+        else
+        {
+            rcv1.setVisibility(View.INVISIBLE);
+        }
 
+        log_title.setText(getResources().getText(R.string.log_title) + ":" + log_dbops.entry_count(projekt.projekt_get_selected_id()));
+    }
 
 
 
@@ -324,9 +370,8 @@ public class Log_data extends AppCompatActivity
                                 {
 
                                     Toast.makeText(Log_data.this, "Alle Einträge gelöscht!", Toast.LENGTH_SHORT).show();
-                                    recv_daten = log_dbops.get_entrys(projekt.projekt_get_selected_id());
-                                    log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
-                                    rcv1.setAdapter(lca);
+                                    load_dataset();
+
                                 }
                                 else
                                 {
@@ -378,18 +423,11 @@ public class Log_data extends AppCompatActivity
                     case R.id.delet_all_exept_fav_flag:
 
                         try {
-
-                            int deletet = log_dbops.delet_all_exept_fav_flag(projekt_id);
-                            if(deletet>0)
+                            //String pre_entrys_count = String.valueOf(log_dbops.entry_count(projekt_id));
+                            if(log_dbops.delet_all_exept_fav_flag(projekt_id,getApplicationContext()))
                             {
-                                Toast.makeText(Log_data.this, String.valueOf(deletet) +"von x  Gelöscht!", Toast.LENGTH_SHORT).show();
                                 load_dataset();
                             }
-                            else
-                            {
-                                Toast.makeText(Log_data.this, "Error:\n  deletet<0", Toast.LENGTH_SHORT).show();
-                            }
-
 
                         } catch (Exception e)
                         {
@@ -398,8 +436,6 @@ public class Log_data extends AppCompatActivity
                         }
 
                         break;
-
-
 
                     case get_dummy_data:
 
@@ -430,7 +466,7 @@ public class Log_data extends AppCompatActivity
                             data.put("PROJEKT_NR",projekt.projekt_get_selected_id());
                             data.put("DATE",bsf.convert_date(date,"format_database"));
                             data.put("TIME",time);
-                            data.put("NOTE",bsf.URLencode("NONE"));
+                            data.put("NOTE",bsf.URLencode(random_word()));
                             data.put("CHECK_FLAG","false");
                             data.put("FAV_FLAG","false");
                             log_dbops.add(data);
@@ -444,6 +480,25 @@ public class Log_data extends AppCompatActivity
                 return false;
             }
         });
+    }
+
+    public String random_word()
+    {
+        String[] germanWords = {
+                "Haus", "Auto", "Baum", "Tisch", "Stuhl", "Kuchen", "Katze", "Hund", "Apfel", "Buch",
+                "Schule", "Stadt", "Fluss", "Land", "Mensch", "Telefon", "Fenster", "Tür", "Wasser", "Feuer",
+                "Wald", "Blume", "Garten", "Kaffee", "Tee", "Brot", "Milch", "Käse", "Himmel", "Sonne",
+                "Mond", "Sterne", "Herz", "Hand", "Fuß", "Auge", "Nase", "Mund", "Ohr", "Zunge", "Zahn",
+                "Kopf", "Arm", "Bein", "Bauch", "Rücken", "Schulter", "Hals", "Knie", "Ellenbogen", "Finger",
+                "Zeh", "Hose", "Schuh", "Mantel", "Jacke", "Hemd", "Rock", "Kleid", "Schal", "Hut",
+                "Handtasche", "Geldbeutel", "Schlüssel", "Uhr", "Brille", "Kamera", "Computer", "Laptop", "Drucker",
+                "Bildschirm", "Maus", "Tastatur", "Lautsprecher", "Batterie", "Kabel", "Stecker", "Stift", "Bleistift",
+                "Radiergummi", "Lineal", "Schere", "Klebstoff", "Papier", "Buchstabe", "Zahl", "Wort", "Satz", "Text",
+                "Gedicht", "Geschichte", "Roman", "Zeitung", "Magazin", "Karte", "Plan", "Weg", "Brücke", "Straße"
+        };
+        Random r = new Random();
+        return germanWords[r.nextInt(99)];
+
     }
 
     public void ms(String[] message) {

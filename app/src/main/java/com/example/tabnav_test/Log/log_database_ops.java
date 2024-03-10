@@ -1,17 +1,24 @@
 package com.example.tabnav_test.Log;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.example.tabnav_test.Basic_funct;
+import com.example.tabnav_test.Log_data;
 import com.example.tabnav_test.SQL_finals;
 import com.example.tabnav_test.db_controlls;
 import com.example.tabnav_test.projekt_ops;
+
+import java.util.ArrayList;
 
 public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
 {
@@ -134,17 +141,29 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
 
     }
 
-    public int delet_all_exept_fav_flag(String projekt_id)
+    public Boolean delet_all_exept_fav_flag(String projekt_id,Context context2)
     {
+        Boolean response= false;
+        String entry_count  = String.valueOf(this.entry_count(projekt_id));
 
         SQLiteDatabase dbw = this.getWritableDatabase();
         int colum   = dbw.delete(BASI_LOG,"PROJEKT_NR=? AND FAV_FLAG='false'",new String[]{projekt_id});
 
-        return colum;
+        if(colum>0)
+        {
+            Toast.makeText(context2, String.valueOf(colum) +" von "+ entry_count+"  Gelöscht!", Toast.LENGTH_SHORT).show();
+            response = true;
+        }
+
+        else
+        {
+            Toast.makeText(context2, "Error:\n  deletet<0", Toast.LENGTH_SHORT).show();
+        }
+
+
+        return response;
         //eintragszähler  implementieren
     }
-
-
 
 
 
@@ -195,9 +214,6 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
         SQLiteDatabase dbr = this.getReadableDatabase();
 
         Cursor c  =dbr.query(BASI_LOG,null,"PROJEKT_NR=?",new String[]{projekt_id},null,null,null);
-        dbr.close();
-        c.close();
-
         return c.getCount();
     }
 
@@ -384,39 +400,59 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
         return output;
     }
 
-    public void full_search(String projekt_id,String where, String []where_args)
+    public String [] full_search(String projekt_id,String where)
     {
+
         try {
             SQLiteDatabase dbr = this.getReadableDatabase();
 
-
-            Cursor cursor = dbr.query(BASI_LOG,null,where,where_args,null,null,null);
+            Cursor cursor = dbr.query(BASI_LOG,null,where ,null,null,null,null);
 
             if(cursor.getCount() >0)
             {
+                int array_pos= 0;
+                String [] output_array =new String[cursor.getCount()];
+
                 while(cursor.moveToNext())
                 {
-                    String output = "" ;
+                    String colect = "";
 
                     for(String colum: cursor.getColumnNames())
                     {
-                        output += colum+"="+cursor.getString(cursor.getColumnIndexOrThrow(colum))+",";
+                     colect += cursor.getString(cursor.getColumnIndexOrThrow(colum))+",";
                     }
-                    Log.d("BASI",output);
+                    Log.d("BASIss",colect);
+                    output_array[array_pos] = colect.substring(0,colect.length()-1);
+                    array_pos++;
                 }
+                cursor.close();
+
+                return output_array;
             }
             else
             {
+
+                String[] output_array = new String[1];
+                String row_alt = "";
+
+                for(String name : cursor.getColumnNames())
+                {
+                    row_alt += "NULL,";
+                }
+
+                output_array[0]=row_alt.substring(0,row_alt.length()-1);
+                cursor.close();
+
                 Log.d("BASI","CURSOR<1");
+
+                return  output_array;
             }
+
         } catch (IllegalArgumentException e)
         {
 
-            Log.d("BASI",e.getMessage().toString());
-
             throw new RuntimeException(e);
         }
-
 
     }
 
