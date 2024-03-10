@@ -124,6 +124,30 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
         }
     }
 
+    public int delet_all_done(String projekt_id)
+    {
+        SQLiteDatabase dbw = this.getWritableDatabase();
+        int colum   = dbw.delete(BASI_LOG,"PROJEKT_NR=? AND CHECK_FLAG='true'",new String[]{projekt_id});
+
+        return colum;
+
+
+    }
+
+    public int delet_all_exept_fav_flag(String projekt_id)
+    {
+
+        SQLiteDatabase dbw = this.getWritableDatabase();
+        int colum   = dbw.delete(BASI_LOG,"PROJEKT_NR=? AND FAV_FLAG='false'",new String[]{projekt_id});
+
+        return colum;
+        //eintragszähler  implementieren
+    }
+
+
+
+
+
     public String[] get_entrys(String projekt_id)
     {
         SQLiteDatabase dbr = this.getReadableDatabase();
@@ -395,17 +419,6 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
 
 
     }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

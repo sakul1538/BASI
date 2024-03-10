@@ -5,9 +5,15 @@
         <menu>
             <item android:id="@+id/delet_all_entrys"
                 android:title="@string/log_actions_delet_all" > </item>
-            <item android:id="@+id/delet_check_true"
-                android:title="@string/log_actions_delet_all_check_true" > </item>
-</menu>
+            <item
+                android:id="@+id/delet_all_exept_fav_flag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:title="@string/log_actions_delet_all_exept_fav_flags" />
+            <item
+                android:id="@+id/delet_check_true"
+                android:title="@string/log_actions_delet_all_check_true"></item>
+        </menu>
 
         </item>
     <item android:id="@+id/sync"

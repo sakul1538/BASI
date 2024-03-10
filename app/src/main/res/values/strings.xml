@@ -108,7 +108,8 @@
 
 
     <string name="log_actions_delet">Löschen</string>
-    <string name="log_actions_delet_all">Alle Einträge</string>
+    <string name="log_actions_delet_all">Alle Einträge inklusive Favoriten</string>
+    <string name="log_actions_delet_all_exept_fav_flags">Alle Ausser Favoriten</string>
     <string name="log_actions_delet_all_check_true">Erledigte</string>
     <string name="log_actions_delet_all_search">Suchergebnisse</string>
 

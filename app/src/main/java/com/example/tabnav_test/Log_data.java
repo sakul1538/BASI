@@ -1,7 +1,7 @@
 package com.example.tabnav_test;
 
 
-import static com.example.tabnav_test.R.id.delet_check_true;
+
 
 import static com.example.tabnav_test.R.id.get_dummy_data;
 import static com.example.tabnav_test.R.id.log_actions_data;
@@ -76,6 +76,8 @@ public class Log_data extends AppCompatActivity
         Basic_funct bsf = new Basic_funct();
 
         rcv1 = findViewById(log_data_view);
+        rcv1.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
 
         log_action_data_button = findViewById(log_actions_data);
 
@@ -90,10 +92,6 @@ public class Log_data extends AppCompatActivity
             {
                 load_dataset();
             }
-
-
-
-
         });
 
 
@@ -266,16 +264,12 @@ public class Log_data extends AppCompatActivity
 
     public void load_dataset()
     {
-
-
             projekt_ops projekt = new projekt_ops(getApplicationContext());
             log_database_ops log_dbops = new log_database_ops(getApplicationContext());
 
             recv_daten = log_dbops.get_entrys(projekt.projekt_get_selected_id());
             log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
             rcv1.setAdapter(lca);
-            rcv1.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-
     }
 
 
@@ -307,7 +301,10 @@ public class Log_data extends AppCompatActivity
             public boolean onMenuItemClick(MenuItem menuItem)
             {
                 // Handle item selection
-                log_fav log = new log_fav(getApplicationContext());
+                projekt_ops projekt = new projekt_ops(getApplicationContext());
+                log_database_ops log_dbops = new log_database_ops(getApplicationContext());
+                String projekt_id = projekt.projekt_get_selected_id();
+
 
                 switch (menuItem.getItemId())
                 {
@@ -322,25 +319,20 @@ public class Log_data extends AppCompatActivity
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i)
                             {
-                                //alle einträge löschen und recycler view aktuallisueren
-
-                                projekt_ops projekt = new projekt_ops(getApplicationContext());
-                                log_database_ops log_dbops = new log_database_ops(getApplicationContext());
-
 
                                 if( log_dbops.delet_all(projekt.projekt_get_selected_id())== true)
                                 {
-                                    Toast.makeText(Log_data.this, "Alle Einträge gelöscht!", Toast.LENGTH_SHORT).show();
 
+                                    Toast.makeText(Log_data.this, "Alle Einträge gelöscht!", Toast.LENGTH_SHORT).show();
+                                    recv_daten = log_dbops.get_entrys(projekt.projekt_get_selected_id());
+                                    log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
+                                    rcv1.setAdapter(lca);
                                 }
                                 else
                                 {
                                     Toast.makeText(Log_data.this, "Error Response: false", Toast.LENGTH_SHORT).show();
                                 }
-                                recv_daten = log_dbops.get_entrys(projekt.projekt_get_selected_id());
 
-                                log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
-                                rcv1.setAdapter(lca);
                             }
 
                         });
@@ -359,31 +351,60 @@ public class Log_data extends AppCompatActivity
                        break;
 
 
-                    case delet_check_true:
+                    case R.id.delet_check_true:
+
+                        try {
+
+                            int deletet = log_dbops.delet_all_done(projekt_id);
+                            if(deletet>0)
+                            {
+                                Toast.makeText(Log_data.this, String.valueOf(deletet) +" Gelöscht!", Toast.LENGTH_SHORT).show();
+                                load_dataset();
+                            }
+                            else
+                            {
+                                Toast.makeText(Log_data.this, "Error:\n  deletet<0", Toast.LENGTH_SHORT).show();
+                            }
 
 
-                        for (int i = 0; i < recv_daten.length; i++)
+                        } catch (Exception e)
                         {
-                            String[] recv_daten_parts = recv_daten[i].split(",");
-
-                            int response =log.delet_log_entry_if_check_true(recv_daten_parts[0],RROJ_NR);
-
+                            Toast.makeText(Log_data.this, "Error\n"+e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                            throw new RuntimeException(e);
                         }
 
-                        recv_daten = log.log_search_data(RROJ_NR, pack_search_values());
+                        break;
 
-                        log_show_data_adapter lca = new log_show_data_adapter(recv_daten);
-                        rcv1.setAdapter(lca);
+                    case R.id.delet_all_exept_fav_flag:
+
+                        try {
+
+                            int deletet = log_dbops.delet_all_exept_fav_flag(projekt_id);
+                            if(deletet>0)
+                            {
+                                Toast.makeText(Log_data.this, String.valueOf(deletet) +"von x  Gelöscht!", Toast.LENGTH_SHORT).show();
+                                load_dataset();
+                            }
+                            else
+                            {
+                                Toast.makeText(Log_data.this, "Error:\n  deletet<0", Toast.LENGTH_SHORT).show();
+                            }
+
+
+                        } catch (Exception e)
+                        {
+                            Toast.makeText(Log_data.this, "Error\n"+e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                            throw new RuntimeException(e);
+                        }
 
                         break;
+
 
 
                     case get_dummy_data:
 
                         Context context = getApplicationContext();
                         Basic_funct bsf =new Basic_funct();
-                        projekt_ops projekt = new projekt_ops(context);
-                        log_database_ops log_dbops = new log_database_ops(context);
 
                         //Zufällige datums generierne
                         Random random = new Random();
