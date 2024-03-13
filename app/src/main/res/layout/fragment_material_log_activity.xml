@@ -58,7 +58,7 @@
             android:id="@+id/viewPager_log_material"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/hellgrün" />
+            android:background="@color/grey" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

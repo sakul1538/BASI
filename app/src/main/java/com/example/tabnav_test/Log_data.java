@@ -207,7 +207,6 @@ public class Log_data extends AppCompatActivity
 
                     }
                 });
-
                 filter_dialog.setPositiveButton("OK", new DialogInterface.OnClickListener()
                 {
                     @Override

@@ -58,6 +58,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+
+import com.example.tabnav_test.projekt_ops;
 import com.example.tabnav_test.static_finals;
 
 /**
@@ -114,6 +116,7 @@ public class Material extends Fragment implements static_finals
     ImageButton reset_form;
     ImageButton save_ls_entry;
     ImageButton start_material_log_activity;
+    ImageButton material_reload_projekt_spinner;
 
 
     ImageButton open_pdf;
@@ -141,7 +144,7 @@ public class Material extends Fragment implements static_finals
 
 
     //Spinner
-    Spinner projlist;
+    Spinner material_projekt_spinner;
     Spinner zulieferer_liste;
 
     Spinner spinner_artikel_settings ;
@@ -557,8 +560,11 @@ public class Material extends Fragment implements static_finals
         mdo = new material_database_ops(getContext());
         mdo.test_exist_projects();
 
+        projekt_ops projekt = new projekt_ops(getContext());
+
+
+
         //TextView
-        projekt_label = view.findViewById(R.id.textView58);
         date_label = view.findViewById(R.id.textView59_date);
         imagecounter = view.findViewById(R.id.textView73);
 
@@ -569,16 +575,14 @@ public class Material extends Fragment implements static_finals
         edit_artikel_name = view.findViewById(R.id.autoCompleteTextView_artikel);
         edit_zulieferer_name = view.findViewById(R.id.autocomplete_zulieferer_name);
 
-
-
         //ImageButtons
         settings_zulieferer = view.findViewById(R.id.imageButton37);
-        settings_projekt_button = view.findViewById(R.id.imageButton34);
         settings_artikel = view.findViewById(R.id.imageButton39);
 
         reset_artikel = view.findViewById(R.id.reset_artikel);
         reset_zulieferer = view.findViewById(R.id.reset_zulieferer);
         reset_LS = view.findViewById(R.id.reset_LS);
+        material_reload_projekt_spinner = view.findViewById(R.id.material_reload_projekt_spinner);
 
         note_field = view.findViewById(R.id.ls_note_field);
         ls_note_reset = view.findViewById(R.id.ls_note_reset);
@@ -609,12 +613,22 @@ public class Material extends Fragment implements static_finals
 
         //Spinner
         spinner_einheiten = view.findViewById(R.id.spinner6_einheiten);
+        material_projekt_spinner = view.findViewById(R.id.material_projekt_spinner);
+
+        material_projekt_spinner.setAdapter(projekt_ops.projekt_browser.get_projekt_array_adapter_for_spinner());
+
 
         //Layouts
         date_background = view.findViewById(R.id.date_background);
         ls_nr_background = view.findViewById(R.id.ls_nr_bg);
         zulieferer_backgound = view.findViewById(R.id.zulieferer_background);
-
+        material_reload_projekt_spinner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                Toast.makeText(getContext(), "Nicht Implementiert", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         note_field.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -622,7 +636,12 @@ public class Material extends Fragment implements static_finals
             {
                 if(b)
                 {
-                    refresh_fav_auto_complete();
+                    try {
+                        refresh_fav_auto_complete();
+                    } catch (Exception e)
+                    {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         });
@@ -652,17 +671,6 @@ public class Material extends Fragment implements static_finals
         }
        // reset_complete();
 
-
-        lsnr_field.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b)
-            {
-                if(!b)
-                {
-                    r.lsnr_test_alert(r.lsnr_test());
-                }
-            }
-        });
 
         set_locksatus_zulieferer.setOnClickListener(new View.OnClickListener() {
             @Override

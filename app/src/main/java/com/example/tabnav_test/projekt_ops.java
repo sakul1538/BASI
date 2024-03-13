@@ -583,7 +583,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         return  output;
     }
 
-        private ArrayAdapter get_projekt_array_adapter_for_spinner()
+        public static ArrayAdapter get_projekt_array_adapter_for_spinner()
         {
             final String name ="NAME";
             final String projekt_nr ="PROJEKT_NR";

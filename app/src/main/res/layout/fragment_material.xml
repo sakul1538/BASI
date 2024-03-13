@@ -34,27 +34,24 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center|center_horizontal"
                 android:layout_margin="5dp"
+                android:gravity="center"
                 android:orientation="horizontal"
                 android:visibility="visible">
 
-                <TextView
-                    android:id="@+id/textView58"
+                <Spinner
+                    android:id="@+id/material_projekt_spinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="5dp"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical"
-                    android:text="@string/Proj_label_sample" />
+                    android:gravity="center" />
 
                 <ImageButton
-                    android:id="@+id/imageButton34"
+                    android:id="@+id/material_reload_projekt_spinner"
                     android:layout_width="@dimen/buttons_1"
                     android:layout_height="@dimen/buttons_1"
                     android:layout_margin="5dp"
                     android:layout_weight="0"
                     android:background="#00FFFFFF"
-                    android:src="@drawable/ic_baseline_settings_24" />
+                    android:src="@drawable/ic_baseline_cached_24" />
 
             </LinearLayout>
 
@@ -151,11 +148,12 @@
                 android:id="@+id/zulieferer_background"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:gravity="center"
                 android:orientation="horizontal">
 
                 <AutoCompleteTextView
                     android:id="@+id/autocomplete_zulieferer_name"
-                    android:layout_width="270dp"
+                    android:layout_width="242dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/empty"
@@ -177,6 +175,17 @@
                     android:layout_weight="1"
                     android:background="#00FFFFFF"
                     android:src="@drawable/baseline_lock_24" />
+
+                <ImageButton
+                    android:id="@+id/imageButton51"
+                    android:layout_width="@dimen/buttons_1"
+                    android:layout_height="@dimen/buttons_1"
+                    android:layout_gravity="center"
+                    android:layout_margin="5dp"
+                    android:layout_weight="0"
+                    android:background="#00FFEB3B"
+                    android:padding="10dp"
+                    android:src="@drawable/baseline_manage_search_24" />
 
                 <ImageButton
                     android:id="@+id/imageButton37"
