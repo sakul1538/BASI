@@ -65,11 +65,10 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
     // ----------------------------------------------------------------- Instanzen
     db_ops dbo;
-    projekt_browser browser;
+    public projekt_browser browser;
     backup projekt_backup;
     // ----------------------------------------------------------------- TextView
     TextView current_projekt_main_title;
-
 
     // ----------------------------------------------------------------- AutoCompleteTextView
     // ----------------------------------------------------------------- EditText
@@ -583,7 +582,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         return  output;
     }
 
-        public static ArrayAdapter get_projekt_array_adapter_for_spinner()
+        public ArrayAdapter get_projekt_array_adapter_for_spinner()
         {
             final String name ="NAME";
             final String projekt_nr ="PROJEKT_NR";

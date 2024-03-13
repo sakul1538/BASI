@@ -563,7 +563,6 @@ public class Material extends Fragment implements static_finals
         projekt_ops projekt = new projekt_ops(getContext());
 
 
-
         //TextView
         date_label = view.findViewById(R.id.textView59_date);
         imagecounter = view.findViewById(R.id.textView73);
@@ -615,7 +614,12 @@ public class Material extends Fragment implements static_finals
         spinner_einheiten = view.findViewById(R.id.spinner6_einheiten);
         material_projekt_spinner = view.findViewById(R.id.material_projekt_spinner);
 
-        material_projekt_spinner.setAdapter(projekt_ops.projekt_browser.get_projekt_array_adapter_for_spinner());
+
+
+
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(view.getContext(), R.array.einheiten_array, android.R.layout.simple_spinner_item);
+        material_projekt_spinner.setAdapter(adapter);
 
 
         //Layouts
@@ -660,7 +664,7 @@ public class Material extends Fragment implements static_finals
 
         try {
             refresh_artikel_autocomplete();
-           refresh_projekt_label();
+
           // refresh_autocomplete_liste_zulieferer();
           // set_media_directory(ls_media_directory_name_temp);
         //  clean_temp_dir();
@@ -1012,6 +1016,7 @@ public class Material extends Fragment implements static_finals
 
 
                 //ImageButtons
+                //ImageButtonsadapter
                 ImageButton imagebutton_artikel_update = view_artikel.findViewById(R.id.imagebutton_artikel_update);
                 ImageButton imagebutton_artikel_delet = view_artikel.findViewById(R.id.imageButton_artikel_delet);
                 ImageButton imageButton_artikel_add = view_artikel.findViewById(R.id.imageButton_artikel_add);
@@ -1492,170 +1497,6 @@ public class Material extends Fragment implements static_finals
         });
 
 
-        settings_projekt_button.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                LayoutInflater li = LayoutInflater.from(getActivity());
-                View promptsView = li.inflate(R.layout.material_choose_proj_dialog, container, false);
-
-                projlist = promptsView.findViewById(R.id.spinner2);
-                ImageButton add = promptsView.findViewById(R.id.imageButton48);
-                ImageButton delet_item = promptsView.findViewById(R.id.imageButton47);
-                ImageButton update_item = promptsView.findViewById(R.id.imageButton46);
-                Button backup_create = promptsView.findViewById(R.id.backup_create);
-                Button backup_restore = promptsView.findViewById(R.id.backup_restore);
-
-                //Buttons
-                Button select_projekt_button = promptsView.findViewById(R.id.select_projekt_button);
-
-                TextView current_selectet= promptsView.findViewById(R.id.current_selectet);
-
-                current_selectet.setText(mdo.get_selectet_projekt());
-                select_projekt_button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view)
-                    {
-                        String selected_item = String.valueOf(projlist.getSelectedItem());
-                        String[] item_part = divider(selected_item);
-                        Log.d("BASI", item_part[0]);
-                        Log.d("BASI", item_part[1]);
-                        material_database_ops mdo = new material_database_ops(getContext());
-                        mdo.select_projekt(item_part[1]);
-                        refresh_projekt_label();
-                        current_selectet.setText(mdo.get_selectet_projekt());
-                        try {
-                            set_media_directory(ls_media_directory_name_temp);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-
-                    }
-                });
-
-                update_item.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        upate_projekt(container, String.valueOf(projlist.getSelectedItem()));
-                    }
-                });
-
-                delet_item.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-
-                        String selected_item = String.valueOf(projlist.getSelectedItem());
-                        String[] item_part = divider(selected_item);
-                        Log.d("BASI", item_part[0]);
-                        Log.d("BASI", item_part[1]);
-
-                        String item_name = item_part[0];
-                        String item_id = item_part[1];
-                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-                        alertDialogBuilder.setTitle("Löschen Bestätigen:");
-                        alertDialogBuilder.setIcon(R.drawable.ic_baseline_report_gmailerrorred_24);
-
-                        alertDialogBuilder.setMessage("Projekt:\n" + item_name + " \n\nwirklich Löschen?").setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                material_database_ops mdo = new material_database_ops(getContext());
-                                int r = mdo.projekt_delet(item_id);
-
-                                Toast.makeText(getContext(), String.valueOf(r), Toast.LENGTH_SHORT).show();
-                                refresh_spinner();
-                                //refresh_artikel_autocomplete();
-
-
-                                dialogInterface.cancel();
-                            }
-                        });
-
-                        alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.cancel();
-                            }
-                        });
-
-                        AlertDialog alertDialog = alertDialogBuilder.create();
-                        alertDialog.show();
-
-
-                    }
-                });
-
-                add.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        add_projekt(container);
-                        refresh_spinner();
-                    }
-                });
-                //Spinner
-
-                backup_create.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view)
-                    {
-                        Backup backup = new Backup(getContext());
-                        String path = Environment.getExternalStorageDirectory()+static_finals.backup_dir_json; ///storage/emulated/0
-
-                        String filename = "BASI_BACKUP_PROJEKTE@" +bsf.get_date_for_filename()+".json";
-
-                        File dir= new File(path);
-                        dir.mkdirs();
-
-                        try {
-                            backup.create_backup(SQL_finals.TB_MATERIAL_PROJEKTE,null,null,null,path,filename);
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        }
-                        Log.d("BASI",path);
-
-                    }
-                });
-
-                backup_restore.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View view)
-                    {
-                        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                        intent.addCategory(Intent.CATEGORY_OPENABLE);
-                        intent.setType("application/json");
-                        startActivityForResult(intent, 8);
-
-                    }
-                });
-
-
-
-                refresh_spinner();
-
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-                // set prompts.xml to alertdialog builder
-                alertDialogBuilder.setView(promptsView);
-                alertDialogBuilder.setTitle("Projektbowser");
-                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                });
-                alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                });
-                alertDialogBuilder.show();
-
-            }
-        });
-
-
-
         return view;
     }
 
@@ -1935,15 +1776,17 @@ public class Material extends Fragment implements static_finals
 
     }
 
-    public void refresh_spinner() {
+    public void refresh_spinner()
+    {
         material_database_ops mdo = new material_database_ops(getContext());
         //Spinner adapter
         String[] projekt_liste = mdo.projekt_list_all();
         if (projekt_liste.length == 0) {
             projekt_liste = new String[]{"Keine Projekte"};
         }
+
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, projekt_liste);
-        projlist.setAdapter(spinnerArrayAdapter);
+        material_projekt_spinner.setAdapter(spinnerArrayAdapter);
 
     }
 
@@ -2010,12 +1853,6 @@ public class Material extends Fragment implements static_finals
 
     }
 
-    public void refresh_projekt_label()
-    {
-
-        material_database_ops mdo = new material_database_ops(getContext());
-        projekt_label.setText(mdo.get_selectet_projekt());
-    }
 
     //Bild aufnehmen
 
