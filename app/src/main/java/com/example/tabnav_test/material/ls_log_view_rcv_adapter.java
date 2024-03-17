@@ -219,10 +219,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
             {
                 Basic_funct bsf =new Basic_funct();
                 try {
-                    String proj_root = mdo.get_selectet_projekt_root_data()
-                            .split(",")[2]
-                            .replace("primary:", Environment.getExternalStorageDirectory().toString()+"/")
-                            +Material.ls_media_directory_name; //primary:DCIM/Baustellen /testprojekt
+                    String proj_root = mdo.get_ls_images_dir();
 
 
                     String document_name  =  bsf.ls_filename_form(name_zuleferer,
@@ -257,10 +254,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
 
                             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                            String root = mdo.get_selectet_projekt_root_data()
-                                    .split(",")[2]
-                                    .replace("primary:", Environment.getExternalStorageDirectory().toString()+"/")
-                                    +Material.ls_media_directory_name; //primary:DCIM/Baustellen /testprojekt
+                            String root = mdo.get_ls_images_dir();
 
                             File in_directory = new File(root);
                             in_directory.mkdirs();
@@ -700,7 +694,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                 String selectet_projekt_data = mdo.get_selectet_projekt();
                 String selectet_projekt_id = selectet_projekt_data.substring(selectet_projekt_data.lastIndexOf("[") + 1, selectet_projekt_data.lastIndexOf("]"));
 
-                data_new.put("PROJEKT_ID", selectet_projekt_id);
+                data_new.put("PROJEKT_ID", mdo.get_projekt_id());
                 data_new.put("DATUM", bsf.convert_date(ls_date.getText().toString(), "format_database"));
                 data_new.put("LSNR", ls_nr.getText().toString());
 

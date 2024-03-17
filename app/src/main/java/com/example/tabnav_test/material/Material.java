@@ -78,7 +78,6 @@ public class Material extends Fragment implements static_finals
     private static final int foto_preview_w = 800; //breite
     private static final int foto_preview_h = 800; // höhe
     public static final String ls_media_directory_name = "/Lieferscheine"; // höhe
-    private static final String ls_media_directory_name_temp = "/Lieferscheine/temp"; // höhe
     public static final String backup_dir =static_finals.backup_and_export_dir; //"/Backups&Exports/Backups/"// höhe
     public static final String backup_dir_app ="/Backups&Exports/APP/"; //App Allgemein
     public static final String backup_dir_BASI ="/DCIM/BASI/APP/BACKUPS/";
@@ -100,6 +99,7 @@ public class Material extends Fragment implements static_finals
     long touchStartTime = 0;
 
     Boolean lieferant_lock_status = false;
+    Boolean media_lock_status = false;
     ImageButton settings_projekt_button;
     ImageButton settings_zulieferer;
 
@@ -116,7 +116,8 @@ public class Material extends Fragment implements static_finals
     ImageButton reset_form;
     ImageButton save_ls_entry;
     ImageButton start_material_log_activity;
-    ImageButton material_reload_projekt_spinner;
+
+    ImageButton check_similar_data;
 
 
     ImageButton open_pdf;
@@ -181,6 +182,8 @@ public class Material extends Fragment implements static_finals
 
 
     routines r = new routines();
+    projekt_ops projekt;
+
 
 
 
@@ -217,14 +220,9 @@ public class Material extends Fragment implements static_finals
 
             case 1://Foto mit Kamera neu
 
-                String path = photoURI.getPath().replace("/primary", Environment.getExternalStorageDirectory().getAbsolutePath());
-
-                corr_pic_orientaion(path);
-                compress_bitmap(path);
-
-
-                //Log.d(TAG, path); //storage/emulated/0/DCIM/Baustellen/TST/Lieferscheine/temp/Kiener+Wittlin_LSNR_#@01012022_ID_16910464164706228446865913171345.jpeg
-                //String datapath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/DCIM/BASI/";
+                String path= photoURI.getPath().replace("/primary",Environment.getExternalStorageDirectory().toString());
+                //corr_pic_orientaion(path);
+               //compress_bitmap(path);
 
                 create_imageset();
                 try {
@@ -240,11 +238,10 @@ public class Material extends Fragment implements static_finals
                     exmsg("18062023110", e);
                 }
 
-                //Toast.makeText(getContext(),path, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(),path, Toast.LENGTH_SHORT).show();*/
                 break;
 
             case 2:
-
                 refresh_viewer_photo();
                 update_photo_view();
                 break;
@@ -268,7 +265,7 @@ public class Material extends Fragment implements static_finals
 
                         if (filename != "null") {
                             try {
-                                destinationPath = in_directory + "/" + filename; //Verzeichniss und Dateiname verbinden
+                                destinationPath = projekt.projekt_get_current_root_dir_ls_images_temp() + "/" + filename; //Verzeichniss und Dateiname verbinden
                                 File source = new File(source_uri);
                                 File destination = new File(destinationPath);
 
@@ -295,7 +292,8 @@ public class Material extends Fragment implements static_finals
 
             case 4: //bild von dateien öffnen
 
-                if (resultData != null) {
+                if (resultData != null)
+                {
                     uri = resultData.getData();
                     String source_path = uri.getPath();///document/primary:DCIM/Baustellen /testprojekt/Lieferscheine/Volken_NR_1223@25072023_ID_6547592956172734206.jpeg
                     source_path = source_path.replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
@@ -305,7 +303,7 @@ public class Material extends Fragment implements static_finals
                     if (filename != "null") ;
                     {
                         try {
-                            destinationPath = in_directory + "/" + filename; //Verzeichniss und Dateiname verbinden
+                            destinationPath = projekt.projekt_get_current_root_dir_ls_images_temp() + "/" + filename; //Verzeichniss und Dateiname verbinden
                             File source = new File(source_path);
                             File destination = new File(destinationPath);
 
@@ -458,7 +456,6 @@ public class Material extends Fragment implements static_finals
 
                             try {
                                 backup.restore_backup(SQL_finals.TB_MATERIAL_PROJEKTE,finalSource_path);
-                                refresh_spinner();
                             } catch (FileNotFoundException e)
                             {
                                 throw new RuntimeException(e);
@@ -473,7 +470,7 @@ public class Material extends Fragment implements static_finals
                         {
                             try {
                                 backup.restore_backup(SQL_finals.TB_MATERIAL_PROJEKTE,finalSource_path);
-                                refresh_spinner();
+
                             } catch (FileNotFoundException e) {
                                 throw new RuntimeException(e);
                             }
@@ -493,14 +490,15 @@ public class Material extends Fragment implements static_finals
         }
     }
 
-    private void corr_pic_orientaion(String file_url) {
+    private void corr_pic_orientaion(String file_url)
+    {
         try {
             ExifInterface exif = new ExifInterface(file_url);
             int orientaion = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
 
             Bitmap bMap = BitmapFactory.decodeFile(file_url);
 
-            Log.d(TAG, String.valueOf(orientaion));
+            Log.d("COORR PIC", String.valueOf(orientaion));
             Matrix matrix = new Matrix();
 
 
@@ -529,24 +527,25 @@ public class Material extends Fragment implements static_finals
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        try {
+       /* try {
             set_media_directory(ls_media_directory_name_temp);
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
+        }*/
         clean_temp_dir();
 
     }
 
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-        try {
+        /*try {
             set_media_directory(ls_media_directory_name_temp);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
+        }*/
         clean_temp_dir(); //temp Verzeichnis löschen 23423442
     }
 
@@ -555,12 +554,14 @@ public class Material extends Fragment implements static_finals
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_material, container, false);
 
+        //storage/emulated/0/BASI/Seniorenzentrum Naters[23110011]/St Michel Ost[23110011]
+
         //Instanzen
 
         mdo = new material_database_ops(getContext());
         mdo.test_exist_projects();
 
-        projekt_ops projekt = new projekt_ops(getContext());
+        projekt= new projekt_ops(getContext());
 
 
         //TextView
@@ -580,8 +581,8 @@ public class Material extends Fragment implements static_finals
 
         reset_artikel = view.findViewById(R.id.reset_artikel);
         reset_zulieferer = view.findViewById(R.id.reset_zulieferer);
-        reset_LS = view.findViewById(R.id.reset_LS);
-        material_reload_projekt_spinner = view.findViewById(R.id.material_reload_projekt_spinner);
+        reset_LS = view.findViewById(R.id.reset_LS);;
+        check_similar_data = view.findViewById(R.id.check_similar_data);
 
         note_field = view.findViewById(R.id.ls_note_field);
         ls_note_reset = view.findViewById(R.id.ls_note_reset);
@@ -612,27 +613,40 @@ public class Material extends Fragment implements static_finals
 
         //Spinner
         spinner_einheiten = view.findViewById(R.id.spinner6_einheiten);
-        material_projekt_spinner = view.findViewById(R.id.material_projekt_spinner);
 
-
-
-
-
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(view.getContext(), R.array.einheiten_array, android.R.layout.simple_spinner_item);
-        material_projekt_spinner.setAdapter(adapter);
 
 
         //Layouts
         date_background = view.findViewById(R.id.date_background);
         ls_nr_background = view.findViewById(R.id.ls_nr_bg);
         zulieferer_backgound = view.findViewById(R.id.zulieferer_background);
-        material_reload_projekt_spinner.setOnClickListener(new View.OnClickListener() {
+
+
+        check_similar_data.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)
             {
-                Toast.makeText(getContext(), "Nicht Implementiert", Toast.LENGTH_SHORT).show();
+                ContentValues check= new ContentValues();
+                check.put("PROJEKT_ID", projekt.projekt_get_selected_id());
+                check.put("LSNR",lsnr_field.getText().toString());
+                check.put("LIEFERANT_ID",mdo.get_id_zulieferer(edit_zulieferer_name.getText().toString()));
+                if(mdo.check_similar_ls(check)>0)
+                {
+                   ls_nr_background.setBackgroundColor(getResources().getColor(R.color.orange));
+                   zulieferer_backgound.setBackgroundColor(getResources().getColor(R.color.orange));
+                    Toast.makeText(getContext(),"Eintrag vorhanden", Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    ls_nr_background.setBackgroundColor(getResources().getColor(R.color.grey));
+                    zulieferer_backgound.setBackgroundColor(getResources().getColor(R.color.grey));
+                }
+
+                Toast.makeText(getContext(),"Eintrag noch nicht vorhanden!", Toast.LENGTH_SHORT).show();
             }
         });
+
+
 
         note_field.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -664,11 +678,9 @@ public class Material extends Fragment implements static_finals
 
         try {
             refresh_artikel_autocomplete();
-
-          // refresh_autocomplete_liste_zulieferer();
-          // set_media_directory(ls_media_directory_name_temp);
-        //  clean_temp_dir();
-         //create_imageset();
+            refresh_autocomplete_liste_zulieferer();
+            clean_temp_dir();
+            create_imageset();
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -769,12 +781,12 @@ public class Material extends Fragment implements static_finals
                     // set prompts.xml to alertdialog builder
 
                     alertDialogBuilder.setTitle("Artikelverwaltung");
-                    alertDialogBuilder.setMessage("Bild löschen?\n" + in_directory + "/" + imageset[imageset_array_pointer]);
+                    alertDialogBuilder.setMessage("Bild löschen?\n" + projekt.projekt_get_current_root_dir_ls_images_temp() + "/" + imageset[imageset_array_pointer]);
 
                     alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            File f = new File(in_directory + "/" + imageset[imageset_array_pointer]);
+                            File f = new File(projekt.projekt_get_current_root_dir_ls_images_temp()  + "/" + imageset[imageset_array_pointer]);
                             f.delete();
                             create_imageset();
                             if (imageset.length > 0) {
@@ -811,15 +823,11 @@ public class Material extends Fragment implements static_finals
             public void onClick(View view) {
                 material_database_ops mdo = new material_database_ops(getContext());
 
-                String proj = String.valueOf(projekt_label.getText());
-                int spos = proj.lastIndexOf("[");
-                int epos = proj.lastIndexOf("]");
-
                 ContentValues data = new ContentValues();
 
                 try {
                     data.put("ID", bsf.gen_UUID());
-                    data.put("PROJEKT_ID", proj.substring(spos + 1, epos));
+                    data.put("PROJEKT_ID", projekt.projekt_get_selected_id());
                     String date_db_format = bsf.convert_date(String.valueOf(date_label.getText()),"format_database");
                     data.put("DATUM",date_db_format);
 
@@ -835,7 +843,6 @@ public class Material extends Fragment implements static_finals
                     {
                         data.put("LSNR", String.valueOf(lsnr_field.getText()));
                     }
-                    //String id_zulieferer =  mdo.get_id_zulieferer(Zulieferer_liste_main.getSelectedItem().toString());
                     String id_zulieferer = r.get_id_zulieferer();
 
                     data.put("LIEFERANT_ID", String.valueOf(id_zulieferer));
@@ -869,33 +876,40 @@ public class Material extends Fragment implements static_finals
 
                 try {
 
-
-
                     long response = mdo.add_material_log_entry(data);
                     if (response > 0)
                     {
                         String copy_temp_msg = "";
-                        if (copy_media_files_from_temp(r.get_zulieferer_name(), data.get("LSNR").toString(), r.get_date().replace(".", "")))
+
+                        if(media_lock_status == false)
                         {
-                            copy_temp_msg = "+ Medien wurden ins Verzeichniss übernommen!";
-                        } else {
-                            copy_temp_msg = "+ Medien wurden NICHT ins Verzeichnis übernommen!";
+                            if (copy_media_files_from_temp(r.get_zulieferer_name(), data.get("LSNR").toString(), r.get_date().replace(".", "")))
+                            {
+                                copy_temp_msg = "+ Medien wurden Kopiert!";
+                                media_lock_status =true;
+
+                            } else
+                            {
+                                copy_temp_msg = "+ Medien wurden NICHT Kopiert";
+                            }
 
                         }
-
+                        else
+                        {
+                            copy_temp_msg = "+ Medien wurden NICHT Kopiert! \n media_lock_status =true";
+                        }
                         Toast.makeText(getContext(), "+Es  wurde  eine Eintrag erstellt!\n" + copy_temp_msg, Toast.LENGTH_SHORT).show();
-                    } else {
+                    } else
+                    {
                         Toast.makeText(getContext(), "+ Es konnte KEIN Eintrag erstellt werden!", Toast.LENGTH_SHORT).show();
 
                     }
 
-                    clean_temp_dir();
-                    reset_complete();
-                } catch (Exception e) {
+                } catch (Exception e)
+                {
                     exmsg("200620232152", e);
                     Toast.makeText(getContext(), "Kein Eintrag erstellt, interner Feher \n " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    clean_temp_dir();
-                    reset_complete();
+
                 }
             }
         });
@@ -948,14 +962,15 @@ public class Material extends Fragment implements static_finals
 
         ls_take_photo.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                material_database_ops mdo = new material_database_ops(getContext());
-                try {
-                    set_media_directory(ls_media_directory_name_temp);
+            public void onClick(View view)
+            {
+                try
+                {
+                    take_picture(projekt.projekt_get_current_root_dir_ls_images_temp(), TAKE_IMAGE_NEW_MODE, getContext());
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                take_picture(in_directory, TAKE_IMAGE_NEW_MODE, getContext());
+
             }
         });
         ls_note_reset.setOnClickListener(new View.OnClickListener() {
@@ -1500,6 +1515,7 @@ public class Material extends Fragment implements static_finals
         return view;
     }
 
+
     public void ls_image_viewer()
     {
         String file_url = in_directory + "/" + imageset[imageset_array_pointer];
@@ -1615,11 +1631,10 @@ public class Material extends Fragment implements static_finals
             media_visibilitiy(View.GONE);
             clean_temp_dir();
             create_imageset();
-            r.lsnr_test_alert(r.lsnr_test());
+            media_lock_status= false;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 
     private void reset_autocomplete_liste_zulieferer()
@@ -1694,7 +1709,7 @@ public class Material extends Fragment implements static_finals
                 cv.put("SRC", dir_value);
                 cv.put("SELECT_FLAG", "0");
                 mdo.projekt_add(cv);
-                refresh_spinner();
+
                 dialogInterface.cancel();
 
             }
@@ -1761,7 +1776,7 @@ public class Material extends Fragment implements static_finals
                 cv.put("NAME", name);
                 cv.put("SRC", dir_value);
                 mdo.update_projekt(data[0], cv);
-                refresh_spinner();
+
                 dialogInterface.cancel();
 
             }
@@ -1776,20 +1791,6 @@ public class Material extends Fragment implements static_finals
 
     }
 
-    public void refresh_spinner()
-    {
-        material_database_ops mdo = new material_database_ops(getContext());
-        //Spinner adapter
-        String[] projekt_liste = mdo.projekt_list_all();
-        if (projekt_liste.length == 0) {
-            projekt_liste = new String[]{"Keine Projekte"};
-        }
-
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, projekt_liste);
-        material_projekt_spinner.setAdapter(spinnerArrayAdapter);
-
-    }
-
     public void refresh_autocomplete_liste_zulieferer()
     {
         material_database_ops mdo = new material_database_ops(getContext());
@@ -1798,6 +1799,7 @@ public class Material extends Fragment implements static_finals
         if (zulieferer_liste_items.length == 0) {
             zulieferer_liste_items = new String[]{"Keine Zulieferer"};
         }
+
 
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, zulieferer_liste_items);
         edit_zulieferer_name.setAdapter(get_zulieferer_adapter());
@@ -1860,13 +1862,11 @@ public class Material extends Fragment implements static_finals
     {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File photoFile = null;
-        int request_code = 1;
-
-        switch (mode) {
-
+        int request_code =1;
+        switch (mode)
+        {
             case "new":
 
-                Log.d(TAG, "take_picture_new");
                 String imageFileName = create_media_filename(""); //Extension für in image.creatTempfile hinzugefügt (".jepg"
                 if (imageFileName != "null") {
                     try {
@@ -1880,6 +1880,7 @@ public class Material extends Fragment implements static_finals
                         );
 
                         currentPhotoPath = image.getAbsolutePath();
+                        Log.d("BASI",currentPhotoPath);
                         photoFile = image;
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -1935,7 +1936,8 @@ public class Material extends Fragment implements static_finals
         note_field.setText("");
     }
 
-    private void reset_camera() {
+    private void reset_camera()
+    {
         ls_photo_view.setImageResource(R.drawable.cam);
     }
 
@@ -1984,7 +1986,7 @@ public class Material extends Fragment implements static_finals
         }
     }
 
-    private void set_media_directory(String sub_dir) throws Exception {
+    /*private void set_media_directory(String sub_dir) throws Exception {
         material_database_ops mdo = new material_database_ops(getContext());
 
         try {
@@ -1999,7 +2001,7 @@ public class Material extends Fragment implements static_finals
             exmsg("250720231142", e);
         }
 
-    }
+    }*/
 
     private void media_visibilitiy(int visible_mode) {
         try {
@@ -2012,17 +2014,36 @@ public class Material extends Fragment implements static_finals
         }
     }
 
+    public String getEdit_zulieferer_name()
+    {
+        return edit_zulieferer_name.getText().toString();
+    }
+
+    public String getLsnr_field()
+    {
+        return lsnr_field.getText().toString();
+    }
+
+    public String getDate_label_for_filename()
+    {
+
+        return date_label.getText().toString().replace(".", "");
+
+    }
+
     private String create_media_filename(String file_extension)
     {
         String filename = "null";
 
         try {
-            String lieferant = edit_zulieferer_name.getText().toString();
-            String ls_nr = String.valueOf(lsnr_field.getText());
-            String date = (String) date_label.getText();
-            date = date.replace(".", "");
 
-            filename = bsf.ls_filename_form(lieferant,ls_nr,date,"default")+file_extension;
+            String lieferant = getEdit_zulieferer_name();
+            if(lieferant.isEmpty())
+            {
+              lieferant="NONAME";
+            }
+
+            filename = bsf.ls_filename_form(getEdit_zulieferer_name(),getLsnr_field(),getDate_label_for_filename(),"default")+file_extension;
 
         } catch (Exception e) {
             exmsg("270720231219", e);
@@ -2031,17 +2052,23 @@ public class Material extends Fragment implements static_finals
         return filename;
     }
 
-    private void create_imageset() {
-        File f = new File(in_directory);
-        imageset = f.list();
-        if (imageset.length > 0) {
+    private void create_imageset()
+    {
+        File f= new File(projekt.projekt_get_current_root_dir_ls_images_temp());
+        if(!f.exists())
+        {
+            f.mkdirs();
+        }
+        imageset = f.list(); //NONAME_LSNR_@16032024_ID_17106051650258477131225244757796.jpeg
+        if (imageset.length > 0)
+        {
             imageset_array_pointer = 0;
         }
     }
 
     private Bitmap update_photo_view()  //Akuallisiert das imageView mit dem Akueller Position des imagset pointers
     {
-        String path = in_directory + "/" + imageset[imageset_array_pointer]; //Pfad des Mediums
+        String path = projekt.projekt_get_current_root_dir_ls_images_temp() + "/" + imageset[imageset_array_pointer]; //Pfad des Mediums
 
         try {
             switch (bsf.detect_extension(path))  // fixme try block?
@@ -2112,50 +2139,55 @@ public class Material extends Fragment implements static_finals
         String destination_dir = "";
         Boolean check = false;
         try {
-            set_media_directory(ls_media_directory_name);
-            destination_dir = in_directory;
-            set_media_directory(ls_media_directory_name_temp);
-            source_dir = in_directory;
+            destination_dir = projekt.projekt_get_current_root_dir_ls_images();
+            if(!new File(destination_dir).exists())
+            {
+                new File(destination_dir).mkdirs();
+            }
+            source_dir = projekt.projekt_get_current_root_dir_ls_images_temp();
 
         } catch (Exception e)
         {
             throw new RuntimeException(e);
         }
-        File f = new File(in_directory);
-        if (f.exists()) {
+        File f = new File(source_dir);
+        if (f.exists())
+        {
             String[] files = f.list();
+            int file_counter = files.length;
 
             for (String d : files)
             {
                 String source = source_dir + "/" + d;
 
-                String destination = destination_dir + "/" + bsf.ls_filename_form(lieferant,lsnr,date,"default") +bsf.detect_extension(d);
+                String ls_nr_and_counter=lsnr+"#"+String.valueOf(file_counter);
+
+                String destination = destination_dir + "/" + bsf.ls_filename_form(lieferant,ls_nr_and_counter,date,"default") +bsf.detect_extension(d);
                 check = true;
 
                 try {
+
                     File source_file = new File(source);
                     Basic_funct.copyFileUsingStream(source_file, new File(destination)); //Kopieren von-zu
+                    file_counter--;
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
 
         }
-
         return check;
     }
 
     public void clean_temp_dir() {
-        String in_directory_backup = in_directory; //Sichern
+        String paht = projekt.projekt_get_current_root_dir_ls_images_temp();
         try {
-            set_media_directory(ls_media_directory_name_temp);
-            File f = new File(in_directory);
-
+            File f = new File(paht);
             String[] files = f.list();
             if(files.length>0)
             {
                 for (String d : files) {
-                    File t = new File(in_directory + "/" + d);
+                    File t = new File(paht + "/" + d);
                     t.delete();
                 }
                 bsf.log("Verzeichnis 'temp' bereinigt!");
@@ -2163,7 +2195,6 @@ public class Material extends Fragment implements static_finals
         } catch (Exception e) {
             bsf.error_msg("Verzeichnis 'temp' bereinigung Fehlgeschlagen!\n" + e, getContext());
         }
-        in_directory = in_directory_backup; //Wiederherstellen
     }
 
     public void open_pdf(String file_url, Context context) {
@@ -2186,7 +2217,7 @@ public class Material extends Fragment implements static_finals
     }
 
     private void refresh_viewer_photo() {
-        Bitmap ls_picture = BitmapFactory.decodeFile(in_directory + "/" + imageset[imageset_array_pointer]);
+        Bitmap ls_picture = BitmapFactory.decodeFile(projekt.projekt_get_current_root_dir_ls_images_temp() + "/" + imageset[imageset_array_pointer]);
         Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
         photo_viewer.setImageBitmap(ls_picture_scaled);
     }

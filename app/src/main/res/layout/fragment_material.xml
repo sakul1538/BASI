@@ -18,44 +18,6 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/textView52"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:background="@color/yellow"
-                android:padding="5dp"
-                android:text="@string/material_projekt_banner"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:visibility="visible" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center|center_horizontal"
-                android:layout_margin="5dp"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:visibility="visible">
-
-                <Spinner
-                    android:id="@+id/material_projekt_spinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center" />
-
-                <ImageButton
-                    android:id="@+id/material_reload_projekt_spinner"
-                    android:layout_width="@dimen/buttons_1"
-                    android:layout_height="@dimen/buttons_1"
-                    android:layout_margin="5dp"
-                    android:layout_weight="0"
-                    android:background="#00FFFFFF"
-                    android:src="@drawable/ic_baseline_cached_24" />
-
-            </LinearLayout>
-
-            <TextView
                 android:id="@+id/reset_LS_field"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -156,9 +118,9 @@
                     android:layout_width="242dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/empty"
+                    android:completionThreshold="1"
 
-                    />
+                    android:text="@string/empty" />
 
                 <ImageButton
                     android:id="@+id/reset_zulieferer"
@@ -177,7 +139,7 @@
                     android:src="@drawable/baseline_lock_24" />
 
                 <ImageButton
-                    android:id="@+id/imageButton51"
+                    android:id="@+id/check_similar_data"
                     android:layout_width="@dimen/buttons_1"
                     android:layout_height="@dimen/buttons_1"
                     android:layout_gravity="center"

@@ -231,6 +231,7 @@ public class material_log_entrys extends Fragment
 
                 try {
                     lslogrcv.refresh_dataset(getContext());
+
                     Toast.makeText(getContext(), "Alle Einträge neu geladen!", Toast.LENGTH_SHORT).show();
                     select_date_layout.setVisibility(View.GONE);
                 } catch (Exception e) {
@@ -330,7 +331,7 @@ public class material_log_entrys extends Fragment
 
                               }
 
-                            select_args.add(mdo.get_selectet_projekt_id());
+                            select_args.add(mdo.get_selectet_projekt_id() );
                             where.add("PROJEKT_ID=?");
                         } catch (Exception e)
                         {
@@ -495,6 +496,7 @@ public class material_log_entrys extends Fragment
     private void export_data(String format_type)
     {
         material_database_ops mdo = new material_database_ops(getContext());
+
         String[] data = mdo.get_current_projekt_entrys();
         String paht="";
 
@@ -506,7 +508,7 @@ public class material_log_entrys extends Fragment
         {
             case "json":
 
-                paht= mdo.get_projekt_root_paht()+Material.backup_dir+"JSON/";
+                paht= mdo.get_projekt_export_dir_json();
                 File dir = new File(paht);
                 if(!dir.exists())
                 {
@@ -540,14 +542,15 @@ public class material_log_entrys extends Fragment
                 Log.d("BASI Json",data_loop);
 
 
-                filename=   mdo.get_selectet_projekt().split(",")[0]+"dataset_ls@"+bsf.get_date_for_filename()+".json";
+
+                filename= mdo.get_projekt_name()+"_dataset_ls@"+bsf.get_date_for_filename()+".json";
 
                 file_save(paht+filename,data_loop);
                 break;
 
             case "csv":
 
-                paht= mdo.get_projekt_root_paht()+Material.backup_dir+"CSV/";
+                paht= mdo.get_projekt_export_dir_csv();
                 dir = new File(paht);
                 if(!dir.exists())
                 {
@@ -606,7 +609,7 @@ public class material_log_entrys extends Fragment
                         }
                     }
                 }
-                filename=  mdo.get_selectet_projekt().split(",")[0]+"dataset_ls@"+bsf.get_date_for_filename()+".csv";
+                filename= mdo.get_projekt_name()+"_dataset_ls@"+bsf.get_date_for_filename()+".csv";
                 file_save(paht+filename,string_loop);
                 break;
 
@@ -633,7 +636,7 @@ public class material_log_entrys extends Fragment
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
                         material_database_ops mdo = new material_database_ops(getContext());
-                        long deletet_rows =mdo.delet_all_material_log_entry(mdo.get_selectet_projekt_root_data().split(",")[1]);
+                        long deletet_rows =mdo.delet_all_material_log_entry();
                         lslogrcv.refresh_dataset(getContext());
                         Toast.makeText(getContext(), deletet_rows +" Einträge gelöscht!", Toast.LENGTH_SHORT).show();
                     }
@@ -686,6 +689,8 @@ public class material_log_entrys extends Fragment
             Toast.makeText(getContext(),"Export  Fehlgeschlagen\n"+ e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
+
 
     private void date_search_refresh_dataset()
     {

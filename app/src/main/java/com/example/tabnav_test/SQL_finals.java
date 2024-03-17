@@ -20,5 +20,6 @@ public interface SQL_finals
     //Tabellennamen neu
     String  BASI_PROJEKTE ="basi_projekte";
     String  BASI_LOG ="basi_log";
+    String  BASI_MATERIAL ="basi_material";
 
 }

@@ -121,8 +121,6 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
     }
 
 
-
-
     public String get_projekt_id(String name,String nr)
     {
         String output_id ="";
@@ -201,6 +199,45 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         cursor.close();
         db.close();
         return  value;
+    }
+
+
+    public ArrayAdapter get_projekt_array_adapter_for_spinner()
+    {
+        final String name ="NAME";
+        final String projekt_nr ="PROJEKT_NR";
+
+        ArrayList list = new ArrayList();
+        try {
+            SQLiteDatabase db = this.getReadableDatabase();
+            String[] columns = {name,projekt_nr };
+
+            Cursor cursor = db.query(BASI_PROJEKTE,columns,null,null,null,null,"NAME");
+
+            if(cursor.getCount() > 0)
+            {
+                while (cursor.moveToNext())
+                {
+                    String temp ="";
+                    temp = cursor.getString(cursor.getColumnIndexOrThrow(name));
+                    temp += "["+cursor.getString(cursor.getColumnIndexOrThrow(projekt_nr))+"]";
+                    list.add(temp);
+                }
+            }
+            else
+            {
+                list.add("");
+            }
+            cursor.close();
+            db.close();
+        }
+        catch (Exception e)
+        {
+            list.add("");
+            throw new RuntimeException(e);
+        }
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, list);
+        return  spinnerArrayAdapter;
     }
 
     public void projekt_settings(Context context)
@@ -582,7 +619,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         return  output;
     }
 
-        public ArrayAdapter get_projekt_array_adapter_for_spinner()
+      /*  public ArrayAdapter get_projekt_array_adapter_for_spinner()
         {
             final String name ="NAME";
             final String projekt_nr ="PROJEKT_NR";
@@ -618,7 +655,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
             }
             ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, list);
             return  spinnerArrayAdapter;
-        }
+        }*/
         public void setDir_src_in_dialog(String path)
         {
             try {
@@ -1116,6 +1153,31 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         return   default_id;
     }
 
+    public String projekt_get_selected_name()
+    {
+        String default_id = "0";
+
+        try {
+            SQLiteDatabase dbr = this.getReadableDatabase();
+            Cursor cursor = dbr.query(BASI_PROJEKTE,null,"STATUS_FLAG=?",new String[]{"1"},null,null,null);
+
+            if(cursor.getCount() >0)
+            {
+                while(cursor.moveToNext())
+                {
+                    default_id =cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
+                }
+            }
+            cursor.close();
+            dbr.close();
+        } catch (IllegalArgumentException e)
+        {
+            throw new RuntimeException(e);
+        }
+        return   default_id;
+    }
+
+
     public String projekt_get_selected_root_dir()
     {
         String default_root = "0";
@@ -1202,6 +1264,98 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         return root_dir;
 
     }
+
+    public String projekt_get_current_root_dir_images()
+    {
+        String root_dir = "";
+
+        try {
+            SQLiteDatabase dbr = this.getReadableDatabase();
+
+            Cursor cursor = dbr.query(BASI_PROJEKTE,null,"STATUS_FLAG=?",new String[]{"1"},null,null,null);
+            cursor.moveToFirst();
+            root_dir =cursor.getString(cursor.getColumnIndexOrThrow("DIR_ROOT"));
+        } catch (IllegalArgumentException e)
+        {
+
+            throw new RuntimeException(e);
+        }
+
+        return root_dir+"/Bilder";
+    }
+    public String projekt_get_current_root_dir_export_cvs()
+    {
+        String root_dir = "";
+
+        try {
+            SQLiteDatabase dbr = this.getReadableDatabase();
+
+            Cursor cursor = dbr.query(BASI_PROJEKTE,null,"STATUS_FLAG=?",new String[]{"1"},null,null,null);
+            cursor.moveToFirst();
+            root_dir =cursor.getString(cursor.getColumnIndexOrThrow("DIR_ROOT"));
+        } catch (IllegalArgumentException e)
+        {
+
+            throw new RuntimeException(e);
+        }
+
+        return root_dir+"/Exports/CSV/";
+    }
+
+    public String projekt_get_current_root_dir_export_json()
+    {
+        String root_dir = "";
+
+        try {
+            SQLiteDatabase dbr = this.getReadableDatabase();
+
+            Cursor cursor = dbr.query(BASI_PROJEKTE,null,"STATUS_FLAG=?",new String[]{"1"},null,null,null);
+            cursor.moveToFirst();
+            root_dir =cursor.getString(cursor.getColumnIndexOrThrow("DIR_ROOT"));
+        } catch (IllegalArgumentException e)
+        {
+
+            throw new RuntimeException(e);
+        }
+
+        return root_dir+"/Exports/JSON/";
+    }
+
+
+    public String projekt_get_current_root_dir_ls_images_temp()
+    {
+        String root_dir = "";
+
+        try {
+            SQLiteDatabase dbr = this.getReadableDatabase();
+
+            Cursor cursor = dbr.query(BASI_PROJEKTE,null,"STATUS_FLAG=?",new String[]{"1"},null,null,null);
+            cursor.moveToFirst();
+            root_dir =cursor.getString(cursor.getColumnIndexOrThrow("DIR_ROOT"));
+        } catch (IllegalArgumentException e)
+        {
+            throw new RuntimeException(e);
+        }
+        return root_dir+"/Lieferscheine/temp";
+    }
+
+    public String projekt_get_current_root_dir_ls_images()
+    {
+        String root_dir = "";
+
+        try {
+            SQLiteDatabase dbr = this.getReadableDatabase();
+
+            Cursor cursor = dbr.query(BASI_PROJEKTE,null,"STATUS_FLAG=?",new String[]{"1"},null,null,null);
+            cursor.moveToFirst();
+            root_dir =cursor.getString(cursor.getColumnIndexOrThrow("DIR_ROOT"));
+        } catch (IllegalArgumentException e)
+        {
+            throw new RuntimeException(e);
+        }
+        return root_dir+"/Lieferscheine/";
+    }
+
 
     private boolean do_projekt_exist(String projekt_nr, String name)
     {
