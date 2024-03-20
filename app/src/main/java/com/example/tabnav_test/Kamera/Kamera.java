@@ -221,6 +221,44 @@ public class Kamera<onActivityResult> extends Fragment {
         tag_visibility(View.GONE);
         preview_camera_visibility(View.GONE);
 
+        /*
+        // Prüfen Sie, ob die Berechtigung bereits erteilt wurde
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED)
+        {
+            // Wenn nicht, fordern Sie die Berechtigung an
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA},
+                    1);
+        }
+
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED)
+        {
+            // Wenn nicht, fordern Sie die Berechtigung an
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    2);
+        }
+
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED)
+        {
+            // Wenn nicht, fordern Sie die Berechtigung an
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    3);
+        }   if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.MA)
+                != PackageManager.PERMISSION_GRANTED)
+        {
+            // Wenn nicht, fordern Sie die Berechtigung an
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.MANAGE_EXTERNAL_STORAGE},
+                    4);
+        }
+
+        */
+
+
+
+
+
 
         kamera_tag_field_value.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -304,12 +342,10 @@ public class Kamera<onActivityResult> extends Fragment {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         try {
-                                            if(kamera_dirs.delet(selectet_item))
-                                            {
-                                                bsf.succes_msg("Löschen erfolgt!",getContext() );
-                                            }else
-                                            {
-                                                bsf.error_msg("Löschen fehlgeschlagen!",getContext());
+                                            if (kamera_dirs.delet(selectet_item)) {
+                                                bsf.succes_msg("Löschen erfolgt!", getContext());
+                                            } else {
+                                                bsf.error_msg("Löschen fehlgeschlagen!", getContext());
                                             }
                                         } catch (JSONException e) {
                                             throw new RuntimeException(e);
@@ -342,50 +378,28 @@ public class Kamera<onActivityResult> extends Fragment {
         //---------------------------------------------------------
 
 
-        take_picture.setOnClickListener(new View.OnClickListener() {
+        take_picture.setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View view)
             {
-
-                String selected_item = spinner.getSelectedItem().toString();
-
-
-                String date = curr_date.getText().toString();
-                date = date.replace(".", "");
-                String paht=projekt.projekt_get_current_root_dir();
-                try {
-                    paht =kamera_dirs.get_dir_from_name(selected_item);
-
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                         }
-
-                if(!paht.equals(""))
+                dispatchTakePictureIntent();
+            }
+            /*    // Prüfen Sie, ob die Berechtigung bereits erteilt wurde
+                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
+                        != PackageManager.PERMISSION_GRANTED)
                 {
-                    if (kamera_switch_tag_onoff.isChecked())
-                    {
-                        dispatchTakePictureIntent(paht, selected_item, true, kamera_tag_field_value.getText().toString(), date);
-
-                    } else
-                        dispatchTakePictureIntent(paht, selected_item, false, "", date); //Path
-                }
-                else
+                    // Wenn nicht, fordern Sie die Berechtigung an
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA},
+                            1);
+                } else
                 {
-                    AlertDialog.Builder alert_empty_path = new AlertDialog.Builder(getContext());
-                    alert_empty_path.setTitle("Error");
-                    alert_empty_path.setIcon(R.drawable.alert);
+                    dispatchTakePictureIntent();
+                }
 
-                    alert_empty_path.setMessage("Kein Speicherpfad vorhanden!");
-                    alert_empty_path.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                          dialogInterface.cancel();
-                        }
-                    });
-                    alert_empty_path.show();
-                }
-                }
+            }*/
         });
+
 
         camera_delet_image.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -544,6 +558,45 @@ public class Kamera<onActivityResult> extends Fragment {
         media_label.setVisibility(visibility);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults)
+    {
+        if (requestCode == 1) {
+            Log.d("BASI bere", String.valueOf(grantResults[0]));
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d("BASI bere", String.valueOf(grantResults[0]));
+
+            }
+
+            if (requestCode == 2)
+            {
+                Log.d("BASI bere", String.valueOf(grantResults[0]));
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d("BASI bere", String.valueOf(grantResults[0]));
+
+                }
+            }
+            if (requestCode == 3)
+            {
+                Log.d("BASI bere", String.valueOf(grantResults[0]));
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d("BASI bere", String.valueOf(grantResults[0]));
+
+
+                }
+            }
+            if (requestCode == 4)
+            {
+                Log.d("BASI bere", String.valueOf(grantResults[0]));
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d("BASI bere", String.valueOf(grantResults[0]));
+
+                }
+            }
+        }
+    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -558,7 +611,7 @@ public class Kamera<onActivityResult> extends Fragment {
 
                 String message = String.valueOf(data.getData().getLastPathSegment());
                 String[] cut = message.split(":");
-                String path_src  =Environment.getExternalStorageDirectory()+"/"+cut[1];
+                String path_src = Environment.getExternalStorageDirectory() + "/" + cut[1];
                 dir.setText(path_src);
 
                 break;
@@ -630,14 +683,13 @@ public class Kamera<onActivityResult> extends Fragment {
                         datum += " " + bsf.time_refresh();
                     }
 
-                    String projekt_name= projekt.get_selectet_projekt();
+                    String projekt_name = projekt.get_selectet_projekt();
 
-                    if (tags == "")
-                    {
+                    if (tags == "") {
 
-                        photostamp = projekt_name+"  " + datum + " [KW" + kw + "]";
+                        photostamp = projekt_name + "  " + datum + " [KW" + kw + "]";
                     } else {
-                        photostamp =projekt_name+"   #" + tags + "    " + datum + " [KW" + kw + "]";
+                        photostamp = projekt_name + "   #" + tags + "    " + datum + " [KW" + kw + "]";
                     }
 
                     //Bitmap erstellen
@@ -658,8 +710,7 @@ public class Kamera<onActivityResult> extends Fragment {
                         int width = exif.getAttributeInt(ExifInterface.TAG_PIXEL_X_DIMENSION, 0);
                         int height = exif.getAttributeInt(ExifInterface.TAG_PIXEL_Y_DIMENSION, 0);
 
-                        if (width == 0 || height == 0)
-                        {
+                        if (width == 0 || height == 0) {
                             width = bMap.getWidth();
                             height = bMap.getHeight();
                         }
@@ -755,7 +806,7 @@ public class Kamera<onActivityResult> extends Fragment {
                     }
                 } catch (Exception e) {
                     exmsg("120220231031A", e);
-                    bsf.error_msg("Bild wurde verworfen\n"+e.getMessage().toString(), getContext());
+                    bsf.error_msg("Bild wurde verworfen\n" + e.getMessage().toString(), getContext());
                     camera_photo.setImageResource(0);
                     try {
                         File f = new File(path + filename);
@@ -803,8 +854,7 @@ public class Kamera<onActivityResult> extends Fragment {
 
                 alertDialogBuilder.setTitle(R.string.add_title_dir_name);
 
-                paht.setOnClickListener(new View.OnClickListener()
-                {
+                paht.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
@@ -953,32 +1003,71 @@ public class Kamera<onActivityResult> extends Fragment {
         alertDialog.show();
     }
 
-    private void dispatchTakePictureIntent(String path, String title, boolean tag_on, String tag, String date) {
+    private void dispatchTakePictureIntent()
+    {
+        String selected_item = spinner.getSelectedItem().toString();
 
-
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-
-        // Create the File where the photo should go
-        File photoFile = null;
+        String date = curr_date.getText().toString();
+        date = date.replace(".", "");
+        String paht = projekt.projekt_get_current_root_dir();
         try {
-            String projekt_name= projekt.get_selectet_projekt();
-            photoFile = createImageFile(path, projekt_name, tag_on, tag, date);
-        } catch (IOException ex) {
-            // Error occurred while creating the File
+            paht = kamera_dirs.get_dir_from_name(selected_item);
 
-        }
-        // Continue only if the File was successfully created
-        if (photoFile != null) {
+            if (!paht.equals(""))
+            {
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                // Ensure that there's a camera activity to handle the intent
+                // Create the File where the photo should go
+                File photoFile = null;
 
-            try {
-                photoURI = FileProvider.getUriForFile(getContext(), "com.example.tabnav_test.fileprovider", photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, 2);
-            } catch (Exception e) {
-                e.printStackTrace();
+                String projekt_name = projekt.get_selectet_projekt();
+
+                if (kamera_switch_tag_onoff.isChecked())
+                {
+                    photoFile = createImageFile(paht, projekt_name,true, kamera_tag_field_value.getText().toString(), date);
+
+                } else
+                {
+                    photoFile = createImageFile(paht, projekt_name, false, "", date);
+                }
+
+
+                // Continue only if the File was successfully created
+                if (photoFile != null) {
+
+
+                    try {
+                        photoURI = FileProvider.getUriForFile(getContext(), "com.example.tabnav_test.fileprovider", photoFile);
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                        startActivityForResult(takePictureIntent, 2);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+            }
+            else
+            {
+                AlertDialog.Builder alert_empty_path = new AlertDialog.Builder(getContext());
+                alert_empty_path.setTitle("Error");
+                alert_empty_path.setIcon(R.drawable.alert);
+
+                alert_empty_path.setMessage("Kein Speicherpfad vorhanden!");
+                alert_empty_path.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+                alert_empty_path.show();
             }
 
+        } catch (JSONException e)
+        {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

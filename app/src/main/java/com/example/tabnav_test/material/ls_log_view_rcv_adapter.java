@@ -38,6 +38,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.R;
 import com.example.tabnav_test.SQL_finals;
+import com.google.android.material.tabs.TabLayout;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,15 +56,19 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
     TableRow bg_lsnr;
     TableRow bg_zulieferer;
+    TabLayout tab;
 
     Basic_funct bsf;
 
-    public ls_log_view_rcv_adapter(String[] ls_log_view_rcv_adapter)
+    public ls_log_view_rcv_adapter(String[] ls_log_view_rcv_adapter,TabLayout tab)
     {
         this.localDataSet = ls_log_view_rcv_adapter;
+        this.tab  =tab;
         this.bsf = new Basic_funct();
 
     }
+
+
 
     @NonNull
     @Override
@@ -243,8 +248,6 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
 
 
-
-
         holder.getadd_media_camera().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view)
@@ -366,7 +369,10 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
 
 
     @Override
-    public int getItemCount() {
+    public int getItemCount()
+    {
+        String a = "Einträge ("+String.valueOf(localDataSet.length)+")";
+        tab.getTabAt(0).setText(a);
         return localDataSet.length;
     }
 
@@ -427,6 +433,8 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
     {
         localDataSet = mdo.material_entrys_list();
         notifyDataSetChanged();
+
+
     }
     public void refresh_dataset_from_array(String[] dataset,Context context)
 {

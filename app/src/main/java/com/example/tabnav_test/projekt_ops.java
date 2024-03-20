@@ -260,6 +260,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         // ----------------------------------------------------------------- Button
         // ----------------------------------------------------------------- ImageButtons
         ImageButton menu = promptsView.findViewById(R.id.imageButton46);
+        ImageButton set_projekt = promptsView.findViewById(R.id.set_projekt);
         // ----------------------------------------------------------------- ImageView
         // ----------------------------------------------------------------- ListView
 
@@ -286,6 +287,14 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
             throw new RuntimeException(e);
         }
         browser.projekt_spinner_reload();
+
+        set_projekt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                browser.projekt_select();
+            }
+        });
 
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -415,6 +424,25 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         });
         alertDialogBuilder.show();
 
+    }
+
+    public String projekt_get_current_root_dir_backup()
+    {
+        String root_dir = "";
+
+        try {
+            SQLiteDatabase dbr = this.getReadableDatabase();
+
+            Cursor cursor = dbr.query(BASI_PROJEKTE,null,"STATUS_FLAG=?",new String[]{"1"},null,null,null);
+            cursor.moveToFirst();
+            root_dir =cursor.getString(cursor.getColumnIndexOrThrow("DIR_ROOT"));
+        } catch (IllegalArgumentException e)
+        {
+
+            throw new RuntimeException(e);
+        }
+
+        return root_dir+"/Backups";
     }
 
 
@@ -1142,6 +1170,30 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                 while(cursor.moveToNext())
                 {
                     default_id =cursor.getString(cursor.getColumnIndexOrThrow("ID"));
+                }
+            }
+            cursor.close();
+            dbr.close();
+        } catch (IllegalArgumentException e)
+        {
+            throw new RuntimeException(e);
+        }
+        return   default_id;
+    }
+
+    public String projekt_get_selected_nr()
+    {
+        String default_id = "0";
+
+        try {
+            SQLiteDatabase dbr = this.getReadableDatabase();
+            Cursor cursor = dbr.query(BASI_PROJEKTE,null,"STATUS_FLAG=?",new String[]{"1"},null,null,null);
+
+            if(cursor.getCount() >0)
+            {
+                while(cursor.moveToNext())
+                {
+                    default_id =cursor.getString(cursor.getColumnIndexOrThrow("PROJEKT_NR"));
                 }
             }
             cursor.close();

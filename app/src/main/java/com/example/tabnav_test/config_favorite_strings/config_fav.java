@@ -68,16 +68,14 @@ public class config_fav
         //Switch
 
 
-
-
         button_favorite_strings_crate_backup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)
             {
                 Backup backup = new Backup(context);
                 material_database_ops mdo = new material_database_ops(context);
-                String path= mdo.get_projekt_root_paht()+static_finals.backup_dir_json;///storage/emulated/0/DCIM/Baustellen /CBB E03/Backups&Exports/
-                String filename = mdo.get_selectet_projekt()+"FAVORITE_STRINGS"+"@"+bsf.get_date_for_filename()+".json";
+                String path= mdo.get_projekt_backup_dir()+"/"+"FAVORITE_STRINGS/";
+                String filename = mdo.get_projekt_name()+"["+mdo.get_projekt_nr()+"]FAVORITE_STRINGS"+"@"+bsf.get_date_for_filename()+".json";
                 try {
                     String[] where_args = {mdo.get_selectet_projekt_id(),"0","FAVORITE_STRING"};
                     String  where = "(ID=? OR ID=?) AND NAME=?";

@@ -147,7 +147,7 @@ public class config_fav_ops extends SQLiteOpenHelper implements SQL_finals
 
         SQLiteDatabase dbr = this.getReadableDatabase();
         String[] col = new String[]{"VALUE"};
-        String[] selectionArgs = {mdo.get_selectet_projekt_id(),"0","FAVORITE_STRING", bsf.URLencode(element) };
+        String[] selectionArgs = {mdo.get_projekt_id(),"0","FAVORITE_STRING", bsf.URLencode(element) };
         String  where = "(ID=? OR ID=?) AND (NAME=? AND VALUE=?)";
         Cursor cursor = dbr.query(TB_NAME_LOG_CONF, col,where, selectionArgs, null, null, null);
 
@@ -181,7 +181,7 @@ public class config_fav_ops extends SQLiteOpenHelper implements SQL_finals
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
                         data.put("ID","0");
-                        String []where_args ={mdo.get_selectet_projekt_id(),"FAVORITE_STRING",bsf.URLencode(element)};
+                        String []where_args ={mdo.get_projekt_id(),"FAVORITE_STRING",bsf.URLencode(element)};
                         String where = "ID=? AND NAME=? AND VALUE=?";
                         db.update(TB_NAME_LOG_CONF,data,where,where_args);
                         config_fav.refresh_spinner_favorite_strings_settings(context);

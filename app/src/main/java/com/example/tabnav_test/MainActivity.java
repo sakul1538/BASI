@@ -155,8 +155,17 @@ public class MainActivity extends AppCompatActivity
         viewPager2 = findViewById(R.id.viewPager1);
         viewPager2.setAdapter(adapter);
         // ----------------------------------------------------------------- END
-
        //init
+        projekt.current_projekt_main_title.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                projekt.projekt_settings(MainActivity.this);
+
+
+            }
+        });
         try {
             projekt.current_projekt_main_title.setText(projekt.get_selectet_projekt());
         } catch (Exception e)

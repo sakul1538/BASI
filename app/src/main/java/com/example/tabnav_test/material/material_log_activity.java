@@ -143,8 +143,7 @@ public class material_log_activity extends AppCompatActivity
         viewpager = findViewById(R.id.viewPager_log_material);
 
         tabLayout = findViewById((R.id.material_log_tab_layout));
-        slide_adapter = new material_log_slidePagerAdapter(this);
-
+        slide_adapter = new material_log_slidePagerAdapter(this,tabLayout);
 
         viewpager.setAdapter(slide_adapter);
         viewpager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {

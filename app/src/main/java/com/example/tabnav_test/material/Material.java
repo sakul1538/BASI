@@ -1,5 +1,6 @@
 package com.example.tabnav_test.material;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -8,6 +9,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -16,9 +18,13 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.transition.Visibility;
 
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
@@ -170,6 +176,7 @@ public class Material extends Fragment implements static_finals
     LinearLayout date_background;
     LinearLayout ls_nr_background;
     LinearLayout zulieferer_backgound;
+    LinearLayout media_lockstatus_background;
 
 
     String[] imageset;
@@ -620,6 +627,7 @@ public class Material extends Fragment implements static_finals
         date_background = view.findViewById(R.id.date_background);
         ls_nr_background = view.findViewById(R.id.ls_nr_bg);
         zulieferer_backgound = view.findViewById(R.id.zulieferer_background);
+        media_lockstatus_background = view.findViewById(R.id.ls_add_media_background);
 
 
         check_similar_data.setOnClickListener(new View.OnClickListener() {
@@ -699,7 +707,7 @@ public class Material extends Fragment implements static_finals
                 }
                 else
                 {
-                    zulieferer_backgound.setBackgroundColor(getResources().getColor(R.color.hellgrün));
+                    zulieferer_backgound.setBackgroundColor(getResources().getColor(R.color.grey));
                     lieferant_lock_status = false;
                 }
             }
@@ -738,23 +746,46 @@ public class Material extends Fragment implements static_finals
             }
         });
 
+
+
         open_pdf.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view)
+            {
+                if(media_lock_status == true)
+                {
+                    bsf.error_msg("Media File Lock Status= true",getContext());
+                }
+                else
+                {
 
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("application/pdf");
-                startActivityForResult(intent, 3);
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("application/pdf");
+                    startActivityForResult(intent, 3);
+
+                }
+
             }
         });
         open_filesystem.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("image/*");
-                startActivityForResult(intent, 4);
+            public void onClick(View view)
+            {
+                if(media_lock_status == true)
+                {
+                    bsf.error_msg("Media File Lock Status= true",getContext());
+                }
+                else
+                {
+
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("image/*");
+                    startActivityForResult(intent, 4);
+
+                }
+
             }
         });
 
@@ -774,46 +805,49 @@ public class Material extends Fragment implements static_finals
         ls_delet_foto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (imageset.length > 0)
+                if (imageset.length > 0 )
                 {
+                    if(media_lock_status == false)
+                    {
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                        // set prompts.xml to alertdialog builder
 
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-                    // set prompts.xml to alertdialog builder
+                        alertDialogBuilder.setTitle("Artikelverwaltung");
+                        alertDialogBuilder.setMessage("Bild löschen?\n" + projekt.projekt_get_current_root_dir_ls_images_temp() + "/" + imageset[imageset_array_pointer]);
 
-                    alertDialogBuilder.setTitle("Artikelverwaltung");
-                    alertDialogBuilder.setMessage("Bild löschen?\n" + projekt.projekt_get_current_root_dir_ls_images_temp() + "/" + imageset[imageset_array_pointer]);
+                        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                File f = new File(projekt.projekt_get_current_root_dir_ls_images_temp()  + "/" + imageset[imageset_array_pointer]);
+                                f.delete();
+                                create_imageset();
+                                if (imageset.length > 0) {
+                                    media_shift("r");
+                                    dialogInterface.cancel();
+                                } else {
+                                    media_visibilitiy(View.GONE);
+                                }
 
-                    alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            File f = new File(projekt.projekt_get_current_root_dir_ls_images_temp()  + "/" + imageset[imageset_array_pointer]);
-                            f.delete();
-                            create_imageset();
-                            if (imageset.length > 0) {
-                                media_shift("r");
-                                dialogInterface.cancel();
-                            } else {
-                                media_visibilitiy(View.GONE);
+
                             }
+                        });
+
+                        alertDialogBuilder.setNegativeButton("Abbrecen", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.cancel();
+                            }
+                        });
+
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        alertDialog.show();
 
 
-                        }
-                    });
-
-                    alertDialogBuilder.setNegativeButton("Abbrecen", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            dialogInterface.cancel();
-                        }
-                    });
-
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    alertDialog.show();
-
-
+                    }else
+                    {
+                        bsf.error_msg("Media File Lock Status= true",getContext());
+                    }
                 }
-
-
             }
         });
 
@@ -877,7 +911,7 @@ public class Material extends Fragment implements static_finals
                 try {
 
                     long response = mdo.add_material_log_entry(data);
-                    if (response > 0)
+                    if (response > -1)
                     {
                         String copy_temp_msg = "";
 
@@ -887,7 +921,10 @@ public class Material extends Fragment implements static_finals
                             {
                                 copy_temp_msg = "+ Medien wurden Kopiert!";
                                 media_lock_status =true;
-
+                                media_background_media_lockstatus(media_lock_status);
+                                clean_temp_dir();
+                                create_imageset();
+                                media_visibilitiy(View.GONE);
                             } else
                             {
                                 copy_temp_msg = "+ Medien wurden NICHT Kopiert";
@@ -964,12 +1001,24 @@ public class Material extends Fragment implements static_finals
             @Override
             public void onClick(View view)
             {
-                try
+                if(media_lock_status == true)
                 {
-                    take_picture(projekt.projekt_get_current_root_dir_ls_images_temp(), TAKE_IMAGE_NEW_MODE, getContext());
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    bsf.error_msg("Media File Lock Status= true",getContext());
                 }
+                else
+                {
+                    try
+                    {
+                        take_picture(projekt.projekt_get_current_root_dir_ls_images_temp(), TAKE_IMAGE_NEW_MODE, getContext());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }
+
+
+
+
 
             }
         });
@@ -1518,103 +1567,110 @@ public class Material extends Fragment implements static_finals
 
     public void ls_image_viewer()
     {
-        String file_url = in_directory + "/" + imageset[imageset_array_pointer];
+        if (imageset.length>0)
+        {
+            String file_url = projekt.projekt_get_current_root_dir_ls_images_temp() + "/" + imageset[imageset_array_pointer];
 
-        try {
-            if (file_url != "null") {
-                if (bsf.detect_extension(file_url).contains(".pdf")) //Pdf öffnen
-                {
-                    Log.d(TAG, file_url);
-                    open_pdf(file_url, getContext());
+            try {
+                if (file_url != "null") {
+                    if (bsf.detect_extension(file_url).contains(".pdf")) //Pdf öffnen
+                    {
+                        Log.d(TAG, file_url);
+                        open_pdf(file_url, getContext());
 
-                } else
-                {
+                    } else
+                    {
 
-                    LayoutInflater myLayout = LayoutInflater.from(getContext());
-                    View pic_view_UI = myLayout.inflate(R.layout.show_picture, null);
+                        LayoutInflater myLayout = LayoutInflater.from(getContext());
+                        View pic_view_UI = myLayout.inflate(R.layout.show_picture, null);
 
-                    TextView path_value = pic_view_UI.findViewById(R.id.textView65);
+                        TextView path_value = pic_view_UI.findViewById(R.id.textView65);
 
-                    photo_viewer = pic_view_UI.findViewById(R.id.imageView4);
+                        photo_viewer = pic_view_UI.findViewById(R.id.imageView4);
 
-                    ImageButton refresh_image = pic_view_UI.findViewById(R.id.imageButton60);
-                    ImageButton refresh_image_file = pic_view_UI.findViewById(R.id.imageButton63);
-                    ImageButton rotate_right = pic_view_UI.findViewById(R.id.imageButton62);
+                        ImageButton refresh_image = pic_view_UI.findViewById(R.id.imageButton60);
+                        ImageButton refresh_image_file = pic_view_UI.findViewById(R.id.imageButton63);
+                        ImageButton rotate_right = pic_view_UI.findViewById(R.id.imageButton62);
 
-                    path_value.setText(file_url.replace(Environment.getExternalStorageDirectory().getAbsolutePath(), ""));
+                        path_value.setText(file_url.replace(Environment.getExternalStorageDirectory().getAbsolutePath(), ""));
 
-                    try {
-                        photo_viewer.setImageBitmap(ls_picture_scaled);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        try {
+                            photo_viewer.setImageBitmap(ls_picture_scaled);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        rotate_right.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Matrix matrix = new Matrix();
+                                Bitmap bMap = BitmapFactory.decodeFile(file_url);
+
+                               matrix.setRotate(90);
+                               Bitmap bMapRotation = Bitmap.createBitmap(bMap, 0, 0, bMap.getWidth(), bMap.getHeight(), matrix, true);
+
+                                File file = new File(file_url);
+                                if (file.exists()) {
+                                    file.delete();
+                                }
+                                try {
+                                    FileOutputStream out = new FileOutputStream(file);
+                                    bMapRotation.compress(Bitmap.CompressFormat.JPEG, 50, out);
+                                    out.flush();
+                                    out.close();
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                photo_viewer.setImageBitmap(update_photo_view());
+
+                            }
+                        });
+
+                        refresh_image.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                //Todo fallbacks wenn kein Bild existiert, damit man noch eines Hinzufügen kann.
+                                take_picture(file_url, TAKE_IMAGE_REFRESH_MODE, view.getContext());
+                            }
+                        });
+
+
+                        refresh_image_file.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view)
+                            {
+                                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                                intent.setType("application/json");
+                                startActivityForResult(intent, 5);
+                            }
+                        });
+
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+
+                        // set prompts.xml to alertdialog builder
+                        alertDialogBuilder.setView(pic_view_UI);
+                        alertDialogBuilder.setTitle("Viewer");
+                        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                ls_photo_view.setImageBitmap(update_photo_view());
+                                dialogInterface.cancel();
+                            }
+                        });
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        alertDialog.show();
                     }
 
-                    rotate_right.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Matrix matrix = new Matrix();
-                            Bitmap bMap = BitmapFactory.decodeFile(file_url);
-
-                           matrix.setRotate(90);
-                           Bitmap bMapRotation = Bitmap.createBitmap(bMap, 0, 0, bMap.getWidth(), bMap.getHeight(), matrix, true);
-
-                            File file = new File(file_url);
-                            if (file.exists()) {
-                                file.delete();
-                            }
-                            try {
-                                FileOutputStream out = new FileOutputStream(file);
-                                bMapRotation.compress(Bitmap.CompressFormat.JPEG, 50, out);
-                                out.flush();
-                                out.close();
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            photo_viewer.setImageBitmap(update_photo_view());
-
-                        }
-                    });
-
-                    refresh_image.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            //Todo fallbacks wenn kein Bild existiert, damit man noch eines Hinzufügen kann.
-                            take_picture(file_url, TAKE_IMAGE_REFRESH_MODE, view.getContext());
-                        }
-                    });
-
-
-                    refresh_image_file.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view)
-                        {
-                            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                            intent.addCategory(Intent.CATEGORY_OPENABLE);
-                            intent.setType("application/json");
-                            startActivityForResult(intent, 5);
-                        }
-                    });
-
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-
-                    // set prompts.xml to alertdialog builder
-                    alertDialogBuilder.setView(pic_view_UI);
-                    alertDialogBuilder.setTitle("Viewer");
-                    alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            ls_photo_view.setImageBitmap(update_photo_view());
-                            dialogInterface.cancel();
-                        }
-                    });
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    alertDialog.show();
-                }
-
-            } //else?
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+                } //else?
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        else
+        {
+            media_visibilitiy(View.GONE);
         }
     }
 
@@ -1632,10 +1688,14 @@ public class Material extends Fragment implements static_finals
             clean_temp_dir();
             create_imageset();
             media_lock_status= false;
+            media_background_media_lockstatus(media_lock_status);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
+        // Prüfen Sie, ob die Berechtigung bereits erteilt wurde
+
 
     private void reset_autocomplete_liste_zulieferer()
     {
@@ -1913,12 +1973,25 @@ public class Material extends Fragment implements static_finals
 
     private void reset_date() {
         date_label.setText(bsf.date_refresh());
-        date_background.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.hellgrün));
+        date_background.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.grey));
+    }
+    private void media_background_media_lockstatus(Boolean status)
+    {
+        if(status)
+        {
+            media_lockstatus_background.setBackground(ContextCompat.getDrawable(getContext(),R.color.orange));
+
+        }else
+        {
+            media_lockstatus_background.setBackground(ContextCompat.getDrawable(getContext(),R.color.grey));
+        }
+
+
     }
 
     private void reset_ls_nr() {
         lsnr_field.setText("");
-        ls_nr_background.setBackgroundColor(getResources().getColor(R.color.hellgrün));
+        ls_nr_background.setBackgroundColor(getResources().getColor(R.color.grey));
     }
 
 
@@ -2303,7 +2376,7 @@ public class Material extends Fragment implements static_finals
                 ls_nr_background.setBackgroundColor(getResources().getColor(R.color.camera_button));
             } else
             {
-                ls_nr_background.setBackgroundColor(getResources().getColor(R.color.hellgrün));
+                ls_nr_background.setBackgroundColor(getResources().getColor(R.color.grey));
             }
 
         }
@@ -2330,9 +2403,9 @@ public class Material extends Fragment implements static_finals
 
         public void create_backup(String data,String type)
         {
-            String filename =mdo.get_selectet_projekt()+type+"@"+bsf.get_date_for_filename()+".json";
+            String filename =mdo.get_projekt_name()+"["+mdo.get_projekt_nr()+"]"+type+"@"+bsf.get_date_for_filename()+".json";
 
-            String backup_root = mdo.get_projekt_root_paht()+backup_dir_app;
+            String backup_root = projekt.projekt_get_current_root_dir_backup()+"/"+type+"/";
             File f = new File(backup_root);
             f.mkdirs();
             try {

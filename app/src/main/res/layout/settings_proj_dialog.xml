@@ -64,12 +64,23 @@
 
                 <Spinner
                     android:id="@+id/spinner2"
-                    android:layout_width="280dp"
+                    android:layout_width="256dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_margin="5dp"
                     android:padding="5dp"
                     android:textAlignment="center" />
+
+                <ImageButton
+                    android:id="@+id/set_projekt"
+                    android:layout_width="73dp"
+                    android:layout_height="@dimen/buttons_1"
+                    android:layout_gravity="center"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:background="#00FFFFFF"
+                    android:padding="5dp"
+                    app:srcCompat="@drawable/ic_baseline_check_circle_green" />
 
                 <ImageButton
                     android:id="@+id/imageButton46"

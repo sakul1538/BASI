@@ -1,5 +1,6 @@
 package com.example.tabnav_test.material;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
@@ -31,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.R;
+import com.google.android.material.tabs.TabLayout;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,16 +49,19 @@ import java.util.Calendar;
 
 public class material_log_entrys extends Fragment
 {
+
      public RecyclerView ls_log_view_rcv;
     TextView date_select;
+    public TabLayout tab;
 
     private ls_log_view_rcv_adapter lslogrcv;
-    public material_log_entrys()
-    {
 
-    }
+        public material_log_entrys(TabLayout tab)
+        {
+            this.tab = tab;
+        }
 
-    @Override
+        @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
@@ -81,12 +86,18 @@ public class material_log_entrys extends Fragment
                     while (reader.hasNext()) {
                         reader.beginObject();
                         ContentValues output_data = new ContentValues();
-                        while (reader.hasNext()) {
+                        while (reader.hasNext())
+                        {
                             output_data.put(reader.nextName(), reader.nextString());
                         }
-                        mdo.add_material_log_entry(output_data);
+                        if(output_data.get("PROJEKT_ID").toString().contains(mdo.get_projekt_id())) // Nur eintragen, wenn gleiche Projekt
+                        {
+                            if(mdo.add_material_log_entry(output_data)>-1)
+                            {
+                                counter++;
+                            }
+                        }
                         reader.endObject();
-                        counter++;
                     }
                     reader.endArray();
                     Toast.makeText(getContext(), counter + " Einträge Importiert!", Toast.LENGTH_SHORT).show();
@@ -105,16 +116,6 @@ public class material_log_entrys extends Fragment
 
     }
 
-    public static material_log_entrys newInstance(String param1, String param2)
-    {
-
-        material_log_entrys fragment = new material_log_entrys();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
@@ -131,6 +132,7 @@ public class material_log_entrys extends Fragment
 
         View view = inflater.inflate(R.layout.material_log_entrys_listing, container, false);
 
+
         //ImageButton
         ImageButton search_in = view.findViewById(R.id.imageButton74);
         ImageButton action_menu = view.findViewById(R.id.imageButton36);
@@ -139,11 +141,13 @@ public class material_log_entrys extends Fragment
         ImageButton date_calender_shift_back = view.findViewById(R.id.imageButton72);
         ImageButton date_calender_shift_forward = view.findViewById(R.id.imageButton73);
 
+        tab.getTabAt(0).setText("Luaks");
+
 
         //RecyclerView
         RecyclerView ls_log_view_rcv =view.findViewById(R.id.material_log_entry_rcv);
         String[] ls_log_view_rcv_adapter=mdo.material_entrys_list();
-        lslogrcv = new ls_log_view_rcv_adapter(ls_log_view_rcv_adapter);
+        lslogrcv = new ls_log_view_rcv_adapter(ls_log_view_rcv_adapter,tab);
         ls_log_view_rcv.setAdapter(lslogrcv);
         ls_log_view_rcv.setLayoutManager( new LinearLayoutManager(getContext()));
 
@@ -273,7 +277,8 @@ public class material_log_entrys extends Fragment
                     public void onClick(View view)
                     {
                         DatePickerDialog datePickerDialog = new DatePickerDialog(getContext());
-                        datePickerDialog.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
+                        datePickerDialog.setOnDateSetListener(new DatePickerDialog.OnDateSetListener()
+                        {
                             @Override
                             public void onDateSet(DatePicker datePicker, int i, int i1, int i2)
                             {
@@ -440,7 +445,7 @@ public class material_log_entrys extends Fragment
         material_database_ops mdo = new material_database_ops(getContext());
         Basic_funct bsf  = new Basic_funct();
 
-        String paht= mdo.get_projekt_root_paht()+Material.backup_dir+"DATASETS/";
+        String paht= mdo.get_projekt_backup_dir()+"/DATASETS/";
         String filename="untitled.json";
 
         switch (direction)
@@ -473,9 +478,8 @@ public class material_log_entrys extends Fragment
                     }
                     data_loop +=temp_loop.substring(0,temp_loop.length()-1)+"},";
                 }
-               data_loop =data_loop.substring(0,data_loop.length()-1)+"]";
-
-               String file_name= mdo.get_selectet_projekt()+"dataset_backup@"+bsf.get_date_for_filename()+"_ID_"+bsf.gen_UUID()+".json";
+                data_loop =data_loop.substring(0,data_loop.length()-1)+"]";
+                String file_name= mdo.get_projekt_name()+"["+mdo.get_projekt_nr()+"]"+"dataset_backup@"+bsf.get_date_for_filename()+"_ID_"+bsf.gen_UUID()+".json";
                 file_save(paht+file_name,data_loop);
 
                 break;

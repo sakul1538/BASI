@@ -14,8 +14,10 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.example.tabnav_test.Basic_funct;
+import com.example.tabnav_test.R;
 import com.example.tabnav_test.SQL_finals;
 import com.example.tabnav_test.projekt_ops;
+import com.google.android.material.tabs.TabLayout;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,11 +55,25 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
     public long add_material_log_entry(ContentValues data)
     {
-        //TODO auf Duplikate Prüfen
-        SQLiteDatabase wdb = this.getWritableDatabase();
+        long newRowId=-1;
 
+        SQLiteDatabase db = this.getReadableDatabase();
 
-        long newRowId = wdb.insert(TB_MATERIAL_LOG,null,data);
+        String[] where_args = {data.get("ID").toString(),data.get("PROJEKT_ID").toString()};
+        String where = "ID=? AND PROJEKT_ID=?";
+
+        Cursor cursor = db.query(TB_MATERIAL_LOG,null, where, where_args, null, null, null);
+        int  c = cursor.getCount();
+
+        db.close();
+        cursor.close();
+
+        if(c==0)
+        {
+            SQLiteDatabase wdb = this.getWritableDatabase();
+            newRowId = wdb.insert(TB_MATERIAL_LOG,null,data);
+            wdb.close();
+        }
 
         return newRowId;
     }
@@ -268,7 +284,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         //Fixme Projekt ID anpassen
 
         material_database_ops mdo = new material_database_ops(context);
-        String proj_id = get_projekt_id(); //Martinheim Süd,23110022,primary:DCIM/Baustellen /Martinsheim Süd;
+        String proj_id = get_projekt_id();
         SQLiteDatabase db = this.getReadableDatabase();
         String[] selectionArgs = { proj_id };
         String where = "PROJEKT_ID=?";
@@ -467,26 +483,8 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
     public String get_selectet_projekt_id()
     {
-        this.test_exist_projects();
-        String id = null;
-        try {
-            SQLiteDatabase db = this.getReadableDatabase();
-            String[] selectionArgs = {"1"};
-            String where = "SELECT_FLAG=?";
 
-            Cursor cursor = db.query(TB_MATERIAL_PROJEKTE,null,where,selectionArgs,null,null,null);
-            id = "null";
-            cursor.moveToFirst();
-            id=cursor.getString(cursor.getColumnIndexOrThrow("ID"));
-            cursor.close();
-            db.close();
-        } catch (IllegalArgumentException e)
-        {
-            id="0";
-            bsf.error_msg("Kein ausgewähltes Projekt gefunden! \n return=0\n"+ e.getMessage(),context);
-            throw new RuntimeException(e);
-        }
-        return  id;
+        return    get_projekt_id();
     }
 
     public String get_selectet_projekt_root_data()
@@ -900,6 +898,34 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
             return c;
         }
 
+    public String entry_counter()
+    {
+        //TODO Bestätigen
+
+        String c ="0";
+        try {
+            SQLiteDatabase db = this.getReadableDatabase();
+            String[] columns = {"ID"};
+            String[] where_args = {get_projekt_id()};
+            String where = "PROJEKT_ID=?";
+
+
+            Cursor cursor = db.query(TB_MATERIAL_LOG,columns,where,where_args,null,null,null);
+            c = String.valueOf(cursor.getCount());
+            db.close();
+            cursor.close();
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+        return c;
+    }
+    public String entry_counter_tab_text()
+    {
+      return "Einträge ("+entry_counter()+")";
+
+    }
+
     public long update_artikel(String artikel_from, String einheit_from, String artikel_to, String einheit_to)
     {
 
@@ -1039,6 +1065,11 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
     {
         projekt_ops projekt = new projekt_ops(context);
         return projekt.projekt_get_selected_name();
+
+    }   public String get_projekt_nr()
+    {
+        projekt_ops projekt = new projekt_ops(context);
+        return projekt.projekt_get_selected_nr();
     }
 
     public String get_projekt_root()
@@ -1056,6 +1087,12 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
     {
         projekt_ops projekt = new projekt_ops(context);
         return projekt.projekt_get_current_root_dir_export_json();
+    }
+
+  public String get_projekt_backup_dir()
+    {
+        projekt_ops projekt = new projekt_ops(context);
+        return projekt.projekt_get_current_root_dir_backup();
     }
 
 
