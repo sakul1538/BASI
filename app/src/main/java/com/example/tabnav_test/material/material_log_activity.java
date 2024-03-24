@@ -74,12 +74,12 @@ public class material_log_activity extends AppCompatActivity
         switch (requestCode)
         {
             case 1:
-
-                gad.reload_images();
+                gad.reload_images(getApplicationContext());
                 break;
             case 2:
                 //Von ls_log_view_rcv_adapter  => Intent Open Document
                 uri = data.getData();
+                Log.d("BASI Paht",uri.getPath());
 
                 if((uri).getPath().contains("/document/primary:"))
                 {
@@ -89,7 +89,7 @@ public class material_log_activity extends AppCompatActivity
                         Basic_funct bsf =new Basic_funct();
                         File source_file = new File(source_file_path);
                         Basic_funct.copyFileUsingStream(source_file, new File(filePath)); //Kopieren von-zu
-                        gad.reload_images();
+                        gad.reload_images(getApplicationContext());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -116,7 +116,7 @@ public class material_log_activity extends AppCompatActivity
                         Basic_funct bsf =new Basic_funct();
                         File source_file = new File(source_file_path);
                         Basic_funct.copyFileUsingStream(source_file, new File(filePath+file_extension)); //Kopieren von-zu
-                        gad.reload_images();
+                        gad.reload_images(getApplicationContext());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }

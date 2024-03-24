@@ -45,6 +45,7 @@ public class Basic_funct {
     public static Boolean confirm_value = false;
 
 
+
     public String getabsPath(String uri)   //   /document/primary:DCIM/Test@05122022_ID_2735252314015920324.jpeg
     {
 
@@ -437,7 +438,8 @@ public class Basic_funct {
         return dir + fname;
     }
 
-    public static void copyFileUsingStream(File source, File dest) throws IOException {
+    public static void copyFileUsingStream(File source, File dest) throws IOException
+    {
         //<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         //Permission all files
 
@@ -449,9 +451,11 @@ public class Basic_funct {
             os = new FileOutputStream(dest);
             byte[] buffer = new byte[1024];
             int length;
-            while ((length = is.read(buffer)) > 0) {
+            while ((length = is.read(buffer)) > 0)
+            {
                 os.write(buffer, 0, length);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

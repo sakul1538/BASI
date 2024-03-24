@@ -975,21 +975,23 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
                 new String[]{"NAME"});
 
         projekt_ops projekt = new projekt_ops(context);
-        String proj_src = projekt.projekt_get_current_root_dir_ls_images();
+        String proj_src = projekt.projekt_get_current_root_dir_ls_images(); // root_dir+"/Lieferscheine/";
 
         String idenifer = name_zuleferer+"_LSNR_"+data.get("LSNR")+"@"+data.get("DATUM").toString().replace(".","");
+        Log.d("BASI Idenifer",idenifer);
         File f  =new File(proj_src);
         String []filelist = f.list();
         String localImageSet ="";
         int counter=0;
         for(String files: filelist)
         {
-            File f2 = new File(proj_src+"/"+files);
+            File f2 = new File(proj_src+files);
             if(f2.isFile())
             {
                 if(files.contains(idenifer))
                 {
-                    localImageSet +=proj_src+"/"+files+",";
+                    localImageSet +=proj_src+files+",";
+                    Log.d("BASI files",files);
                 }
             }
         }

@@ -152,7 +152,7 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
                                     {
                                         f.delete();
                                     }
-                                    reload_images();
+                                    reload_images(context);
 
                                     dialogInterface.cancel();
                                 }
@@ -314,7 +314,7 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
                             Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
 
                             photo_viewer.setImageBitmap(ls_picture_scaled);
-                            reload_images();
+                            reload_images(context);
                             dialogInterface.cancel();
                         }
                     });
@@ -340,7 +340,7 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
                                             {
                                                 f.delete();
                                             }
-                                            reload_images();
+                                            reload_images(context);
                                             dialogInterface.cancel();
                                         }
                                     });
@@ -374,15 +374,14 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
         }
     }
 
-    public void reload_images()
+    public void reload_images(Context context)
     {
         try {
-            material_database_ops mdo = new material_database_ops(this.context);
+            material_database_ops mdo = new material_database_ops(context);
             String t = mdo.media_scanner(this.data);
             if(t !="")
             {
                 this.localDataSet =mdo.media_scanner(this.data).split(",");
-
             }
             else
             {

@@ -12,7 +12,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.pdf.PdfRenderer;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -322,7 +326,6 @@ public class Material extends Fragment implements static_finals
                             } catch (IOException e) {
                                 exmsg("250720231849", e);
                             }
-
                         } catch (Exception e) {
                             exmsg("270720231230", e);
                             Toast.makeText(getContext(), "Bild import Fehlgeschlagen! \n" + e, Toast.LENGTH_SHORT).show();
@@ -2208,6 +2211,8 @@ public class Material extends Fragment implements static_finals
 
     private boolean copy_media_files_from_temp(String lieferant, String lsnr,String date)
     {
+
+
         String source_dir = "";
         String destination_dir = "";
         Boolean check = false;
@@ -2227,22 +2232,17 @@ public class Material extends Fragment implements static_finals
         if (f.exists())
         {
             String[] files = f.list();
-            int file_counter = files.length;
 
             for (String d : files)
             {
                 String source = source_dir + "/" + d;
 
-                String ls_nr_and_counter=lsnr+"#"+String.valueOf(file_counter);
-
-                String destination = destination_dir + "/" + bsf.ls_filename_form(lieferant,ls_nr_and_counter,date,"default") +bsf.detect_extension(d);
+                String destination = destination_dir + "/" + bsf.ls_filename_form(lieferant,lsnr,date,"default") +bsf.detect_extension(d);
                 check = true;
 
                 try {
-
                     File source_file = new File(source);
                     Basic_funct.copyFileUsingStream(source_file, new File(destination)); //Kopieren von-zu
-                    file_counter--;
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

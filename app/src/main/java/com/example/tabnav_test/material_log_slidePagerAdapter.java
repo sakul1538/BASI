@@ -48,7 +48,6 @@ public class material_log_slidePagerAdapter  extends FragmentStateAdapter
             default:
 
                 fragment = new construction_fragment();
-
         }
 
         return fragment;

@@ -163,6 +163,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                        holder.getadd_pdf_file().setVisibility(View.VISIBLE);
 
                        String files_found =mdo.media_scanner(data);
+                       Log.d("BASI",files_found);
 
                        if(files_found !="")
                        {
@@ -192,11 +193,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                     {
                         Basic_funct bsf =new Basic_funct();
                         try {
-                            String proj_root = mdo.get_selectet_projekt_root_data()
-                                    .split(",")[2]
-                                    .replace("primary:", Environment.getExternalStorageDirectory().toString()+"/")
-                                    +Material.ls_media_directory_name; //primary:DCIM/Baustellen /testprojekt
-
+                            String proj_root = mdo.get_ls_images_dir();
 
                             String document_name  =  bsf.ls_filename_form(name_zuleferer,
                                     data.get("LSNR").toString(),

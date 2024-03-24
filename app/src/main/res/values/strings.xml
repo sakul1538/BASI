@@ -303,6 +303,9 @@
     <string name="material_log_tab_entrys">Einträge</string>
     <string name="material_log_tab_summary">Sortiert</string>
     <string name="material_log_tab_import_export">Import/Export</string>
+    <string name="title_activity_photo_viewer">Photo_viewer</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 
 
 </resources>
