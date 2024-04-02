@@ -1,6 +1,5 @@
 package com.example.tabnav_test.material;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -9,26 +8,17 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.pdf.PdfRenderer;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import androidx.transition.Visibility;
 
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
@@ -58,8 +48,6 @@ import com.example.tabnav_test.R;
 import com.example.tabnav_test.SQL_finals;
 import com.example.tabnav_test.config_favorite_strings.config_fav;
 import com.example.tabnav_test.config_favorite_strings.config_fav_ops;
-
-import org.json.JSONException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -232,8 +220,8 @@ public class Material extends Fragment implements static_finals
             case 1://Foto mit Kamera neu
 
                 String path= photoURI.getPath().replace("/primary",Environment.getExternalStorageDirectory().toString());
-                //corr_pic_orientaion(path);
-               //compress_bitmap(path);
+                corr_pic_orientaion(path);
+                compress_bitmap(path);
 
                 create_imageset();
                 try {
@@ -569,7 +557,7 @@ public class Material extends Fragment implements static_finals
         //Instanzen
 
         mdo = new material_database_ops(getContext());
-        mdo.test_exist_projects();
+       // mdo.test_exist_projects();
 
         projekt= new projekt_ops(getContext());
 
@@ -656,8 +644,6 @@ public class Material extends Fragment implements static_finals
                 Toast.makeText(getContext(),"Eintrag noch nicht vorhanden!", Toast.LENGTH_SHORT).show();
             }
         });
-
-
 
         note_field.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -857,14 +843,14 @@ public class Material extends Fragment implements static_finals
         save_ls_entry.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view)
+            {
                 material_database_ops mdo = new material_database_ops(getContext());
 
                 ContentValues data = new ContentValues();
-
                 try {
                     data.put("ID", bsf.gen_UUID());
-                    data.put("PROJEKT_ID", projekt.projekt_get_selected_id());
+                    data.put("PROJEKT_NR", projekt.projekt_get_selected_id());
                     String date_db_format = bsf.convert_date(String.valueOf(date_label.getText()),"format_database");
                     data.put("DATUM",date_db_format);
 
@@ -880,9 +866,8 @@ public class Material extends Fragment implements static_finals
                     {
                         data.put("LSNR", String.valueOf(lsnr_field.getText()));
                     }
-                    String id_zulieferer = r.get_id_zulieferer();
 
-                    data.put("LIEFERANT_ID", String.valueOf(id_zulieferer));
+                    data.put("LIEFERANT_ID", r.get_id_zulieferer());
 
                     data.put("MENGE", String.valueOf(menge.getText()).trim());
 
@@ -899,7 +884,7 @@ public class Material extends Fragment implements static_finals
 
                     String artikel_value = String.valueOf(edit_artikel_name.getText()).trim();
 
-                    String id_artikel = mdo.get_artikel_param(new String[]{artikel_value}, "NAME    =?", new String[]{"ID"});
+                    String id_artikel = mdo.get_artikel_param(new String[]{artikel_value}, "NAME=?", new String[]{"ID"});
 
                     if (id_artikel == "null") {
                         mdo.add_artikel_to_list(artikel_value, String.valueOf(data.get("EINHEIT_ID"))); //Erstellt Speichert den Artikel in Datenbank, da er nicht existert
@@ -916,13 +901,17 @@ public class Material extends Fragment implements static_finals
                     long response = mdo.add_material_log_entry(data);
                     if (response > -1)
                     {
+                        lsnr_field.setEnabled(false);
+                        edit_zulieferer_name.setEnabled(false);
                         String copy_temp_msg = "";
 
                         if(media_lock_status == false)
                         {
-                            if (copy_media_files_from_temp(r.get_zulieferer_name(), data.get("LSNR").toString(), r.get_date().replace(".", "")))
+                            String date = bsf.convert_date(r.get_date().toString(),"format_database").replace("-","");
+
+                            if (copy_media_files_from_temp(r.get_zulieferer_name(), data.get("LSNR").toString(), date))
                             {
-                                copy_temp_msg = "+ Medien wurden Kopiert!";
+                                copy_temp_msg = ">  Medien wurden Kopiert! ("+mdo.get_ls_images_dir()+")";
                                 media_lock_status =true;
                                 media_background_media_lockstatus(media_lock_status);
                                 clean_temp_dir();
@@ -930,26 +919,27 @@ public class Material extends Fragment implements static_finals
                                 media_visibilitiy(View.GONE);
                             } else
                             {
-                                copy_temp_msg = "+ Medien wurden NICHT Kopiert";
+                                copy_temp_msg = "> Medien wurden NICHT  Kopiert werden!\n";
                             }
 
                         }
                         else
                         {
-                            copy_temp_msg = "+ Medien wurden NICHT Kopiert! \n media_lock_status =true";
+                            copy_temp_msg = "> Medien wurden NICHT Kopiert! \n media_lock_status =true";
                         }
-                        Toast.makeText(getContext(), "+Es  wurde  eine Eintrag erstellt!\n" + copy_temp_msg, Toast.LENGTH_SHORT).show();
-                    } else
-                    {
-                        Toast.makeText(getContext(), "+ Es konnte KEIN Eintrag erstellt werden!", Toast.LENGTH_SHORT).show();
 
+                        bsf.succes_msg("Es  wurde  ein Eintrag erstellt!\n" + copy_temp_msg,getContext());
+
+                    }
+                    else
+                    {
+                        bsf.error_msg("+ Es konnte KEIN Eintrag erstellt werden!",getContext());
                     }
 
                 } catch (Exception e)
                 {
                     exmsg("200620232152", e);
-                    Toast.makeText(getContext(), "Kein Eintrag erstellt, interner Feher \n " + e.getMessage(), Toast.LENGTH_SHORT).show();
-
+                    bsf.error_msg("+ Es konnte KEIN Eintrag erstellt werden!\n"+e.getMessage().toString(),getContext());
                 }
             }
         });
@@ -1654,6 +1644,7 @@ public class Material extends Fragment implements static_finals
 
                         // set prompts.xml to alertdialog builder
                         alertDialogBuilder.setView(pic_view_UI);
+
                         alertDialogBuilder.setTitle("Viewer");
                         alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
@@ -1692,6 +1683,8 @@ public class Material extends Fragment implements static_finals
             create_imageset();
             media_lock_status= false;
             media_background_media_lockstatus(media_lock_status);
+            lsnr_field.setEnabled(true);
+            edit_zulieferer_name.setEnabled(true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -2365,7 +2358,7 @@ public class Material extends Fragment implements static_finals
                    get_selectet_projekt_id()
                 };
 
-            return mdo.find_similar(TB_MATERIAL_LOG, select_args, "LSNR=? AND LIEFERANT_ID=? AND PROJEKT_ID=?") > 0;
+            return mdo.find_similar(BASI_MATERIAL, select_args, "LSNR=? AND LIEFERANT_ID=? AND PROJEKT_ID=?") > 0;
         }
 
         public void lsnr_test_alert(Boolean b)
@@ -2383,23 +2376,28 @@ public class Material extends Fragment implements static_finals
 
         public String get_id_zulieferer()
         {
+            String id ="";
+            String value="";
             if (edit_zulieferer_name.getText().toString().isEmpty())
             {
-                return "null";
+                value="NONAME";
             }
             else
             {
-                String id = mdo.get_id_zulieferer(edit_zulieferer_name.getText().toString());
-                if(id =="null")
-                {
-                    mdo.add_zulieferer(edit_zulieferer_name.getText().toString());
-                    id = mdo.get_id_zulieferer(edit_zulieferer_name.getText().toString());
-                }
-                return id ;
-
+                value=edit_zulieferer_name.getText().toString();
             }
 
-        }
+                id = mdo.get_id_zulieferer(value);
+
+                if(id =="null")
+                {
+                    mdo.add_zulieferer(value);
+                    id = mdo.get_id_zulieferer(value);
+                }
+                return id;
+            }
+
+
 
         public void create_backup(String data,String type)
         {

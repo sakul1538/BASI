@@ -79,9 +79,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:clickable="false"
+                    android:editable="false"
                     android:ems="10"
+                    android:enabled="true"
                     android:inputType="text"
-                    android:nextFocusDown="@id/autocomplete_zulieferer_name" />
+                    android:nextFocusDown="@id/autocomplete_zulieferer_name"
+                    android:selectAllOnFocus="false" />
 
 
                 <ImageButton

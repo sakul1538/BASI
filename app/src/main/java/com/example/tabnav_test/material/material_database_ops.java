@@ -14,10 +14,8 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.example.tabnav_test.Basic_funct;
-import com.example.tabnav_test.R;
 import com.example.tabnav_test.SQL_finals;
 import com.example.tabnav_test.projekt_ops;
-import com.google.android.material.tabs.TabLayout;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,10 +57,10 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String[] where_args = {data.get("ID").toString(),data.get("PROJEKT_ID").toString()};
-        String where = "ID=? AND PROJEKT_ID=?";
+        String[] where_args = {data.get("ID").toString(),data.get("PROJEKT_NR").toString()};
+        String where = "ID=? AND PROJEKT_NR=?";
 
-        Cursor cursor = db.query(TB_MATERIAL_LOG,null, where, where_args, null, null, null);
+        Cursor cursor = db.query(BASI_MATERIAL,null, where, where_args, null, null, null);
         int  c = cursor.getCount();
 
         db.close();
@@ -71,7 +69,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         if(c==0)
         {
             SQLiteDatabase wdb = this.getWritableDatabase();
-            newRowId = wdb.insert(TB_MATERIAL_LOG,null,data);
+            newRowId = wdb.insert(BASI_MATERIAL,null,data);
             wdb.close();
         }
 
@@ -81,9 +79,9 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
     public long delet_material_log_entry(String entry_id)
     {
        ContentValues entry_data =  this.material_get_entry_id(entry_id);
-       String [] selectionArgs = {entry_data.get("PROJEKT_ID").toString(),entry_data.get("DATUM").toString(),entry_data.get("LSNR").toString(),entry_data.get("LIEFERANT_ID").toString()};
-       String where = "PROJEKT_ID=? AND DATUM=? AND LSNR=? AND LIEFERANT_ID=?";
-       int similar_entrys= this.find_similar(SQL_finals.TB_MATERIAL_LOG,selectionArgs,where);
+       String [] selectionArgs = {entry_data.get("PROJEKT_NR").toString(),entry_data.get("DATUM").toString(),entry_data.get("LSNR").toString(),entry_data.get("LIEFERANT_ID").toString()};
+       String where = "PROJEKT_NR=? AND DATUM=? AND LSNR=? AND LIEFERANT_ID=?";
+       int similar_entrys= this.find_similar(SQL_finals.BASI_MATERIAL,selectionArgs,where);
        int deletedRows =0;
 
        if(similar_entrys == 1)
@@ -92,7 +90,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
            String[] del_selectionArgs = { entry_id };
            String del_where = "ID=?";
 
-           deletedRows = db.delete(TB_MATERIAL_LOG,del_where,del_selectionArgs);
+           deletedRows = db.delete(BASI_MATERIAL,del_where,del_selectionArgs);
            material_log_delet_media(entry_data);
        }
        else
@@ -101,7 +99,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
            String[] del_selectionArgs = { entry_id };
            String del_where = "ID=?";
 
-           deletedRows = db.delete(TB_MATERIAL_LOG,del_where,del_selectionArgs);
+           deletedRows = db.delete(BASI_MATERIAL,del_where,del_selectionArgs);
 
        }
 
@@ -113,9 +111,9 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
     {
             SQLiteDatabase db = this.getWritableDatabase();
             String[] del_selectionArgs = { get_projekt_id() };
-            String del_where = "PROJEKT_ID=?";
+            String del_where = "PROJEKT_NR=?";
 
-            long   deletedRows = db.delete(TB_MATERIAL_LOG,del_where,del_selectionArgs);
+            long   deletedRows = db.delete(BASI_MATERIAL,del_where,del_selectionArgs);
 
             //material_log_delet_media(entry_data);
         return deletedRows;
@@ -170,11 +168,15 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
             String[] selectionArgs = { data_new.get("ID").toString() };
             String where = "ID=?";
 
-            long response = dbw.update(TB_MATERIAL_LOG,data_new,where,selectionArgs);
+            long response = dbw.update(BASI_MATERIAL,data_new,where,selectionArgs);
+            if(response >-1)
+            {
+                update_material_log_all_similar_entrys(data_old,data_new);
+                update_material_log_entry_media_filenames(data_old, data_new);
+            }
 
             // Nach weitereren einträgen Suchen, die der Selben LSNR hat und abändern
             dbw.close();
-           // update_material_log_all_similar_entrys(data_old,data_new);
 
 
 
@@ -190,52 +192,71 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
             update_with.put("LSNR",data_new.get("LSNR").toString());
             update_with.put("LIEFERANT_ID",data_new.get("LIEFERANT_ID").toString());
 
-            String[] selectionArgs = { data_old.get("PROJEKT_ID").toString(),
+            String[] selectionArgs = { data_old.get("PROJEKT_NR").toString(),
                     data_old.get("DATUM").toString(),
                     data_old.get("LSNR").toString(),
                     data_old.get("LIEFERANT_ID").toString()};
 
-            String where = "PROJEKT_ID=? AND DATUM=? AND LSNR=? AND LIEFERANT_ID=?";
+            String where = "PROJEKT_NR=? AND DATUM=? AND LSNR=? AND LIEFERANT_ID=?";
 
-            long response = dbw.update(TB_MATERIAL_LOG,update_with,where,selectionArgs);
-            update_material_log_entry_media_filenames(data_old, data_new);
+            long response = dbw.update(BASI_MATERIAL,update_with,where,selectionArgs);
+
     }
 
     public void update_material_log_entry_media_filenames(ContentValues data_old,ContentValues data_new)
     {
-        String name_zuleferer_old =     this.get_zulieferer_param(new String[]{data_old.get("LIEFERANT_ID").toString()}, "ID=?", new String[]{"NAME"});
-        String name_zuleferer_new =     this.get_zulieferer_param(new String[]{data_new.get("LIEFERANT_ID").toString()}, "ID=?", new String[]{"NAME"});
 
-        String proj_src = this.get_selectet_projekt_root_data()
-                .split(",")[2]
-                .replace("primary:", Environment.getExternalStorageDirectory()+"/")+"/Lieferscheine";
+        Log.d("BASI",data_new.get("LIEFERANT_ID").toString());
 
-        String date_old=bsf.convert_date(data_old.get("DATUM").toString(),"format_database_to_readable").replace(".","");
-        String date_new=bsf.convert_date(data_new.get("DATUM").toString(),"format_database_to_readable").replace(".","");
+        String name_zuleferer_old = this.get_zulieferer_param(
+                new String[]{data_old.get("LIEFERANT_ID").toString()},
+                "ID=?",
+                new String[]{"NAME"});
 
-        String file_idenifer_old = name_zuleferer_old+"_LSNR_"+data_old.get("LSNR")+"@"+date_old;
-        String file_idenifer_new = name_zuleferer_new+"_LSNR_"+data_new.get("LSNR")+"@"+date_new;
+        String name_zuleferer_new = this.get_zulieferer_param(
+                new String[]{data_new.get("LIEFERANT_ID").toString()},
+                "ID=?",
+                new String[]{"NAME"});
 
+        projekt_ops projekt = new projekt_ops(context);
+        String proj_src = projekt.projekt_get_current_root_dir_ls_images(); // root_dir+"/Lieferscheine/";
 
-        File f  =new File(proj_src);
-        String []filelist = f.list();
+        String file_name_idenifer_old = name_zuleferer_old + "_LSNR_" + data_old.get("LSNR") + "@" + data_old.get("DATUM").toString().replace("-", "");
+        String file_name_idenifer_new = name_zuleferer_new + "_LSNR_" + data_new.get("LSNR") + "@" + data_new.get("DATUM").toString().replace("-", "");
 
-        for(String file: filelist)
+        Log.d("proj_src", proj_src);
+        Log.d("BASI Idenifer old", file_name_idenifer_old);
+        Log.d("BASI Idenifer new", file_name_idenifer_new);
+        Log.d("BASI datum new", data_new.get("DATUM").toString());
+        Log.d("BASI datum old", data_old.get("DATUM").toString());
+        File f = new File(proj_src);
+        String[] filelist = f.list();
+
+        for (String files : filelist)
         {
-            File f2 = new File(proj_src+"/"+file);
-            if(f2.isFile())
-            {
-                if(file.contains(file_idenifer_old))
+            String filename = proj_src + files;
+            Log.d("File:   ", filename);
+            File f2 = new File(filename);
+            if (f2.isFile()) {
+                if (files.contains(file_name_idenifer_old))
                 {
-                    Log.d("File found:",f2.getPath());
-                    String filename_ID = file.substring(file.lastIndexOf("_ID_"));
-                    File new_filename = new File(proj_src+"/"+file_idenifer_new+filename_ID);
-                    f2.renameTo(new_filename);
-                    Log.d("File Rename to:",new_filename.getPath());
+                    Log.d("File match:",files);
+                   String[] part = filename.split("_ID_");
+                    String new_filename =proj_src + file_name_idenifer_new + "_ID_"+part[1];
+                    Log.d("BASI filename_new", new_filename);
+                    File f_new = new File(new_filename);
+                    f2.renameTo(f_new);
                 }
             }
         }
     }
+
+
+
+
+
+
+
     public ContentValues material_get_entry_id(String id) //Gibt einen Spezifischen Eintrag zurück definiert durch die ID des eintrages als ContentValue data
     {
 
@@ -244,7 +265,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         String[] selectionArgs = { id };
         String where = "ID=?";
 
-        Cursor cursor = db.query(TB_MATERIAL_LOG,null,where,selectionArgs,null,null,null);
+        Cursor cursor = db.query(BASI_MATERIAL,null,where,selectionArgs,null,null,null);
         ContentValues data = new ContentValues();
 
         if(cursor.getCount() >0)
@@ -252,7 +273,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
             cursor.moveToFirst();
 
             data.put("ID",cursor.getString(cursor.getColumnIndexOrThrow("ID")));
-            data.put("PROJEKT_ID",cursor.getString(cursor.getColumnIndexOrThrow("PROJEKT_ID")));
+            data.put("PROJEKT_NR",cursor.getString(cursor.getColumnIndexOrThrow("PROJEKT_NR")));
             data.put("DATUM",cursor.getString(cursor.getColumnIndexOrThrow("DATUM")));
             data.put("LSNR",cursor.getString(cursor.getColumnIndexOrThrow("LSNR")));
             data.put("LIEFERANT_ID",cursor.getString(cursor.getColumnIndexOrThrow("LIEFERANT_ID")));
@@ -273,11 +294,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
     }
 
 
-
-
-
-
-
     public String[] material_entrys_list() //Gibt alle Einträge des Projektes zurück => alte Version
     {
 
@@ -287,16 +303,16 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         String proj_id = get_projekt_id();
         SQLiteDatabase db = this.getReadableDatabase();
         String[] selectionArgs = { proj_id };
-        String where = "PROJEKT_ID=?";
+        String where = "PROJEKT_NR=?";
 
-        Cursor cursor = db.query(TB_MATERIAL_LOG,null,where,selectionArgs,null,null,"DATUM ASC,LSNR, LIEFERANT_ID");
+        Cursor cursor = db.query(BASI_MATERIAL,null,where,selectionArgs,null,null,"DATUM ASC,LSNR, LIEFERANT_ID");
         String[] strings = new String[cursor.getCount()];
 
         int i=0;
         while (cursor.moveToNext())
         {
             strings[i] =cursor.getString(cursor.getColumnIndexOrThrow("ID"));
-            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("PROJEKT_ID"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("PROJEKT_NR"));
             strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("DATUM"));
             strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("LSNR"));
             strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("LIEFERANT_ID"));
@@ -328,16 +344,16 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         String proj_id =this.get_selectet_projekt_root_data().split(",")[1]; //Martinheim Süd,23110022,primary:DCIM/Baustellen /Martinsheim Süd;
         SQLiteDatabase db = this.getReadableDatabase();
         String[] selectionArgs = { get_projekt_id() };
-        String where = "PROJEKT_ID=?";
+        String where = "PROJEKT_NR=?";
 
-        Cursor cursor = db.query(TB_MATERIAL_LOG,null,where,selectionArgs,null,null,"DATUM ASC,LSNR, LIEFERANT_ID");
+        Cursor cursor = db.query(BASI_MATERIAL,null,where,selectionArgs,null,null,"DATUM ASC,LSNR, LIEFERANT_ID");
         String[] strings = new String[cursor.getCount()];
 
         int i=0;
         while (cursor.moveToNext())
         {
             strings[i] ="ID:"+cursor.getString(cursor.getColumnIndexOrThrow("ID"));
-            strings[i] +=",PROJEKT_ID:"+cursor.getString(cursor.getColumnIndexOrThrow("PROJEKT_ID"));
+            strings[i] +=",PROJEKT_NR:"+cursor.getString(cursor.getColumnIndexOrThrow("PROJEKT_NR"));
             strings[i] +=",DATUM:"+cursor.getString(cursor.getColumnIndexOrThrow("DATUM"));
             strings[i] +=",LSNR:"+cursor.getString(cursor.getColumnIndexOrThrow("LSNR"));
             strings[i] +=",LIEFERANT_ID:"+cursor.getString(cursor.getColumnIndexOrThrow("LIEFERANT_ID"));
@@ -907,10 +923,10 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
             SQLiteDatabase db = this.getReadableDatabase();
             String[] columns = {"ID"};
             String[] where_args = {get_projekt_id()};
-            String where = "PROJEKT_ID=?";
+            String where = "PROJEKT_NR=?";
 
 
-            Cursor cursor = db.query(TB_MATERIAL_LOG,columns,where,where_args,null,null,null);
+            Cursor cursor = db.query(BASI_MATERIAL,columns,where,where_args,null,null,null);
             c = String.valueOf(cursor.getCount());
             db.close();
             cursor.close();
@@ -946,7 +962,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
     public String get_artikel_param(String[] selectionArgs, String where,String[] colum )
     {
         SQLiteDatabase db = this.getReadableDatabase();
-
         String param="null";
 
         Cursor cursor = db.query(TB_MATERIAL_TYP, colum,where, selectionArgs, null, null, null);
@@ -968,7 +983,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
     public String media_scanner(ContentValues data)
     {
-
         String name_zuleferer =     this.get_zulieferer_param(
                 new String[]{data.get("ZULIEFERER_ID").toString()},
                 "ID=?",
@@ -976,9 +990,10 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
         projekt_ops projekt = new projekt_ops(context);
         String proj_src = projekt.projekt_get_current_root_dir_ls_images(); // root_dir+"/Lieferscheine/";
+        String date=bsf.convert_date(data.get("DATUM").toString(),"format_database").replace("-","");
 
-        String idenifer = name_zuleferer+"_LSNR_"+data.get("LSNR")+"@"+data.get("DATUM").toString().replace(".","");
-        Log.d("BASI Idenifer",idenifer);
+        String file_name_idenifer = name_zuleferer+"_LSNR_"+data.get("LSNR")+"@"+date;
+        Log.d("BASI Idenifer",file_name_idenifer);
         File f  =new File(proj_src);
         String []filelist = f.list();
         String localImageSet ="";
@@ -988,27 +1003,27 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
             File f2 = new File(proj_src+files);
             if(f2.isFile())
             {
-                if(files.contains(idenifer))
+                if(files.contains(file_name_idenifer))
                 {
                     localImageSet +=proj_src+files+",";
                     Log.d("BASI files",files);
                 }
             }
         }
-
         return localImageSet;
     }
+
 
     public int  check_similar_ls(ContentValues arg)
     {
 
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String[] where_args = {arg.get("PROJEKT_ID").toString(),arg.get("LSNR").toString(),arg.get("LIEFERANT_ID").toString()};
-        String where = "PROJEKT_ID=?  AND  LSNR=? AND  LIEFERANT_ID=?";
+        String[] where_args = {arg.get("PROJEKT_NR").toString(),arg.get("LSNR").toString(),arg.get("LIEFERANT_ID").toString()};
+        String where = "PROJEKT_NR=?  AND  LSNR=? AND  LIEFERANT_ID=?";
 
 
-        Cursor cursor = db.query(TB_MATERIAL_LOG,null, where, where_args, null, null, null);
+        Cursor cursor = db.query(BASI_MATERIAL,null, where, where_args, null, null, null);
         int  c = cursor.getCount();
 
 
@@ -1226,7 +1241,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         SQLiteDatabase db = this.getReadableDatabase();
 
 
-        Cursor cursor = db.query(TB_MATERIAL_LOG,columns,"PROJEKT_ID=?",selectionArgs,"LSNR",null,"LSNR ASC");
+        Cursor cursor = db.query(BASI_MATERIAL,columns,"PROJEKT_NR=?",selectionArgs,"LSNR",null,"LSNR ASC");
         String[] strings = new String[cursor.getCount()];
 
         int i=0;
@@ -1266,14 +1281,14 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.query(TB_MATERIAL_LOG,null,where_string,arg_array,null,null,"DATUM ASC,LSNR, LIEFERANT_ID");
+        Cursor cursor = db.query(BASI_MATERIAL,null,where_string,arg_array,null,null,"DATUM ASC,LSNR, LIEFERANT_ID");
         String[] strings = new String[cursor.getCount()];
 
         int i=0;
         while (cursor.moveToNext())
         {
             strings[i] =cursor.getString(cursor.getColumnIndexOrThrow("ID"));
-            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("PROJEKT_ID"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("PROJEKT_NR"));
             strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("DATUM"));
             strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("LSNR"));
             strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("LIEFERANT_ID"));
@@ -1299,17 +1314,17 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
     public String[] material_log_search_date(String date)
     {
         SQLiteDatabase db = this.getReadableDatabase();
-        String where = "DATUM=? AND PROJEKT_ID=?";
+        String where = "DATUM=? AND PROJEKT_NR=?";
         String[] where_args = {bsf.convert_date(date,"format_database"),get_projekt_id()};
 
-        Cursor cursor = db.query(TB_MATERIAL_LOG,null,where,where_args,null,null,"DATUM ASC,LSNR, LIEFERANT_ID");
+        Cursor cursor = db.query(BASI_MATERIAL,null,where,where_args,null,null,"DATUM ASC,LSNR, LIEFERANT_ID");
         String[] strings = new String[cursor.getCount()];
 
         int i=0;
         while (cursor.moveToNext())
         {
             strings[i] =cursor.getString(cursor.getColumnIndexOrThrow("ID"));
-            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("PROJEKT_ID"));
+            strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("PROJEKT_NR"));
             strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("DATUM"));
             strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("LSNR"));
             strings[i] +=","+cursor.getString(cursor.getColumnIndexOrThrow("LIEFERANT_ID"));

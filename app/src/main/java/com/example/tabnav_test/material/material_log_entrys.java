@@ -75,7 +75,7 @@ public class material_log_entrys extends Fragment
             String source_path = uri.getPath();//document/primary:DCIM/Baustellen /CBB E03/Lieferscheine/CBB E03[23210014]dataset_ls@20231028.json
             String backup_file_import_url = source_path.replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath() + "/");
 
-
+            Log.d("BASI",backup_file_import_url);
             InputStream in2 = null;
             try {
                 in2 = new FileInputStream(new File(backup_file_import_url));
@@ -100,16 +100,29 @@ public class material_log_entrys extends Fragment
                         reader.endObject();
                     }
                     reader.endArray();
-                    Toast.makeText(getContext(), counter + " Einträge Importiert!", Toast.LENGTH_SHORT).show();
-                    lslogrcv.refresh_dataset(getContext());
+                    if(counter==0)
+                    {
+                        bsf.error_msg( "Keine Einträge Importiert, Falsche Backupdatei",getContext());
+                    }
+                    else
+                    {
+                        bsf.succes_msg(counter + " Einträge Importiert!",getContext());
+                        lslogrcv.refresh_dataset(getContext());
+                    }
 
-                } catch (UnsupportedEncodingException e) {
+                } catch (UnsupportedEncodingException e)
+                {
+
                     throw new RuntimeException(e);
-                } catch (IOException e) {
+                } catch (IOException e)
+                {
+                    bsf.error_msg(e.getMessage().toString(),getContext());
                     throw new RuntimeException(e);
                 }
 
-            } catch (FileNotFoundException e) {
+            } catch (FileNotFoundException e)
+            {
+                bsf.error_msg(e.getMessage().toString(),getContext());
                 throw new RuntimeException(e);
             }
         }
@@ -451,6 +464,7 @@ public class material_log_entrys extends Fragment
         switch (direction)
         {
             case "create":
+
                 File dir = new File(paht);
                 if(!dir.exists())
                 {
@@ -458,11 +472,11 @@ public class material_log_entrys extends Fragment
                 }
                 String[] entrys = mdo.get_current_projekt_entrys();
 
+                int write_fails = 0;
+
                 String data_loop="[";
                 for(String i:entrys )
                 {
-
-
                     data_loop +="{";
                     String[] extract = i.split(",");
                     String temp_loop ="";
@@ -470,17 +484,29 @@ public class material_log_entrys extends Fragment
                     for(String e: extract)
                     {
                         String [] nr = e.split(":");
-                        Log.d("BASI",e);
-
+                        if(nr.length==2)
+                        {
                             temp_loop += "\""+nr[0]+"\":\""+nr[1]+"\",";
-
-
+                        }
+                        else
+                        {
+                        write_fails++;
+                        }
                     }
                     data_loop +=temp_loop.substring(0,temp_loop.length()-1)+"},";
                 }
-                data_loop =data_loop.substring(0,data_loop.length()-1)+"]";
-                String file_name= mdo.get_projekt_name()+"["+mdo.get_projekt_nr()+"]"+"dataset_backup@"+bsf.get_date_for_filename()+"_ID_"+bsf.gen_UUID()+".json";
-                file_save(paht+file_name,data_loop);
+
+                if(write_fails==0)
+                {
+                    data_loop =data_loop.substring(0,data_loop.length()-1)+"]";
+                    String file_name= mdo.get_projekt_name()+"["+mdo.get_projekt_nr()+"]"+"dataset_backup@"+bsf.get_date_for_filename()+"_ID_"+bsf.gen_UUID()+".json";
+                    file_save(paht+file_name,data_loop);
+                }
+                else
+                {
+                  bsf.error_msg( String.valueOf(write_fails)+" Daten fehlerhaft!\n Kein Backup erstellt",getContext());
+                }
+
 
                 break;
             case "restore":
@@ -490,7 +516,6 @@ public class material_log_entrys extends Fragment
                 intent_restore_backup.setType("application/json");
                 startActivityForResult(intent_restore_backup, 1);
 
-                Toast.makeText(getContext(), direction, Toast.LENGTH_SHORT).show();
                 break;
             default:
 
@@ -677,6 +702,8 @@ public class material_log_entrys extends Fragment
 
     private  void file_save(String filename,String text)
     {
+
+        Basic_funct bsf = new Basic_funct();
         File f = new File(filename);
         try {
             if(f.exists())
@@ -687,9 +714,11 @@ public class material_log_entrys extends Fragment
             FileWriter fw = new FileWriter(filename);
             fw.write(text);
             fw.close();
-            Toast.makeText(getContext(),"Export  Erfolgreich als Datei "+filename, Toast.LENGTH_SHORT).show();
+            bsf.succes_msg("Export  Erfolgreich als Datei "+filename,getContext());
+            //Toast.makeText(,, Toast.LENGTH_SHORT).show();
         } catch (IOException e)
         {
+
             Toast.makeText(getContext(),"Export  Fehlgeschlagen\n"+ e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }

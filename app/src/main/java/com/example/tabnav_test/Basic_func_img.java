@@ -10,6 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -31,29 +32,36 @@ public class Basic_func_img extends Basic_funct
 
 
 
-    public Bitmap makeBitmap_textstamp(String path, String text_stamp) {
+    public Bitmap makeBitmap_textstamp(String path, String text_stamp,int bg_color,int txt_color)
+    {
         //path =  /storage/emulated/0/DCIM/...
+
+
+
+
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(txt_color);
+        paint.setTextSize(50);
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
         options.inMutable = true;
 
-        Bitmap bMap = BitmapFactory.decodeFile(path);
+        Bitmap bMap = BitmapFactory.decodeFile(path,options);
+        Bitmap bMapScaled  =Bitmap.createScaledBitmap(bMap, bMap.getWidth(), bMap.getHeight(), true);
 
-        Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, bMap.getWidth(), bMap.getHeight(), true);
-
-        Paint paint = new Paint();
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.rgb(225, 20, 225));
-        paint.setTextSize(50);
-
-
-        String timestamp = this.date_refresh_database() + "  " + this.time_refresh() + " " + text_stamp;
 
         Canvas canvas = new Canvas(bMapScaled);
 
-        canvas.drawText(timestamp, 20, bMapScaled.getHeight() - 20, paint);
+        Rect rect = new Rect(0, bMapScaled.getHeight() - 100, bMapScaled.getWidth(), bMapScaled.getHeight());
 
+        Paint bgrect = new Paint();
+        bgrect.setStyle(Paint.Style.FILL);
+        bgrect.setColor(bg_color);
+
+        canvas.drawRect(rect,bgrect);
+        canvas.drawText(text_stamp, 20, bMapScaled.getHeight() - 20, paint);
 
         return bMapScaled;
 

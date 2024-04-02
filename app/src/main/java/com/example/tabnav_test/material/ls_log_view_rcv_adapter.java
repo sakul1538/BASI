@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
@@ -124,7 +123,13 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                     "ID=?",
                     new String[]{"NAME"});
 
-            String head =artikel_name+": "+data.get("MENGE").toString()+" " +data.get("EINHEIT").toString()+"\n"+name_zuleferer+" LSNR: "+data.get("LSNR")+" am "+ data.get("DATUM").toString();
+           // String head =artikel_name+": "+data.get("MENGE").toString()+" " +data.get("EINHEIT").toString()+"\n"+name_zuleferer+" LSNR: "+data.get("LSNR")+" am "+ data.get("DATUM").toString();
+
+            String head =name_zuleferer+" "
+                    +"["+data.get("LSNR").toString()+"]"
+                    +" am "+ data.get("DATUM").toString()
+
+                    +"\n"+artikel_name+" : "+data.get("MENGE")+" "+ data.get("EINHEIT").toString();
 
             holder.artikel().setText(head);
             holder.notiz().setText(data.get("NOTIZ").toString());
@@ -185,7 +190,6 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                    }
                 }
             });
-
 
                 holder.getadd_pdf_file().setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -691,7 +695,8 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
         alertDialogBuilder.setIcon(R.drawable.ic_baseline_mode_24);
         alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
                 ContentValues data_new = new ContentValues();
 
                 data_new.put("ID", data.get("ID").toString());
@@ -699,7 +704,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                 String selectet_projekt_data = mdo.get_selectet_projekt();
                 String selectet_projekt_id = selectet_projekt_data.substring(selectet_projekt_data.lastIndexOf("[") + 1, selectet_projekt_data.lastIndexOf("]"));
 
-                data_new.put("PROJEKT_ID", mdo.get_projekt_id());
+                data_new.put("PROJEKT_NR", mdo.get_projekt_id());
                 data_new.put("DATUM", bsf.convert_date(ls_date.getText().toString(), "format_database"));
                 data_new.put("LSNR", ls_nr.getText().toString());
 
@@ -727,6 +732,8 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
                     colision_test(selectet_projekt_id,ls_nr.getText().toString(),ls_zulieferere_id);
 
                     mdo.update_material_log_entry(data_new);
+
+
                     refresh_dataset(parent.getContext());
 
 
@@ -777,9 +784,9 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
     {
 
         String[] selectionArgs= {projekt_id,LSNR,zuliefere_id};
-        String where = "PROJEKT_ID=? AND LSNR=? AND LIEFERANT_ID=?";
+        String where = "PROJEKT_NR=? AND LSNR=? AND LIEFERANT_ID=?";
 
-        if(  mdo.find_similar(SQL_finals.TB_MATERIAL_LOG,selectionArgs,where) > 1)
+        if(  mdo.find_similar(SQL_finals.BASI_MATERIAL,selectionArgs,where) > 1)
         {
             bg_lsnr.setBackgroundColor(ContextCompat.getColor(parent.getContext(), R.color.orange));
             bg_zulieferer.setBackgroundColor(ContextCompat.getColor(parent.getContext(), R.color.orange));

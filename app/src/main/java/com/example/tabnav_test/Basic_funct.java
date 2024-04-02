@@ -57,7 +57,8 @@ public class Basic_funct {
         return path;
     }
 
-    public void error_msg(String msg, Context context) {
+    public void error_msg(String msg, Context context)
+    {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
         alertDialogBuilder.setTitle("Fehler:");
         alertDialogBuilder.setIcon(R.drawable.ic_baseline_report_gmailerrorred_24);
@@ -66,6 +67,12 @@ public class Basic_funct {
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.cancel();
 
+            }
+        });
+        alertDialogBuilder.setNeutralButton("Kopieren", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                copy_to_clipboard(msg,context);
             }
         });
 
@@ -81,6 +88,14 @@ public class Basic_funct {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.cancel();
+            }
+        });
+        alertDialogBuilder.setNeutralButton("Kopieren", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
+                copy_to_clipboard(msg,context);
+
             }
         });
 
@@ -412,6 +427,7 @@ public class Basic_funct {
 
     public String saveImage(Bitmap finalBitmap, String dir, String fname, Context context) {
 
+        Basic_funct bsf = new Basic_funct();
         File myDir = new File(dir);
         myDir.mkdirs();
 
@@ -429,11 +445,13 @@ public class Basic_funct {
             finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.flush();
             out.close();
+
+            bsf.succes_msg("Bild erfolgreich geschpeichert unter:\n"+dir+"/"+fname,context);
             Toast.makeText(context, "Bild erfolgreich geschpeichert!", Toast.LENGTH_SHORT).show();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(context, "Fehler: Bild  NICHT geschpeichert!", Toast.LENGTH_SHORT).show();
+        } catch (Exception e)
+        {
+            bsf.error_msg("Fehler: Bild  NICHT geschpeichert!\n"+e.getMessage().toString(),context);
         }
         return dir + fname;
     }
@@ -446,7 +464,8 @@ public class Basic_funct {
         InputStream is = null;
         OutputStream os = null;
 
-        try {
+        try
+        {
             is = new FileInputStream(source);
             os = new FileOutputStream(dest);
             byte[] buffer = new byte[1024];
@@ -466,6 +485,8 @@ public class Basic_funct {
                 os.close();
             }
         }
+      //source.delete(); //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
     }
 
     public String detect_extension(String path) {
@@ -478,6 +499,15 @@ public class Basic_funct {
         }
         Log.d("after_exstension", extension);
         return extension;
+    }
+    public String get_absolute_paht(String path)
+    {
+        if(path.contains("primary:"))
+        {
+            path=path.replace("primary:",Environment.getExternalStorageDirectory().toString()+"/");
+        }
+
+        return path;
     }
 
 

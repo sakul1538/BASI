@@ -1335,6 +1335,25 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
 
         return root_dir+"/Bilder";
     }
+
+    public String projekt_get_current_root_dir_images_temp()
+    {
+        String root_dir = "";
+
+        try {
+            SQLiteDatabase dbr = this.getReadableDatabase();
+
+            Cursor cursor = dbr.query(BASI_PROJEKTE,null,"STATUS_FLAG=?",new String[]{"1"},null,null,null);
+            cursor.moveToFirst();
+            root_dir =cursor.getString(cursor.getColumnIndexOrThrow("DIR_ROOT"));
+        } catch (IllegalArgumentException e)
+        {
+
+            throw new RuntimeException(e);
+        }
+
+        return root_dir+"/Bilder/temp";
+    }
     public String projekt_get_current_root_dir_export_cvs()
     {
         String root_dir = "";

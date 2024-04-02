@@ -110,6 +110,7 @@ public class material_log_activity extends AppCompatActivity
                 if((uri).getPath().contains("/document/primary:"))
                 {
                     source_file_path = uri.getPath().replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath()+"/");
+                    Log.d("source_file_path",source_file_path);
                     String file_extension = bsfi.detect_extension(source_file_path);
                     try
                     {
