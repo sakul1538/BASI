@@ -301,7 +301,7 @@ public class Log_main extends Fragment
                 } catch (Exception e)
                 {
                     exmsg("050220231057",e);
-                    bsf.error_msg("Es konnte kein Eintrag erstellt werden\n"+e.getMessage().toString(),context);
+                    bsf.error_msg("Es konnte kein Eintrag erstellt werden\n"+ e.getMessage(),context);
                 }
 
             }

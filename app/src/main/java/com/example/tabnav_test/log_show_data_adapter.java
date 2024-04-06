@@ -249,7 +249,7 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                 });
 
 
-                if(log.get_check(data.get("ID").toString())==true)
+                if(log.get_check(data.get("ID").toString()))
                 {
                     viewHolder.log_set_unset_check.setBackgroundColor(ContextCompat.getColor(context, R.color.grün));
                 }
@@ -314,7 +314,7 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                 });
 
 
-                if(log.get_flav_flag(data.get("ID").toString())==true)
+                if(log.get_flav_flag(data.get("ID").toString()))
                 {
                     viewHolder.log_set_unset_star.setBackgroundColor(ContextCompat.getColor(context, R.color.orange));
                 }
@@ -335,7 +335,7 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
                         alertDialogBuilder.setTitle("Bestätige:");
 
-                        if(status == true)
+                        if(status)
                         {
                             alertDialogBuilder.setMessage("Ausgewählter Eintrag aus den Favoriten entfernen?");
 
@@ -350,9 +350,9 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i)
                             {
-                                if (status == true)
+                                if (status)
                                 {
-                                    if(log.set_fav_flag(entry_id,false)  == true)
+                                    if(log.set_fav_flag(entry_id, false))
                                     {
                                         view.setBackgroundColor(ContextCompat.getColor(context, R.color.yellow));
                                     }
@@ -361,10 +361,10 @@ public class log_show_data_adapter extends Adapter<log_show_data_adapter.ViewHol
                                         Toast.makeText(context, "Error: Write Response false", Toast.LENGTH_SHORT).show();
                                     }
 
-                                } else if (status== false)
+                                } else if (!status)
                                 {
 
-                                    if(log.set_fav_flag(entry_id,true)  == true)
+                                    if(log.set_fav_flag(entry_id, true))
                                     {
                                         view.setBackgroundColor(ContextCompat.getColor(context, R.color.orange));
                                     }

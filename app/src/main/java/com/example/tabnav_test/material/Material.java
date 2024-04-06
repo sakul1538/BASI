@@ -523,13 +523,9 @@ public class Material extends Fragment implements static_finals
     }
 
     @Override
-    public void onDestroyView() {
+    public void onDestroyView()
+    {
         super.onDestroyView();
-       /* try {
-            set_media_directory(ls_media_directory_name_temp);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }*/
         clean_temp_dir();
 
     }
@@ -538,12 +534,6 @@ public class Material extends Fragment implements static_finals
     @Override
     public void onDestroy() {
         super.onDestroy();
-        /*try {
-            set_media_directory(ls_media_directory_name_temp);
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }*/
         clean_temp_dir(); //temp Verzeichnis löschen 23423442
     }
 
@@ -551,10 +541,6 @@ public class Material extends Fragment implements static_finals
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_material, container, false);
-
-        //storage/emulated/0/BASI/Seniorenzentrum Naters[23110011]/St Michel Ost[23110011]
-
-        //Instanzen
 
         mdo = new material_database_ops(getContext());
        // mdo.test_exist_projects();
@@ -579,7 +565,7 @@ public class Material extends Fragment implements static_finals
 
         reset_artikel = view.findViewById(R.id.reset_artikel);
         reset_zulieferer = view.findViewById(R.id.reset_zulieferer);
-        reset_LS = view.findViewById(R.id.reset_LS);;
+        reset_LS = view.findViewById(R.id.reset_LS);
         check_similar_data = view.findViewById(R.id.check_similar_data);
 
         note_field = view.findViewById(R.id.ls_note_field);
@@ -602,8 +588,6 @@ public class Material extends Fragment implements static_finals
         open_pdf = view.findViewById(R.id.imageButton67);
         open_filesystem = view.findViewById(R.id.imageButton43);
         set_locksatus_zulieferer = view.findViewById(R.id.zulieferer_reset_lock);
-
-
 
 
         //EditText
@@ -741,7 +725,7 @@ public class Material extends Fragment implements static_finals
             @Override
             public void onClick(View view)
             {
-                if(media_lock_status == true)
+                if(media_lock_status)
                 {
                     bsf.error_msg("Media File Lock Status= true",getContext());
                 }
@@ -761,7 +745,7 @@ public class Material extends Fragment implements static_finals
             @Override
             public void onClick(View view)
             {
-                if(media_lock_status == true)
+                if(media_lock_status)
                 {
                     bsf.error_msg("Media File Lock Status= true",getContext());
                 }
@@ -796,7 +780,7 @@ public class Material extends Fragment implements static_finals
             public void onClick(View view) {
                 if (imageset.length > 0 )
                 {
-                    if(media_lock_status == false)
+                    if(!media_lock_status)
                     {
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
                         // set prompts.xml to alertdialog builder
@@ -905,7 +889,7 @@ public class Material extends Fragment implements static_finals
                         edit_zulieferer_name.setEnabled(false);
                         String copy_temp_msg = "";
 
-                        if(media_lock_status == false)
+                        if(!media_lock_status)
                         {
                             String date = bsf.convert_date(r.get_date().toString(),"format_database").replace("-","");
 
@@ -994,7 +978,7 @@ public class Material extends Fragment implements static_finals
             @Override
             public void onClick(View view)
             {
-                if(media_lock_status == true)
+                if(media_lock_status)
                 {
                     bsf.error_msg("Media File Lock Status= true",getContext());
                 }
@@ -1709,7 +1693,8 @@ public class Material extends Fragment implements static_finals
             String[] artikel = mdo.artikel_list_all();
             if(artikel.length>0)
             { ArrayAdapter<String> artikelAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, artikel);
-                edit_artikel_name.setAdapter(artikelAdapter);}
+                edit_artikel_name.setAdapter(artikelAdapter);
+            }
         } catch (Exception e)
         {
             throw new RuntimeException(e);
@@ -1913,6 +1898,7 @@ public class Material extends Fragment implements static_finals
 
 
     //Bild aufnehmen
+
 
     public void take_picture(String path, String mode, Context context)
     {

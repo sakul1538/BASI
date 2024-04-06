@@ -824,7 +824,6 @@ public class Kamera<onActivityResult> extends Fragment {
                         camera_photo.setImageBitmap(bsfi.Bitmap_setScaling(imported_Bitmap_with_stamp,900));
 
 
-
                         //Speichern des Bildes
 
 
@@ -848,7 +847,7 @@ public class Kamera<onActivityResult> extends Fragment {
                     }
                 } catch (Exception e) {
                     exmsg("120220231031A", e);
-                    bsf.error_msg("Bild wurde verworfen\n" + e.getMessage().toString(), getContext());
+                    bsf.error_msg("Bild wurde verworfen\n" + e.getMessage(), getContext());
                     camera_photo.setImageResource(0);
                     try {
                         File f = new File(path + filename);
@@ -883,19 +882,13 @@ public class Kamera<onActivityResult> extends Fragment {
 
 
                 Log.d("BASI", filename);
-                try {
-                    String destination_path = kamera_dirs.get_dir_from_name(spinner.getSelectedItem().toString());
-                    Basic_func_img bsfi = new Basic_func_img();
-                    Bitmap imported_Bitmap_with_stamp=bsfi.makeBitmap_textstamp(source_path,stamp,Color.YELLOW,Color.MAGENTA);
-                    bsf.saveImage(imported_Bitmap_with_stamp,projekt.projekt_get_current_root_dir_images(),filename,getContext());
-                    currentPhotoPath = destination_path+"/"+filename;
-                    Log.d("BASI", currentPhotoPath);
-                    preview_camera_visibility(View.VISIBLE);
-                    camera_photo.setImageBitmap(bsfi.Bitmap_setScaling(BitmapFactory.decodeFile(currentPhotoPath),900));
-
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
+                Basic_func_img bsfi = new Basic_func_img();
+                Bitmap imported_Bitmap_with_stamp=bsfi.makeBitmap_textstamp(source_path,stamp,Color.YELLOW,Color.MAGENTA);
+                bsf.copyBitmap_to(source_path,projekt.projekt_get_current_root_dir_images_temp(),filename);
+                currentPhotoPath = projekt.projekt_get_current_root_dir_images_temp()+"/"+filename;
+                Log.d("BASI", currentPhotoPath);
+                preview_camera_visibility(View.VISIBLE);
+                camera_photo.setImageBitmap(bsfi.Bitmap_setScaling(BitmapFactory.decodeFile(currentPhotoPath),900));
 
 
                 break;

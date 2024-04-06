@@ -372,7 +372,7 @@ public class ls_log_view_rcv_adapter extends RecyclerView.Adapter<ls_log_view_rc
     @Override
     public int getItemCount()
     {
-        String a = "Einträge ("+String.valueOf(localDataSet.length)+")";
+        String a = "Einträge ("+ localDataSet.length +")";
         tab.getTabAt(0).setText(a);
         return localDataSet.length;
     }

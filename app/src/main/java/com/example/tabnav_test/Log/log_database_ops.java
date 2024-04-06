@@ -50,14 +50,7 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
             long colum = dbw.insert(BASI_LOG,null,data);
             dbw.close();
 
-            if(colum != -1)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return colum != -1;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -90,14 +83,7 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
             long colum  = dbw.update(BASI_LOG,update_data,"ID=?",new String[]{update_data.get("ID").toString()});
             dbw.close();
 
-            if(colum != -1)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+        return colum != -1;
 
     }
 
@@ -106,14 +92,7 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
         SQLiteDatabase dbw = this.getWritableDatabase();
         long colum   = dbw.delete(BASI_LOG,"ID=?",new String[]{id});
 
-        if(colum >-1)
-        {
-            return  true;
-        }
-        else
-        {
-            return false;
-        }
+        return colum > -1;
     }
 
     public Boolean delet_all(String projekt_id)
@@ -121,14 +100,7 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
         SQLiteDatabase dbw = this.getWritableDatabase();
         long colum   = dbw.delete(BASI_LOG,"PROJEKT_NR=?",new String[]{projekt_id});
 
-        if(colum >-1)
-        {
-            return  true;
-        }
-        else
-        {
-            return false;
-        }
+        return colum > -1;
     }
 
     public int delet_all_done(String projekt_id)
@@ -151,7 +123,7 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
 
         if(colum>0)
         {
-            Toast.makeText(context2, String.valueOf(colum) +" von "+ entry_count+"  Gelöscht!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context2, colum +" von "+ entry_count+"  Gelöscht!", Toast.LENGTH_SHORT).show();
             response = true;
         }
 
@@ -184,7 +156,7 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
                 {
                     row += c.getString(c.getColumnIndexOrThrow(name))+",";
                 }
-                output[c.getPosition()] = row.substring(0,row.length()-1).toString();
+                output[c.getPosition()] = row.substring(0,row.length()-1);
             }
 
             dbr.close();
@@ -259,23 +231,17 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
         SQLiteDatabase dbw = this.getWritableDatabase();
         ContentValues update_data = new ContentValues();
 
-        if (set_state ==true)
+        if (set_state)
         {
             update_data.put("CHECK_FLAG", "true");
 
-        } else if (set_state == false)
+        } else if (!set_state)
         {
             update_data.put("CHECK_FLAG", "false");
         }
 
        long response=  dbw.update(BASI_LOG,update_data,"ID=?",new String[]{id});
-        if(response ==1)
-        {
-            return true;
-        }else
-        {
-            return  false;
-        }
+        return response == 1;
     }
 
     public Boolean get_flav_flag(String id)
@@ -300,23 +266,17 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
         SQLiteDatabase dbw = this.getWritableDatabase();
         ContentValues update_data = new ContentValues();
 
-        if (set_state ==true)
+        if (set_state)
         {
             update_data.put("FAV_FLAG", "true");
 
-        } else if (set_state == false)
+        } else if (!set_state)
         {
             update_data.put("FAV_FLAG", "false");
         }
 
         long response=  dbw.update(BASI_LOG,update_data,"ID=?",new String[]{id});
-        if(response ==1)
-        {
-            return true;
-        }else
-        {
-            return  false;
-        }
+        return response == 1;
     }
 
     public String get_time(String id)
@@ -340,13 +300,7 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
         update_data.put("TIME", new_time);
 
         long response=  dbw.update(BASI_LOG,update_data,"ID=?",new String[]{id});
-        if(response ==1)
-        {
-            return true;
-        }else
-        {
-            return  false;
-        }
+        return response == 1;
     }
     public String get_date(String id)
     {
@@ -367,13 +321,7 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
         update_data.put("DATE",new_date);
 
         long response=  dbw.update(BASI_LOG,update_data,"ID=?",new String[]{id});
-        if(response ==1)
-        {
-            return true;
-        }else
-        {
-            return  false;
-        }
+        return response == 1;
     }
     public String[] search_text(String projekt_id, String text_value)
     {
@@ -392,7 +340,7 @@ public class log_database_ops  extends SQLiteOpenHelper implements SQL_finals
                 {
                     row += cursor.getString(cursor.getColumnIndexOrThrow(name)) + ",";
                 }
-                output[cursor.getPosition()] = row.substring(0, row.length() - 1).toString();
+                output[cursor.getPosition()] = row.substring(0, row.length() - 1);
 
             }
         }

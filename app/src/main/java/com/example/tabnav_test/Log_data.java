@@ -241,17 +241,17 @@ public class Log_data extends AppCompatActivity
                         Boolean done= done_flag.isChecked();
                         Boolean undone =undone_flag.isChecked();
 
-                        if(done && undone == true)
+                        if(done && undone)
                         {
                             where += " (CHECK_FLAG='true' OR CHECK_FLAG='false') AND ";
                             }
                         else
                             {
-                                if(done == true)
+                                if(done)
                                 {
                                     where += " CHECK_FLAG='true' AND ";
                                 }
-                                    if(undone == true)
+                                    if(undone)
                                 {
                                     where += " CHECK_FLAG='false' AND ";
 
@@ -289,7 +289,7 @@ public class Log_data extends AppCompatActivity
 
                         } catch (Exception e)
                         {
-                            Toast.makeText(Log_data.this,e.getMessage().toString() , Toast.LENGTH_LONG).show();
+                            Toast.makeText(Log_data.this, e.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -365,7 +365,7 @@ public class Log_data extends AppCompatActivity
                             public void onClick(DialogInterface dialogInterface, int i)
                             {
 
-                                if( log_dbops.delet_all(projekt.projekt_get_selected_id())== true)
+                                if(log_dbops.delet_all(projekt.projekt_get_selected_id()))
                                 {
 
                                     Toast.makeText(Log_data.this, "Alle Einträge gelöscht!", Toast.LENGTH_SHORT).show();
@@ -402,7 +402,7 @@ public class Log_data extends AppCompatActivity
                             int deletet = log_dbops.delet_all_done(projekt_id);
                             if(deletet>0)
                             {
-                                Toast.makeText(Log_data.this, String.valueOf(deletet) +" Gelöscht!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(Log_data.this, deletet +" Gelöscht!", Toast.LENGTH_SHORT).show();
                                 load_dataset();
                             }
                             else
@@ -413,7 +413,7 @@ public class Log_data extends AppCompatActivity
 
                         } catch (Exception e)
                         {
-                            Toast.makeText(Log_data.this, "Error\n"+e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Log_data.this, "Error\n"+ e.getMessage(), Toast.LENGTH_SHORT).show();
                             throw new RuntimeException(e);
                         }
 
@@ -430,7 +430,7 @@ public class Log_data extends AppCompatActivity
 
                         } catch (Exception e)
                         {
-                            Toast.makeText(Log_data.this, "Error\n"+e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Log_data.this, "Error\n"+ e.getMessage(), Toast.LENGTH_SHORT).show();
                             throw new RuntimeException(e);
                         }
 
