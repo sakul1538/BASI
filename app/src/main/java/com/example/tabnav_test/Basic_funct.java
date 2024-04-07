@@ -230,7 +230,8 @@ public class Basic_funct {
         return date;
     }
 
-    public String convert_date(String datestring, String format) {
+    public String convert_date(String datestring, String format)
+    {
 
         String[] date_parts;
         String new_date;
@@ -431,10 +432,31 @@ public class Basic_funct {
         File myDir = new File(dir);
         myDir.mkdirs();
 
-        //Calendar calendar = Calendar.getInstance();
-        //  SimpleDateFormat zeitformat = new SimpleDateFormat("HHmmss");
-        // String time= zeitformat.format(calendar.getTime());
-        //String fname = this.gen_ID()+"_"+ time +".jpg";
+        File file = new File(myDir, fname);
+        if (file.exists()) {
+            file.delete();
+        }
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 25, out);
+            out.flush();
+            out.close();
+
+            bsf.succes_msg("Bild erfolgreich geschpeichert unter:\n"+dir+"/"+fname,context);
+            //Toast.makeText(context, "Bild erfolgreich geschpeichert!", Toast.LENGTH_SHORT).show();
+
+        } catch (Exception e)
+        {
+            bsf.error_msg("Fehler: Bild  NICHT geschpeichert!\n"+e.getMessage().toString(),context);
+        }
+        return dir + fname;
+    }
+
+    public String saveImage_silence(Bitmap finalBitmap, String dir, String fname, Context context)
+    {
+        Basic_funct bsf = new Basic_funct();
+        File myDir = new File(dir);
+        myDir.mkdirs();
 
         File file = new File(myDir, fname);
         if (file.exists()) {
@@ -442,12 +464,9 @@ public class Basic_funct {
         }
         try {
             FileOutputStream out = new FileOutputStream(file);
-            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 25, out);
             out.flush();
             out.close();
-
-            bsf.succes_msg("Bild erfolgreich geschpeichert unter:\n"+dir+"/"+fname,context);
-            Toast.makeText(context, "Bild erfolgreich geschpeichert!", Toast.LENGTH_SHORT).show();
 
         } catch (Exception e)
         {

@@ -2,34 +2,24 @@ package com.example.tabnav_test.Kamera;
 
 import static java.util.Arrays.sort;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -39,6 +29,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CompoundButton;
@@ -58,7 +49,6 @@ import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.R;
 import com.example.tabnav_test.config_favorite_strings.config_fav;
 import com.example.tabnav_test.config_favorite_strings.config_fav_ops;
-import com.example.tabnav_test.m_conf_maschine;
 import com.example.tabnav_test.projekt_ops;
 import com.example.tabnav_test.static_finals;
 
@@ -68,10 +58,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.Permission;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.zip.Inflater;
 
 
 public class Kamera<onActivityResult> extends Fragment {
@@ -82,6 +70,16 @@ public class Kamera<onActivityResult> extends Fragment {
     private Intent data;
     // ----------------------------------------------------------------- Variablen String, char
     String currentPhotoPath;
+
+
+    Bitmap final_image;
+    String image_stamp_text="";
+    int  stamp_bg_color = Color.WHITE;
+    int stamp_txt_color =Color.MAGENTA;
+
+    String date;
+
+
     static final String RROJ_NR = "0";
     // ----------------------------------------------------------------- Variablen byte,short,int,long,float,double
     private int requestCode;
@@ -92,6 +90,7 @@ public class Kamera<onActivityResult> extends Fragment {
     kamera_directorys kamera_dirs;
     // ----------------------------------------------------------------- TextView
     TextView curr_date;
+
     TextView tag;
     TextView media_label;
     TextView save_paht_set;
@@ -272,8 +271,15 @@ public class Kamera<onActivityResult> extends Fragment {
             @Override
             public void onClick(View v)
             {
+                try {
+                   String paht = kamera_dirs.get_dir_from_name(spinner.getSelectedItem().toString());
+                   paht+="/KW"+String.valueOf(get_kw(get_date()));
+                   bsf.saveImage(final_image,paht,get_filename(),getContext());
+                   reset_complete();
 
-
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
 
@@ -287,7 +293,6 @@ public class Kamera<onActivityResult> extends Fragment {
                 startActivityForResult(open_image, 3);
             }
         });
-
 
 
         kamera_tag_field_value.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -406,8 +411,6 @@ public class Kamera<onActivityResult> extends Fragment {
             }
         });
         //---------------------------------------------------------
-
-
         take_picture.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -433,6 +436,8 @@ public class Kamera<onActivityResult> extends Fragment {
 
         camera_photo.setOnClickListener(new View.OnClickListener()
         {
+            Bitmap image;
+            int rotate_value=90;
             @Override
             public void onClick(View view)
             {
@@ -442,22 +447,45 @@ public class Kamera<onActivityResult> extends Fragment {
 
                 ImageView photo = pic_view_UI.findViewById(R.id.imageView4);
                 TextView image_path = pic_view_UI.findViewById(R.id.textView65);
+                ImageButton image_roate = pic_view_UI.findViewById(R.id.imageButton62);
+                image =BitmapFactory.decodeFile(currentPhotoPath);
+
+                image_roate.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        Matrix matrix= new Matrix();
+                        matrix.setRotate(rotate_value);
+                        image = Bitmap.createBitmap(image,0,0,image.getWidth(),image.getHeight(),matrix,true);
+                        photo.setImageBitmap(image);
+                        image_path.setText(String.valueOf(rotate_value));
+
+
+                    }
+                });
 
                 try {
-                    photo.setImageBitmap(BitmapFactory.decodeFile(currentPhotoPath));
-                    image_path.setText(currentPhotoPath.toString());
+                    photo.setImageBitmap(image);
+                    //image_path.setText(currentPhotoPath.toString());
+                    image_path.setText(String.valueOf(rotate_value));
                 } catch (Exception e) {
                     photo.setImageResource(R.drawable.ic_baseline_error_outline_24);
-                    image_path.setText(e.getMessage().toString());
+                   // image_path.setText(e.getMessage().toString());
+                    image_path.setText(String.valueOf(rotate_value));
                 }
-
                 // set prompts.xml to alertdialog builder
                 alertDialogBuilder.setView(pic_view_UI);
 
                 alertDialogBuilder.setTitle("Viewer");
                 alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        String filename= currentPhotoPath.substring(currentPhotoPath.lastIndexOf("/")+1,currentPhotoPath.length());
+                        bsf.saveImage_silence(image,projekt.projekt_get_current_root_dir_images_temp(),filename,getContext());
+                        create_image();
+
                         dialogInterface.cancel();
                     }
                 });
@@ -468,7 +496,6 @@ public class Kamera<onActivityResult> extends Fragment {
 
 
         });
-
 
         camera_delet_image.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -489,6 +516,7 @@ public class Kamera<onActivityResult> extends Fragment {
                                 bsf.succes_msg("Bild gelöscht!\n" + currentPhotoPath, getContext());
                                 preview_camera_visibility(View.GONE);
                                 spinner.setEnabled(true);
+                                reset_complete();
                             }
                         } catch (Exception e) {
                             bsf.error_msg("Löschung Fehlgeschlagen!\n" + e.getMessage(), getContext());
@@ -516,16 +544,9 @@ public class Kamera<onActivityResult> extends Fragment {
             public void onClick(View view) {
 
                 try {
-                    curr_date.setText(bsf.date_refresh());
-                    tag_background(static_finals.un_mark_color);
-                    date_background(static_finals.un_mark_color);
-                    spinner.setSelection(0);
-                    kamera_tag_field_value.setText("");
-                    camera_photo.setImageResource(0);
-                    kamera_switch_tag_onoff.setChecked(false);
-                    preview_camera_visibility(View.GONE);
-                    tag_visibility(View.GONE);
-                    spinner.setEnabled(true);
+                    reset_complete();
+
+
 
                 } catch (Exception e) {
                     exmsg("120220231059", e);
@@ -605,6 +626,46 @@ public class Kamera<onActivityResult> extends Fragment {
         return view;
     }
 
+    private void reset_complete()
+    {
+            Basic_funct bsf =new Basic_funct();
+
+            curr_date.setText(bsf.date_refresh());
+            tag_background(static_finals.un_mark_color);
+            date_background(static_finals.un_mark_color);
+            kamera_tag_field_value.setText("");
+            camera_photo.setImageResource(0);
+            kamera_switch_tag_onoff.setChecked(false);
+            preview_camera_visibility(View.GONE);
+            tag_visibility(View.GONE);
+            spinner.setEnabled(true);
+            camera_and_import_visibility(View.VISIBLE);
+            clean_temp_dir();
+
+    }
+
+    public void clean_temp_dir()
+    {
+        Basic_funct bsf =new Basic_funct();
+        String paht = projekt.projekt_get_current_root_dir_images_temp();
+
+        try {
+            File f = new File(paht);
+            String[] files = f.list();
+            if(files.length>0)
+            {
+                for (String d : files) {
+                    File t = new File(paht + "/" + d);
+                    t.delete();
+                }
+            }
+        } catch (Exception e)
+        {
+            bsf.error_msg("Verzeichnis 'temp' bereinigung Fehlgeschlagen!\n" + e, getContext());
+        }
+    }
+
+
     private void tag_background(int markColor) {
         tag_bg.setBackgroundColor(ContextCompat.getColor(getContext(), markColor));
     }
@@ -623,10 +684,22 @@ public class Kamera<onActivityResult> extends Fragment {
         config_fav.setVisibility(visibility);
     }
 
-    private void preview_camera_visibility(int visibility) {
+    private void preview_camera_visibility(int visibility)
+    {
         camera_photo.setVisibility(visibility);
         camera_delet_image.setVisibility(visibility);
         media_label.setVisibility(visibility);
+        save_image_visibility(visibility);
+        camera_reset_form.setVisibility(visibility);
+    }
+    private void camera_and_import_visibility(int visibility)
+    {
+        take_picture.setVisibility(visibility);
+        kamera_open_image.setVisibility(visibility);
+    }
+    private void save_image_visibility(int visibility)
+    {
+        save_image.setVisibility(visibility);
     }
 
     @Override
@@ -688,7 +761,9 @@ public class Kamera<onActivityResult> extends Fragment {
                 break;
 
             case 2:
+
                 spinner.setEnabled(false);
+                camera_and_import_visibility(View.GONE);
                 //preview_camera_visibility(View.VISIBLE);
                 Basic_funct bsf = new Basic_funct();
 
@@ -734,33 +809,14 @@ public class Kamera<onActivityResult> extends Fragment {
                         tags = "";
                     }
 
-                    //Datum extrahieren  28122022_ID_566429213554924951.jpeg
-
-                    //datum.substring(0,2)+"."+datum.substring(2,4)+"."+datum.substring(4,8);
-
-                    String tag = t_array[1].substring(0, 2);
-                    String monat = t_array[1].substring(2, 4);
-                    String jahr = t_array[1].substring(4, 8);
-
-                    Calendar calendar = Calendar.getInstance();
-                    SimpleDateFormat datumformat = new SimpleDateFormat("dd.MM.yyyy");
-                    String date = datumformat.format(calendar.getTime());
-
-                    int kw = calendar.get(Calendar.WEEK_OF_YEAR);
-
-                    datum = tag + "." + monat + "." + jahr;
-
-                    if (datum.contains(date)) {
-                        datum += " " + bsf.time_refresh();
-                    }
 
                     String projekt_name = projekt.get_selectet_projekt();
-
+                    int kw = get_kw(get_date());
                     if (tags == "") {
 
-                        photostamp = projekt_name + "  " + datum + " [KW" + kw + "]";
+                        image_stamp_text = projekt_name + "  " + get_date() + " [KW " + kw + "]";
                     } else {
-                        photostamp = projekt_name + "   #" + tags + "    " + datum + " [KW" + kw + "]";
+                        image_stamp_text = projekt_name + "   #" + tags + "    " + get_date() + " [KW " + kw + "]";
                     }
 
                     //Bitmap erstellen
@@ -780,6 +836,7 @@ public class Kamera<onActivityResult> extends Fragment {
 
                         int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
                         exif.setAttribute(ExifInterface.TAG_ARTIST,"Lukas Grossen");
+                        exif.saveAttributes();
 
 
                         int width = exif.getAttributeInt(ExifInterface.TAG_PIXEL_X_DIMENSION, 0);
@@ -814,16 +871,11 @@ public class Kamera<onActivityResult> extends Fragment {
                         //String url = bsf.saveImage(bMapScaled, path, filename, getContext());
 
                         currentPhotoPath = path+"/"+filename;
-
-                        Basic_func_img bsfi = new Basic_func_img();
-                        Bitmap imported_Bitmap_with_stamp=bsfi.makeBitmap_textstamp(currentPhotoPath,photostamp,Color.BLUE,Color.WHITE);
-
                         //bsf.saveImage(imported_Bitmap_with_stamp,path,filename,getContext());
                         //Vor dem Definitiven speichern drehen und in temp verzeichiss speichern
                         preview_camera_visibility(View.VISIBLE);
-                        camera_photo.setImageBitmap(bsfi.Bitmap_setScaling(imported_Bitmap_with_stamp,900));
-
-
+                        image_stamp_camera();
+                        create_image();
                         //Speichern des Bildes
 
 
@@ -863,6 +915,7 @@ public class Kamera<onActivityResult> extends Fragment {
 
             case 3:
                 spinner.setEnabled(false);
+                camera_and_import_visibility(View.GONE);
                 bsf = new Basic_funct();
                 String source_path= bsf.get_absolute_paht(data.getData().getLastPathSegment());
                 Log.d("BASI", source_path);
@@ -874,27 +927,42 @@ public class Kamera<onActivityResult> extends Fragment {
                 filename+="_ID_"+String.valueOf(System.currentTimeMillis());
                 filename+=bsf.detect_extension(source_path);
 
-                String stamp ="";
-                stamp += projekt.projekt_get_selected_name();
-                stamp += " ["+projekt.projekt_get_selected_nr()+"]";
-                stamp+=" #"+get_tag()+" ";
-                stamp+= get_date() ;
-
+                image_stamp_text ="";
+                image_stamp_text += projekt.projekt_get_selected_name();
+                image_stamp_text += " ["+projekt.projekt_get_selected_nr()+"]";
+                image_stamp_text+=" #"+get_tag()+" ";
+                image_stamp_text+= get_date() ;
+                image_stamp_text +=" [KW "+String.valueOf(get_kw(get_date())+"]");
 
                 Log.d("BASI", filename);
                 Basic_func_img bsfi = new Basic_func_img();
-                Bitmap imported_Bitmap_with_stamp=bsfi.makeBitmap_textstamp(source_path,stamp,Color.YELLOW,Color.MAGENTA);
                 bsf.copyBitmap_to(source_path,projekt.projekt_get_current_root_dir_images_temp(),filename);
                 currentPhotoPath = projekt.projekt_get_current_root_dir_images_temp()+"/"+filename;
                 Log.d("BASI", currentPhotoPath);
                 preview_camera_visibility(View.VISIBLE);
-                camera_photo.setImageBitmap(bsfi.Bitmap_setScaling(BitmapFactory.decodeFile(currentPhotoPath),900));
-
-
+                image_stamp_import();
+                create_image();
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + requestCode);
         }
+
+    }
+
+    private int get_kw(String date)
+    {
+        Calendar calendar = Calendar.getInstance();
+
+        String []date_parts = date.split("[.]");
+
+        int day = Integer.parseInt(date_parts[0]);
+        int month = Integer.parseInt(date_parts[1]) - 1;
+        int year = Integer.parseInt(date_parts[2]);
+
+        calendar.set(year, month, day);
+
+        int kw = calendar.get(Calendar.WEEK_OF_YEAR);
+        return  kw;
 
     }
 
@@ -1079,8 +1147,8 @@ public class Kamera<onActivityResult> extends Fragment {
     {
         String selected_item = spinner.getSelectedItem().toString();
 
-        String date = curr_date.getText().toString();
-        date = date.replace(".", "");
+       // date = get_date();
+        String date_filename = get_date().replace(".", "");
         String paht = projekt.projekt_get_current_root_dir();
         try {
             paht = kamera_dirs.get_dir_from_name(selected_item);
@@ -1096,11 +1164,11 @@ public class Kamera<onActivityResult> extends Fragment {
 
                 if (kamera_switch_tag_onoff.isChecked())
                 {
-                    photoFile = createImageFile(projekt.projekt_get_current_root_dir_images_temp(), projekt_name,true, kamera_tag_field_value.getText().toString(), date);
+                    photoFile = createImageFile(projekt.projekt_get_current_root_dir_images_temp(), projekt_name,true, kamera_tag_field_value.getText().toString(), date_filename);
 
                 } else
                 {
-                    photoFile = createImageFile(projekt.projekt_get_current_root_dir_images_temp(), projekt_name, false, "", date);
+                    photoFile = createImageFile(projekt.projekt_get_current_root_dir_images_temp(), projekt_name, false, "", date_filename);
                 }
 
 
@@ -1200,6 +1268,69 @@ public class Kamera<onActivityResult> extends Fragment {
         {
             throw new RuntimeException(e);
         }
+    }
+
+    public void create_image()
+    {
+        Basic_func_img bsfi = new Basic_func_img();
+        Bitmap image_whit_stamp = bsfi.makeBitmap_textstamp(currentPhotoPath,image_stamp_text,stamp_bg_color,stamp_txt_color);
+        final_image = image_whit_stamp;
+        camera_photo.setImageBitmap(bsfi.Bitmap_setScaling(final_image,900));
+
+    }
+    private void image_stamp_camera()
+    {
+        stamp_bg_color =getResources().getColor(R.color.yellow);
+        stamp_txt_color= Color.BLACK;
+
+    }
+    private void image_stamp_import()
+    {
+        stamp_bg_color =getResources().getColor(R.color.orange);
+        stamp_txt_color= Color.BLACK;
+    }
+
+    private void style_stamp_reset()
+    {
+        set_stamp_bgcolor(-1);
+        set_stamp_txt_color(-1);
+    }
+    private void set_stamp_bgcolor(int color)
+    {
+        if(color==-1)
+        {
+            stamp_bg_color =Color.WHITE;
+        }
+        else
+        {
+            stamp_bg_color  =color;
+        }
+
+    }
+    private void set_stamp_txt_color(int color)
+    {
+        if(color ==-1)
+        {
+            stamp_txt_color = Color.MAGENTA;
+        }
+        else
+        {
+            stamp_txt_color  =color;
+        }
+    }
+
+    private String get_filename()
+    {
+
+        String filename= "noname_"+System.currentTimeMillis()+".jpeg";
+        try {
+            filename = currentPhotoPath.substring(currentPhotoPath.lastIndexOf("/")+1,currentPhotoPath.length());
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        return filename;
     }
 
     private void refresh_fav_auto_complete()

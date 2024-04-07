@@ -245,7 +245,8 @@
                     android:layout_weight="0"
                     android:background="#C4FD00"
                     android:padding="5dp"
-                    android:src="@drawable/ic_baseline_save_24" />
+                    android:src="@drawable/ic_baseline_save_24"
+                    android:visibility="visible" />
 
                 <ImageButton
                     android:id="@+id/delet_image"

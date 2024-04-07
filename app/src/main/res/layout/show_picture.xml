@@ -46,7 +46,7 @@
                 android:layout_weight="1"
                 android:background="#00FFFFFF"
                 android:padding="5dp"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:srcCompat="@drawable/ic_baseline_delete_24" />
 
             <ImageButton
