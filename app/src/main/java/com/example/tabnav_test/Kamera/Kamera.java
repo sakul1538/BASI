@@ -64,6 +64,7 @@ import java.util.Calendar;
 
 public class Kamera<onActivityResult> extends Fragment {
     // FIXME: 10.01.23  Kamera stürzt ab, wenn "Tag" aktiviert aber Text feld Leer
+    //TODO: 07.04.2024 Imagedatei erst nach den definitiven Speichern richtig benennen, KW entsprechend anpassen
 
     // ----------------------------------------------------------------- Variablen
     Uri photoURI = null;
@@ -272,8 +273,10 @@ public class Kamera<onActivityResult> extends Fragment {
             public void onClick(View v)
             {
                 try {
+
                    String paht = kamera_dirs.get_dir_from_name(spinner.getSelectedItem().toString());
                    paht+="/KW"+String.valueOf(get_kw(get_date()));
+                   //Neuen dateinamen zusamensetzen in allls neue datei sceichern
                    bsf.saveImage(final_image,paht,get_filename(),getContext());
                    reset_complete();
 
@@ -1213,14 +1216,13 @@ public class Kamera<onActivityResult> extends Fragment {
 
     private File createImageFile(String path, String title, boolean tag_on, String tag, String date) throws IOException
     {
-
         Basic_funct bsf = new Basic_funct();
 
         String addings = date + "_ID_";
 
         title = title.replace(">","_").replace(" ","");
 
-        String imageFileName = title + "@" + addings;
+        String imageFileName = get_date().replace(".","");
 
         if (tag_on) {
             imageFileName = title + "#" + tag + "@" + addings;
@@ -1236,7 +1238,6 @@ public class Kamera<onActivityResult> extends Fragment {
                 ".jpeg",         /* suffix */
                 storageDir      /* directory */
         );
-
 
         // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath = image.getAbsolutePath();

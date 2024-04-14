@@ -90,7 +90,7 @@ public class material_log_entrys extends Fragment
                         {
                             output_data.put(reader.nextName(), reader.nextString());
                         }
-                        if(output_data.get("PROJEKT_ID").toString().contains(mdo.get_projekt_id())) // Nur eintragen, wenn gleiche Projekt
+                        if(output_data.get("PROJEKT_NR").toString().contains(mdo.get_projekt_id())) // Nur eintragen, wenn gleiche Projekt
                         {
                             if(mdo.add_material_log_entry(output_data)>-1)
                             {
@@ -350,7 +350,7 @@ public class material_log_entrys extends Fragment
                               }
 
                             select_args.add(mdo.get_selectet_projekt_id() );
-                            where.add("PROJEKT_ID=?");
+                            where.add("PROJEKT_NR=?");
                         } catch (Exception e)
                         {
                             bsf.exeptiontoast(e,getContext());
