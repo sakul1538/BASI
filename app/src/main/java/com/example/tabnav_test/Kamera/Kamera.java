@@ -159,9 +159,10 @@ public class Kamera<onActivityResult> extends Fragment {
 
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
-
+        clean_temp_dir();
 
     }
 
@@ -273,12 +274,35 @@ public class Kamera<onActivityResult> extends Fragment {
             public void onClick(View v)
             {
                 try {
+                    String paht = kamera_dirs.get_dir_from_name(spinner.getSelectedItem().toString());
+                    paht+="/KW"+String.valueOf(get_kw(get_date()));
 
-                   String paht = kamera_dirs.get_dir_from_name(spinner.getSelectedItem().toString());
-                   paht+="/KW"+String.valueOf(get_kw(get_date()));
-                   //Neuen dateinamen zusamensetzen in allls neue datei sceichern
-                   bsf.saveImage(final_image,paht,get_filename(),getContext());
-                   reset_complete();
+                    int kw = get_kw(get_date());
+
+                    image_stamp_text = projekt.projekt_get_selected_name()+" ["+ projekt.projekt_get_selected_nr()+"]"+ "  " + get_date() + " [KW " + kw + "]";
+                    String filename= projekt.projekt_get_selected_name()+"["+ projekt.projekt_get_selected_nr()+"]";
+
+                    if (kamera_switch_tag_onoff.isChecked())
+                    {
+                        if(kamera_tag_field_value.getVisibility() != View.GONE)
+                        {
+                            image_stamp_text = projekt.projekt_get_selected_name()+" ["+ projekt.projekt_get_selected_nr()+"]"+ " #"+kamera_tag_field_value.getText().toString()+"  "+ get_date() + " [KW " + kw + "]";
+                           filename+= "#"+kamera_tag_field_value.getText().toString();
+                        }
+                    }
+                    filename+="@"+get_date().replace(".","")+"_ID_"+String.valueOf(System.currentTimeMillis());
+                    filename+=bsf.detect_extension(currentPhotoPath);
+                    create_image();
+
+                    bsf.saveImage(final_image,paht,filename,getContext());
+
+                    camera_photo.setImageResource(0);
+                    preview_camera_visibility(View.GONE);
+                    spinner.setEnabled(true);
+                    camera_and_import_visibility(View.VISIBLE);
+                    clean_temp_dir();
+
+
 
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
@@ -453,6 +477,7 @@ public class Kamera<onActivityResult> extends Fragment {
                 ImageButton image_roate = pic_view_UI.findViewById(R.id.imageButton62);
                 image =BitmapFactory.decodeFile(currentPhotoPath);
 
+
                 image_roate.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
@@ -462,16 +487,15 @@ public class Kamera<onActivityResult> extends Fragment {
                         matrix.setRotate(rotate_value);
                         image = Bitmap.createBitmap(image,0,0,image.getWidth(),image.getHeight(),matrix,true);
                         photo.setImageBitmap(image);
-                        image_path.setText(String.valueOf(rotate_value));
-
 
                     }
                 });
 
                 try {
+
                     photo.setImageBitmap(image);
-                    //image_path.setText(currentPhotoPath.toString());
-                    image_path.setText(String.valueOf(rotate_value));
+                    image_path.setText(currentPhotoPath.toString());
+
                 } catch (Exception e) {
                     photo.setImageResource(R.drawable.ic_baseline_error_outline_24);
                    // image_path.setText(e.getMessage().toString());
@@ -518,8 +542,11 @@ public class Kamera<onActivityResult> extends Fragment {
                                 f.delete();
                                 bsf.succes_msg("Bild gelöscht!\n" + currentPhotoPath, getContext());
                                 preview_camera_visibility(View.GONE);
-                                spinner.setEnabled(true);
-                                reset_complete();
+                                camera_photo.setImageResource(0);
+                                preview_camera_visibility(View.GONE);
+                                camera_and_import_visibility(View.VISIBLE);
+                                clean_temp_dir();
+
                             }
                         } catch (Exception e) {
                             bsf.error_msg("Löschung Fehlgeschlagen!\n" + e.getMessage(), getContext());
@@ -632,7 +659,6 @@ public class Kamera<onActivityResult> extends Fragment {
     private void reset_complete()
     {
             Basic_funct bsf =new Basic_funct();
-
             curr_date.setText(bsf.date_refresh());
             tag_background(static_finals.un_mark_color);
             date_background(static_finals.un_mark_color);
@@ -644,24 +670,32 @@ public class Kamera<onActivityResult> extends Fragment {
             spinner.setEnabled(true);
             camera_and_import_visibility(View.VISIBLE);
             clean_temp_dir();
-
     }
 
     public void clean_temp_dir()
     {
         Basic_funct bsf =new Basic_funct();
+        projekt= new projekt_ops(getContext());
         String paht = projekt.projekt_get_current_root_dir_images_temp();
 
         try {
             File f = new File(paht);
-            String[] files = f.list();
-            if(files.length>0)
+            if(f.exists())
             {
-                for (String d : files) {
-                    File t = new File(paht + "/" + d);
-                    t.delete();
+                String[] files = f.list();
+                if(files.length>0)
+                {
+                    for (String d : files) {
+                        File t = new File(paht + "/" + d);
+                        t.delete();
+                    }
                 }
             }
+            else
+            {
+                f.mkdirs();
+            }
+
         } catch (Exception e)
         {
             bsf.error_msg("Verzeichnis 'temp' bereinigung Fehlgeschlagen!\n" + e, getContext());
@@ -693,7 +727,6 @@ public class Kamera<onActivityResult> extends Fragment {
         camera_delet_image.setVisibility(visibility);
         media_label.setVisibility(visibility);
         save_image_visibility(visibility);
-        camera_reset_form.setVisibility(visibility);
     }
     private void camera_and_import_visibility(int visibility)
     {
@@ -767,51 +800,17 @@ public class Kamera<onActivityResult> extends Fragment {
 
                 spinner.setEnabled(false);
                 camera_and_import_visibility(View.GONE);
-                //preview_camera_visibility(View.VISIBLE);
                 Basic_funct bsf = new Basic_funct();
 
                 String filename = "";
                 String path = "";
-                String photostamp = "";
                 String tags = "";
-                String save_dir = "";
-                String datum = "";
-
-                //Temporäre Arrays
-                String[] t_array = null;
-                String[] t_array2 = null;
-
-                path = photoURI.getPath();  //path:  /primary/DCIM/Test/Test@28122022_ID_566429213554924951.jpeg
-                Log.d("URL", path);
-
                 try {
-                    path = photoURI.getPath();  //path:  /primary/DCIM/Test/Test@28122022_ID_566429213554924951.jpeg
 
-                    path = path.replace("/primary/", ""); //primary entfernen
-
-                    //Dateinamen extrahieren.
-                    t_array = path.split("/");  // DCIM/Test/Test@28122022_ID_566429213554924951.jpeg
-                    filename = t_array[t_array.length - 1];           //Test@28122022_ID_566429213554924951.jpeg
-
-                    //Absoluten Pfad der datei in Path speichern.
-                    path = path.replace(filename, ""); //Test@28122022_ID_566429213554924951.jpeg entfernen aus den Path
-                    path = Environment.getExternalStorageDirectory() + "/" + path;
-
-                    //Photostamp erstellen : Test@28122022_ID_566429213554924951.jpeg
-
-                    t_array = filename.split("@");
-
-                    //Tag
-                    if (t_array[0].contains("#")) {
-                        t_array2 = t_array[0].split("#");
-                        save_dir = t_array2[0]; //Test
-                        tags = t_array2[1]; // #Test
-
-                    } else {
-                        save_dir = t_array[0];
-                        tags = "";
-                    }
-
+                path = photoURI.getPath();  ///BASI/DEFAULT[1]/Bilder/temp/14042024393346163544505652.jpeg
+                filename = path.substring(path.lastIndexOf("/")+1,path.length());
+                currentPhotoPath = projekt.projekt_get_current_root_dir_images_temp()+"/"+filename;
+                Log.d("URL", currentPhotoPath);
 
                     String projekt_name = projekt.get_selectet_projekt();
                     int kw = get_kw(get_date());
@@ -829,12 +828,12 @@ public class Kamera<onActivityResult> extends Fragment {
 
                     Bitmap bMapScaled = null;
 
-                    Bitmap bMap = BitmapFactory.decodeFile(path + filename, options);
+                    Bitmap bMap = BitmapFactory.decodeFile(currentPhotoPath, options);
 
 
                     try {
 
-                        ExifInterface exif = new ExifInterface(path + filename);
+                        ExifInterface exif = new ExifInterface(currentPhotoPath);
 
 
                         int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
@@ -873,7 +872,7 @@ public class Kamera<onActivityResult> extends Fragment {
 
                         //String url = bsf.saveImage(bMapScaled, path, filename, getContext());
 
-                        currentPhotoPath = path+"/"+filename;
+
                         //bsf.saveImage(imported_Bitmap_with_stamp,path,filename,getContext());
                         //Vor dem Definitiven speichern drehen und in temp verzeichiss speichern
                         preview_camera_visibility(View.VISIBLE);
@@ -900,7 +899,8 @@ public class Kamera<onActivityResult> extends Fragment {
                     } catch (IOException e) {
                         exmsg("120220231030", e);
                     }
-                } catch (Exception e) {
+                } catch (Exception e)
+        {
                     exmsg("120220231031A", e);
                     bsf.error_msg("Bild wurde verworfen\n" + e.getMessage(), getContext());
                     camera_photo.setImageResource(0);
@@ -921,14 +921,10 @@ public class Kamera<onActivityResult> extends Fragment {
                 camera_and_import_visibility(View.GONE);
                 bsf = new Basic_funct();
                 String source_path= bsf.get_absolute_paht(data.getData().getLastPathSegment());
+
                 Log.d("BASI", source_path);
-                filename ="";
-                filename += projekt.projekt_get_selected_name();
-                filename += "["+projekt.projekt_get_selected_nr()+"]";
-                filename+=get_tag();
-                filename+="@"+get_date().replace(".","");
-                filename+="_ID_"+String.valueOf(System.currentTimeMillis());
-                filename+=bsf.detect_extension(source_path);
+
+                filename =String.valueOf(System.currentTimeMillis())+bsf.detect_extension(source_path);
 
                 image_stamp_text ="";
                 image_stamp_text += projekt.projekt_get_selected_name();
@@ -1051,11 +1047,18 @@ public class Kamera<onActivityResult> extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         try {
-                            Basic_funct bsf = new Basic_funct();
-                            String name_value = bsf.URLencode(name.getText().toString());
-                            String paht_value = bsf.URLencode(dir.getText().toString());
+                            String paht_value =dir.getText().toString();
+                            String name_value =name.getText().toString();
 
-                            kamera_dirs.add(name_value, paht_value);
+                            Basic_funct bsf = new Basic_funct();
+
+                            if(paht_value.isEmpty())
+                            {
+                                paht_value =kamera_dirs.get_dir_from_name(spinner.getSelectedItem().toString())+"/"+name_value.substring(name_value.lastIndexOf(">")+1,name_value.length());
+                            }
+
+                           kamera_dirs.add(bsf.URLencode(name_value), bsf.URLencode(paht_value));
+
                             refresh_spinner();
                         } catch (Exception e) {
                             Toast.makeText(getContext(), "A:" + e.getMessage(), Toast.LENGTH_LONG).show();

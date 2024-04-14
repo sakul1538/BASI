@@ -442,8 +442,9 @@ public class Basic_funct {
             out.flush();
             out.close();
 
-            bsf.succes_msg("Bild erfolgreich geschpeichert unter:\n"+dir+"/"+fname,context);
-            //Toast.makeText(context, "Bild erfolgreich geschpeichert!", Toast.LENGTH_SHORT).show();
+
+            //bsf.succes_msg("Bild erfolgreich geschpeichert unter:\n"+dir+"/"+fname,context);
+            Toast.makeText(context, "Bild geschpeichert!", Toast.LENGTH_SHORT).show();
 
         } catch (Exception e)
         {
