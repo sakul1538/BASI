@@ -32,11 +32,48 @@ public class Basic_func_img extends Basic_funct
 
 
 
-    public Bitmap makeBitmap_textstamp(String path, String text_stamp,int bg_color,int txt_color)
-    {
+    public Bitmap makeBitmap_textstamp(String path, String text_stamp,int bg_color,int txt_color) throws IOException {
         //path =  /storage/emulated/0/DCIM/...
 
 
+
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+        options.inMutable = true;
+
+        Bitmap bMap = BitmapFactory.decodeFile(path,options);
+
+        ExifInterface exif = new ExifInterface(path);
+        int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
+
+        int width = exif.getAttributeInt(ExifInterface.TAG_PIXEL_X_DIMENSION, 0);
+        int height = exif.getAttributeInt(ExifInterface.TAG_PIXEL_Y_DIMENSION, 0);
+
+        if (width == 0 || height == 0)
+        {
+            width = bMap.getWidth();
+            height = bMap.getHeight();
+        }
+        Matrix matrix = new Matrix();
+        switch (rotation)
+        {
+            case 3:
+
+                matrix.setRotate(180);
+                bMap = Bitmap.createBitmap(bMap, 0, 0, width, height, matrix, true);
+
+                break;
+
+            case 6:
+
+                matrix.setRotate(90);
+                bMap = Bitmap.createBitmap(bMap, 0, 0, width, height, matrix, true);
+                break;
+
+            default:
+                bMap = Bitmap.createBitmap(bMap, 0, 0, width, height, matrix, true);
+        }
 
 
         Paint paint = new Paint();
@@ -44,26 +81,19 @@ public class Basic_func_img extends Basic_funct
         paint.setColor(txt_color);
         paint.setTextSize(50);
 
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inScaled = false;
-        options.inMutable = true;
 
-        Bitmap bMap = BitmapFactory.decodeFile(path,options);
-        Bitmap bMapScaled  =Bitmap.createScaledBitmap(bMap, bMap.getWidth(), bMap.getHeight(), true);
+        Canvas canvas = new Canvas(bMap);
 
-
-        Canvas canvas = new Canvas(bMapScaled);
-
-        Rect rect = new Rect(0, bMapScaled.getHeight() - 100, bMapScaled.getWidth(), bMapScaled.getHeight());
+        Rect rect = new Rect(0, bMap.getHeight() - 100, bMap.getWidth(), bMap.getHeight());
 
         Paint bgrect = new Paint();
         bgrect.setStyle(Paint.Style.FILL);
         bgrect.setColor(bg_color);
 
         canvas.drawRect(rect,bgrect);
-        canvas.drawText(text_stamp, 20, bMapScaled.getHeight() - 20, paint);
+        canvas.drawText(text_stamp, 20, bMap.getHeight() - 20, paint);
 
-        return bMapScaled;
+        return bMap;
 
     }
 

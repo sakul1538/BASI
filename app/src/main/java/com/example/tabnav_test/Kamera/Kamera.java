@@ -463,7 +463,6 @@ public class Kamera<onActivityResult> extends Fragment {
 
         camera_photo.setOnClickListener(new View.OnClickListener()
         {
-            Bitmap image;
             int rotate_value=90;
             @Override
             public void onClick(View view)
@@ -475,7 +474,6 @@ public class Kamera<onActivityResult> extends Fragment {
                 ImageView photo = pic_view_UI.findViewById(R.id.imageView4);
                 TextView image_path = pic_view_UI.findViewById(R.id.textView65);
                 ImageButton image_roate = pic_view_UI.findViewById(R.id.imageButton62);
-                image =BitmapFactory.decodeFile(currentPhotoPath);
 
 
                 image_roate.setOnClickListener(new View.OnClickListener()
@@ -483,17 +481,24 @@ public class Kamera<onActivityResult> extends Fragment {
                     @Override
                     public void onClick(View v)
                     {
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inScaled = false;
+                        options.inMutable = true;
+
+                        Bitmap image = BitmapFactory.decodeFile(currentPhotoPath,options);
                         Matrix matrix= new Matrix();
                         matrix.setRotate(rotate_value);
-                        image = Bitmap.createBitmap(image,0,0,image.getWidth(),image.getHeight(),matrix,true);
-                        photo.setImageBitmap(image);
+                        Bitmap bmap_rotated = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(), matrix, true);
+                        bsf.saveImage_silence(bmap_rotated,projekt.projekt_get_current_root_dir_images_temp(),get_filename(),getContext());
+                        create_image();
+                        photo.setImageBitmap(final_image);
 
                     }
                 });
 
                 try {
 
-                    photo.setImageBitmap(image);
+                    photo.setImageBitmap(final_image);
                     image_path.setText(currentPhotoPath.toString());
 
                 } catch (Exception e) {
@@ -510,7 +515,7 @@ public class Kamera<onActivityResult> extends Fragment {
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
                         String filename= currentPhotoPath.substring(currentPhotoPath.lastIndexOf("/")+1,currentPhotoPath.length());
-                        bsf.saveImage_silence(image,projekt.projekt_get_current_root_dir_images_temp(),filename,getContext());
+                        bsf.saveImage_silence(final_image,projekt.projekt_get_current_root_dir_images_temp(),filename,getContext());
                         create_image();
 
                         dialogInterface.cancel();
@@ -831,57 +836,19 @@ public class Kamera<onActivityResult> extends Fragment {
                     Bitmap bMap = BitmapFactory.decodeFile(currentPhotoPath, options);
 
 
-                    try {
-
-                        ExifInterface exif = new ExifInterface(currentPhotoPath);
+                    //String url = bsf.saveImage(bMapScaled, path, filename, getContext());
 
 
-                        int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
-                        exif.setAttribute(ExifInterface.TAG_ARTIST,"Lukas Grossen");
-                        exif.saveAttributes();
+                    //bsf.saveImage(imported_Bitmap_with_stamp,path,filename,getContext());
+                    //Vor dem Definitiven speichern drehen und in temp verzeichiss speichern
+                    preview_camera_visibility(View.VISIBLE);
+                    image_stamp_camera();
+                    create_image();
+
+                    //Speichern des Bildes
 
 
-                        int width = exif.getAttributeInt(ExifInterface.TAG_PIXEL_X_DIMENSION, 0);
-                        int height = exif.getAttributeInt(ExifInterface.TAG_PIXEL_Y_DIMENSION, 0);
-
-                        if (width == 0 || height == 0) {
-                            width = bMap.getWidth();
-                            height = bMap.getHeight();
-                        }
-                        Matrix matrix = new Matrix();
-
-                        //Fixme 04.12.2023 Stndartwerte für width/height,falls keine exif daten vornhanden sind = Erzeugt sonst gelegentlich eine Exception!
-
-                        switch (rotation) {
-                            case 3:
-
-                                matrix.setRotate(180);
-                                bMapScaled = Bitmap.createBitmap(bMap, 0, 0, width, height, matrix, true);
-
-                                break;
-
-                            case 6:
-
-                                matrix.setRotate(90);
-                                bMapScaled = Bitmap.createBitmap(bMap, 0, 0, width, height, matrix, true);
-                                break;
-
-                            default:
-                                bMapScaled = Bitmap.createBitmap(bMap, 0, 0, width, height, matrix, true);
-                        }
-
-                        //String url = bsf.saveImage(bMapScaled, path, filename, getContext());
-
-
-                        //bsf.saveImage(imported_Bitmap_with_stamp,path,filename,getContext());
-                        //Vor dem Definitiven speichern drehen und in temp verzeichiss speichern
-                        preview_camera_visibility(View.VISIBLE);
-                        image_stamp_camera();
-                        create_image();
-                        //Speichern des Bildes
-
-
-                        //Neues Bild Anzeigen im imageView
+                    //Neues Bild Anzeigen im imageView
                        /* Bitmap bMap2 = BitmapFactory.decodeFile(url);
                         Bitmap bitmap3;
 
@@ -896,9 +863,6 @@ public class Kamera<onActivityResult> extends Fragment {
 
                         camera_photo.setImageBitmap(bitmap3); // Im imageView Anzeigen*/
 
-                    } catch (IOException e) {
-                        exmsg("120220231030", e);
-                    }
                 } catch (Exception e)
         {
                     exmsg("120220231031A", e);
@@ -1276,8 +1240,15 @@ public class Kamera<onActivityResult> extends Fragment {
 
     public void create_image()
     {
+
+
         Basic_func_img bsfi = new Basic_func_img();
-        Bitmap image_whit_stamp = bsfi.makeBitmap_textstamp(currentPhotoPath,image_stamp_text,stamp_bg_color,stamp_txt_color);
+        Bitmap image_whit_stamp = null;
+        try {
+            image_whit_stamp = bsfi.makeBitmap_textstamp(currentPhotoPath,image_stamp_text,stamp_bg_color,stamp_txt_color);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         final_image = image_whit_stamp;
         camera_photo.setImageBitmap(bsfi.Bitmap_setScaling(final_image,900));
 

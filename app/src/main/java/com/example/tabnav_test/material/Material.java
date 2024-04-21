@@ -610,7 +610,7 @@ public class Material extends Fragment implements static_finals
             public void onClick(View view)
             {
                 ContentValues check= new ContentValues();
-                check.put("PROJEKT_ID", projekt.projekt_get_selected_id());
+                check.put("PROJEKT_NR", projekt.projekt_get_selected_id());
                 check.put("LSNR",lsnr_field.getText().toString());
                 check.put("LIEFERANT_ID",mdo.get_id_zulieferer(edit_zulieferer_name.getText().toString()));
                 if(mdo.check_similar_ls(check)>0)
@@ -885,6 +885,7 @@ public class Material extends Fragment implements static_finals
                     long response = mdo.add_material_log_entry(data);
                     if (response > -1)
                     {
+
                         lsnr_field.setEnabled(false);
                         edit_zulieferer_name.setEnabled(false);
                         String copy_temp_msg = "";
@@ -913,6 +914,8 @@ public class Material extends Fragment implements static_finals
                         }
 
                         bsf.succes_msg("Es  wurde  ein Eintrag erstellt!\n" + copy_temp_msg,getContext());
+                        refresh_artikel_autocomplete();
+                        refresh_autocomplete_liste_zulieferer();
 
                     }
                     else
