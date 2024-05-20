@@ -523,6 +523,7 @@ public class Kamera<onActivityResult> extends Fragment {
                 });
 
                 AlertDialog alertDialog = alertDialogBuilder.create();
+
                 alertDialog.show();
             }
 
@@ -1119,12 +1120,17 @@ public class Kamera<onActivityResult> extends Fragment {
 
        // date = get_date();
         String date_filename = get_date().replace(".", "");
-        String paht = projekt.projekt_get_current_root_dir();
+        String paht ="";
         try {
-            paht = kamera_dirs.get_dir_from_name(selected_item);
+            paht = kamera_dirs.get_dir_from_name(selected_item);///storage/emulated/0/BASI/DEFAULT[1]/Bilder
 
             if (!paht.equals(""))
             {
+                File dir = new File(paht);
+                if(!dir.exists())
+                {
+                    dir.mkdirs();
+                }
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 // Ensure that there's a camera activity to handle the intent
                 // Create the File where the photo should go

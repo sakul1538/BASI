@@ -7,6 +7,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import com.example.tabnav_test.material.construction_fragment;
 import com.example.tabnav_test.material.material_log_activity;
 import com.example.tabnav_test.material.material_log_entrys;
+import com.example.tabnav_test.material.material_summary;
 import com.google.android.material.tabs.TabLayout;
 
 public class material_log_slidePagerAdapter  extends FragmentStateAdapter
@@ -39,7 +40,7 @@ public class material_log_slidePagerAdapter  extends FragmentStateAdapter
 
                     break;
             case 1:
-                fragment = new construction_fragment();
+                fragment = new material_summary();
                 break;
             case 2:
                 fragment = new construction_fragment();

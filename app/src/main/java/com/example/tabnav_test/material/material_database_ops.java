@@ -1,6 +1,7 @@
 package com.example.tabnav_test.material;
 
 import android.app.AlertDialog;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,6 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 import android.util.JsonReader;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 
 import androidx.annotation.Nullable;
 
@@ -26,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 public class material_database_ops extends SQLiteOpenHelper implements SQL_finals
@@ -838,6 +841,45 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
         return  strings;
     }
+    public String[] get_artikel_summary()
+    {
+        ArrayList<String> final_list = new ArrayList<>();
+        SQLiteDatabase dbr = this.getReadableDatabase();
+        String[] columns = {"MATERIAL_ID","MENGE", "EINHEIT_ID"};
+
+
+        Cursor cursor = dbr.query(BASI_MATERIAL,columns,"PROJEKT_NR=?",new String[]{get_selectet_projekt_id()},"MATERIAL_ID",null,null);
+
+        if(cursor.getCount()>0)
+        {
+            cursor.moveToFirst();
+            while(cursor.moveToNext())
+            {
+                Double sum =0.0;
+                String material_id= cursor.getString(cursor.getColumnIndexOrThrow("MATERIAL_ID"));
+                String einheit= cursor.getString(cursor.getColumnIndexOrThrow("EINHEIT_ID"));
+                Cursor cursor2 =dbr.query(BASI_MATERIAL,new String[]{"MENGE"},"PROJEKT_NR=? AND MATERIAL_ID=?",new String[]{get_selectet_projekt_id(),material_id},null,null,null);
+                while (cursor2.moveToNext())
+                {
+                    sum= sum +Double.valueOf(cursor2.getString(cursor2.getColumnIndexOrThrow("MENGE")));
+
+                }
+                final_list.add(get_artikel_name_by_id(material_id)+","+    bsf.double_round(String.valueOf(sum),2)+" " +einheit);
+                cursor2.close();
+            }
+        }
+        String [] final_array = new String[final_list.size()];
+       int  final_array_counter=0;
+        Iterator<String> iter= final_list.iterator();
+        while(iter.hasNext())
+        {
+            final_array[final_array_counter] =iter.next();
+            final_array_counter++;
+        }
+
+
+        return final_array;
+    }
 
 
     public String[] artikel_list_all_no_unit()
@@ -972,10 +1014,6 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
             cursor.moveToFirst();
             param= cursor.getString(cursor.getColumnIndexOrThrow(colum[0]));
         }
-
-        cursor.close();
-        db.close();
-
         return param;
     }
 

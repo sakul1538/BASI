@@ -604,6 +604,8 @@ public class Material extends Fragment implements static_finals
         zulieferer_backgound = view.findViewById(R.id.zulieferer_background);
         media_lockstatus_background = view.findViewById(R.id.ls_add_media_background);
 
+        media_visibilitiy(View.GONE);
+
 
         check_similar_data.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1627,19 +1629,27 @@ public class Material extends Fragment implements static_finals
                             }
                         });
 
-                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext(),R.style.CustomDialog);
 
                         // set prompts.xml to alertdialog builder
                         alertDialogBuilder.setView(pic_view_UI);
 
-                        alertDialogBuilder.setTitle("Viewer");
-                        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                       /* alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                ls_photo_view.setImageBitmap(update_photo_view());
+
                                 dialogInterface.cancel();
                             }
+                        });*/
+
+                        alertDialogBuilder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog)
+                            {
+                                ls_photo_view.setImageBitmap(update_photo_view());
+                            }
                         });
+
                         AlertDialog alertDialog = alertDialogBuilder.create();
                         alertDialog.show();
                     }
@@ -2133,18 +2143,18 @@ public class Material extends Fragment implements static_finals
             {
                 case ".jpeg":
                     ls_picture = BitmapFactory.decodeFile(path);
-                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
+                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, ls_picture.getWidth()/2, ls_picture.getHeight()/2, true);
 
                     break;
 
                 case ".jpg":
                     ls_picture = BitmapFactory.decodeFile(path);
-                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
+                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, ls_picture.getWidth()/2, ls_picture.getHeight()/2,  true);
                     break;
 
                 case ".png":
                     ls_picture = BitmapFactory.decodeFile(path);
-                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
+                    ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, ls_picture.getWidth()/2, ls_picture.getHeight()/2,  true);
 
                     break;
 

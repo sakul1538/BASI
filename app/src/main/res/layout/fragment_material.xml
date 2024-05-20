@@ -336,6 +336,35 @@
                 android:orientation="horizontal">
 
                 <ImageButton
+                    android:id="@+id/imageButton57"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:background="#00FFFFFF"
+                    android:src="@drawable/ic_baseline_keyboard_arrow_left_24"
+                    android:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/textView73"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:text="TextView"
+                    android:visibility="visible" />
+
+                <ImageButton
+                    android:id="@+id/imageButton64"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:background="#00FFFFFF"
+                    android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
+                    android:visibility="visible" />
+
+                <ImageButton
                     android:id="@+id/ls_shot_foto"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -377,52 +406,17 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <ImageButton
-                    android:id="@+id/imageButton57"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:background="#00FFFFFF"
-                    android:src="@drawable/ic_baseline_keyboard_arrow_left_24"
-                    android:visibility="gone" />
-
-                <ImageView
-                    android:id="@+id/imageView2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:background="#FFFFFF"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/cam"
-                    android:visibility="gone"
-                    app:srcCompat="@drawable/cam"
-                    tools:srcCompat="@drawable/cam" />
-
-                <ImageButton
-                    android:id="@+id/imageButton64"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:background="#00FFFFFF"
-                    android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
-                    android:visibility="gone" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/textView73"
+            <ImageView
+                android:id="@+id/imageView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_weight="1"
-                android:text="TextView"
-                android:visibility="gone" />
+                android:background="#FFFFFF"
+                android:scaleType="fitCenter"
+                android:src="@drawable/cam"
+                android:visibility="visible"
+                app:srcCompat="@drawable/cam"
+                tools:srcCompat="@drawable/cam" />
 
             <LinearLayout
                 android:layout_width="match_parent"

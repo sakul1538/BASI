@@ -1351,7 +1351,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
             throw new RuntimeException(e);
         }
 
-        return root_dir+"/Bilder/temp";
+        return root_dir+"/Bilder/.temp";
     }
     public String projekt_get_current_root_dir_export_cvs()
     {

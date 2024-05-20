@@ -241,11 +241,10 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
 
                 ImageButton rotate_right = pic_view_UI.findViewById(R.id.imageButton62);
 
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context,R.style.CustomDialog);
 
                 // set prompts.xml to alertdialog builder
                 alertDialogBuilder.setView(pic_view_UI);
-                alertDialogBuilder.setTitle("Viewer");
 
                 path_value.setText(file_url.replace(Environment.getExternalStorageDirectory().getAbsolutePath(), ""));
 
@@ -259,7 +258,7 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
                 {
 
                    Bitmap  ls_picture = BitmapFactory.decodeFile(file_url);
-                   Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
+                   Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, ls_picture.getWidth()/2, ls_picture.getHeight()/2, true);
                     try {
                         photo_viewer.setImageBitmap(ls_picture_scaled);
                     } catch (Exception e) {
@@ -290,7 +289,7 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
                                 e.printStackTrace();
                             }
                             Bitmap ls_picture = BitmapFactory.decodeFile(file_url);
-                            Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
+                            Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, ls_picture.getWidth()/2, ls_picture.getHeight()/2, true);
 
                             photo_viewer.setImageBitmap(ls_picture_scaled);
 
@@ -311,7 +310,7 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
                         public void onClick(DialogInterface dialogInterface, int i)
                         {
                             Bitmap ls_picture = BitmapFactory.decodeFile(file_url);
-                            Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, foto_preview_w, foto_preview_h, true);
+                            Bitmap ls_picture_scaled = Bitmap.createScaledBitmap(ls_picture, ls_picture.getWidth()/2, ls_picture.getHeight()/2, true);
 
                             photo_viewer.setImageBitmap(ls_picture_scaled);
                             reload_images(context);
@@ -345,7 +344,7 @@ public class galery_adaper extends RecyclerView.Adapter<galery_adaper.ViewHolder
                                         }
                                     });
 
-                                    alertDialogBuilder.setNegativeButton("Abbrecen", new DialogInterface.OnClickListener()
+                                    alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener()
                                     {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {

@@ -53,7 +53,7 @@ public class material_log_activity extends AppCompatActivity
     private AppBarConfiguration appBarConfiguration;
     private static final String TAG="BASI";
 
-   public static Basic_func_img bsfi = new Basic_func_img(); //Globale Instan von bsfi
+    public static Basic_func_img bsfi = new Basic_func_img(); //Globale Instan von bsfi
 
 
     ViewPager2 viewpager;
@@ -112,11 +112,16 @@ public class material_log_activity extends AppCompatActivity
                     source_file_path = uri.getPath().replace("/document/primary:", Environment.getExternalStorageDirectory().getAbsolutePath()+"/");
                     Log.d("source_file_path",source_file_path);
                     String file_extension = bsfi.detect_extension(source_file_path);
+                    material_database_ops mdo = new material_database_ops(getApplicationContext());
+                    String filename= source_file_path.substring(source_file_path.lastIndexOf("/",source_file_path.length()));
                     try
                     {
                         Basic_funct bsf =new Basic_funct();
                         File source_file = new File(source_file_path);
-                        Basic_funct.copyFileUsingStream(source_file, new File(filePath+file_extension)); //Kopieren von-zu
+
+                        String copy_to =mdo.get_ls_images_dir()+filename;
+                        Log.d("BASI", copy_to);
+                        Basic_funct.copyFileUsingStream(source_file, new File(copy_to)); //Kopieren von-zu
                         gad.reload_images(getApplicationContext());
                     } catch (IOException e) {
                         throw new RuntimeException(e);

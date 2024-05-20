@@ -91,7 +91,6 @@
     <string name="fav_global">Global</string>
 
 
-
     <string name="Maschinen_label">Maschine:</string>
     <string name="Maschinen_label_stundne">Zählerstand:</string>
 
@@ -120,7 +119,6 @@
     <string name="log_actions_upload_all_fav_true">Markierte</string>
     <string name="log_actionsupload_all_search">Suchergebnisse</string>
     <string name="log_title">Log Einträge</string>
-
 
 
     <string name="m_conf_masch_list_name">Name:</string>
@@ -217,8 +215,6 @@
     <string name="favorite_strings_lokal_banner">Lokal</string>
 
 
-
-
     <string-array name="planets_array">
         <item>Mercury</item>
         <item>Venus</item>
@@ -301,7 +297,7 @@
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
     <string name="material_log_tab_entrys">Einträge</string>
-    <string name="material_log_tab_summary">Sortiert</string>
+    <string name="material_log_tab_summary">Summiert</string>
     <string name="material_log_tab_import_export">Import/Export</string>
     <string name="title_activity_photo_viewer">Photo_viewer</string>
     <string name="dummy_button">Dummy Button</string>

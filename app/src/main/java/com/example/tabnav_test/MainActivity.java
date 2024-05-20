@@ -162,8 +162,6 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view)
             {
                 projekt.projekt_settings(MainActivity.this);
-
-
             }
         });
         try {
@@ -182,7 +180,6 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view)
             {
                 app_settings_menu(view);
-
             }
         });
 
@@ -240,20 +237,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
