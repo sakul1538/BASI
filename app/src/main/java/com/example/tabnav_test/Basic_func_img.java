@@ -35,9 +35,6 @@ public class Basic_func_img extends Basic_funct
     public Bitmap makeBitmap_textstamp(String path, String text_stamp,int bg_color,int txt_color) throws IOException {
         //path =  /storage/emulated/0/DCIM/...
 
-
-
-
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
         options.inMutable = true;

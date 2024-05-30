@@ -861,7 +861,14 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
                 Cursor cursor2 =dbr.query(BASI_MATERIAL,new String[]{"MENGE"},"PROJEKT_NR=? AND MATERIAL_ID=?",new String[]{get_selectet_projekt_id(),material_id},null,null,null);
                 while (cursor2.moveToNext())
                 {
-                    sum= sum +Double.valueOf(cursor2.getString(cursor2.getColumnIndexOrThrow("MENGE")));
+                    try {
+                        sum= sum +Double.valueOf(cursor2.getString(cursor2.getColumnIndexOrThrow("MENGE")));
+                    }
+                    catch (Exception e)
+                    {
+                        
+                        sum =sum +0.0;
+                    }
 
                 }
                 final_list.add(get_artikel_name_by_id(material_id)+","+    bsf.double_round(String.valueOf(sum),2)+" " +einheit);
