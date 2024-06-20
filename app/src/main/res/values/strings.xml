@@ -215,11 +215,9 @@
     <string name="favorite_strings_lokal_banner">Lokal</string>
 
 
-    <string-array name="planets_array">
-        <item>Mercury</item>
-        <item>Venus</item>
-        <item>Earth</item>
-        <item>Mars</item>
+    <string-array name="summary_typ_array">
+        <item>Teilprojekt</item>
+        <item>Gesamtprojekt</item>
     </string-array>
 
     <string-array name="m_categorys">

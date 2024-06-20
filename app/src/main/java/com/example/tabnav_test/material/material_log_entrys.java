@@ -55,8 +55,10 @@ public class material_log_entrys extends Fragment
     public TabLayout tab;
 
     private ls_log_view_rcv_adapter lslogrcv;
+    private String export_range;
+    private String[] export_entrys;
 
-        public material_log_entrys(TabLayout tab)
+    public material_log_entrys(TabLayout tab)
         {
             this.tab = tab;
         }
@@ -414,19 +416,19 @@ public class material_log_entrys extends Fragment
 
                             case R.id.export_json:
 
-                                    export_data("json");
+                                export_data_range("json");
 
                                 break;
 
                             case R.id.export_csv:
 
-                                    export_data("csv");
+                                export_data_range("csv");
 
                                 break;
 
                             case R.id.export_pdf:
 
-                                    export_data("pdf");
+                                  //  export_data("pdf");
 
                                 break;
 
@@ -522,11 +524,43 @@ public class material_log_entrys extends Fragment
         }
     }
 
-    private void export_data(String format_type)
+    private void export_data_range(String format_type)
     {
+
         material_database_ops mdo = new material_database_ops(getContext());
 
-        String[] data = mdo.get_current_projekt_entrys();
+
+        AlertDialog.Builder export_range_dialog = new AlertDialog.Builder(getContext());
+
+        export_range_dialog.setMessage("Teil oder Gesammtprojekt?");
+        export_range_dialog.setPositiveButton("Gesamtprojekt", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                export_entrys = mdo.get_current_projekt_entrys_for_export("comp");
+                export_data(format_type,export_entrys);
+            }
+        });
+
+        export_range_dialog.setNegativeButton("Teilprojekt", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                export_entrys = mdo.get_current_projekt_entrys_for_export("part");
+                export_data(format_type,export_entrys);
+
+
+            }
+        });
+
+        export_range_dialog.show();
+
+    }
+
+    private void export_data(String format_type, String data[])
+    {
+
+        material_database_ops mdo = new material_database_ops(getContext());
+
         String paht="";
 
         String filename="untitled.txt";
@@ -545,7 +579,7 @@ public class material_log_entrys extends Fragment
                 }
 
                 String data_loop="[";
-                for(String i:data )
+                for(String i:export_entrys )
                 {
                     data_loop +="{";
                     String[] extract = i.split(",");
@@ -586,9 +620,9 @@ public class material_log_entrys extends Fragment
                     dir.mkdirs();
                 }
 
-                String string_loop ="ID,DATUM,LIEFERSCHEIN NR,LIEFERANT, ARTIKEL,MENGE,EINHEIT,NOTIZ\n"; //Colum names
+                String string_loop ="PROJEKT_NR,DATUM,LIEFERSCHEIN NR,LIEFERANT, ARTIKEL,MENGE,EINHEIT,NOTIZ\n"; //Colum names
 
-                for(String i:data )
+                for(String i:export_entrys )
                 {
                     String[] extract = i.split(",");
 
@@ -597,7 +631,7 @@ public class material_log_entrys extends Fragment
                         String [] nr = e.split(":");
                         switch (nr[0])
                         {
-                            case "ID":
+                            case "PROJEKT_NR":
                                     string_loop +="\""+ nr[1]+"\",";
                                 break;
 
@@ -649,8 +683,6 @@ public class material_log_entrys extends Fragment
             default:
                 Toast.makeText(getContext(), "Nicht Impementiert", Toast.LENGTH_SHORT).show();
         }
-
-
 
     }
 

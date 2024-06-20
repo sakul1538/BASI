@@ -27,6 +27,24 @@
                 android:background="#00C6FF00"
                 android:padding="5dp"
                 android:src="@drawable/ic_baseline_share_24" />
+
+            <Spinner
+                android:id="@+id/spinner_summary_type"
+                android:layout_width="276dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="0"
+                android:entries="@array/summary_typ_array" />
+
+            <ImageButton
+                android:id="@+id/reload_summary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="0"
+                android:background="#12FFFFFF"
+                android:padding="5dp"
+                android:src="@drawable/ic_baseline_cached_24" />
         </LinearLayout>
 
         <ListView

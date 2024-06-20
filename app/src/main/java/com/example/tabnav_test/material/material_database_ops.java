@@ -372,6 +372,78 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         return  strings;
     }
 
+    public String[] get_current_projekt_entrys_for_export(String range) //Gibt alle Einträge des Projektes zurück => alte Version
+    {
+
+        ArrayList<String> entry= new ArrayList();
+        //String proj_id =this.get_selectet_projekt_root_data().split(",")[1]; //Martinheim Süd,23110022,primary:DCIM/Baustellen /Martinsheim Süd;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor;
+        int i = 0;
+
+        switch (range)
+        {
+            case "part":
+
+                String[] selectionArgs = {get_projekt_id()};
+                String where = "PROJEKT_NR=?";
+
+                cursor = db.query(BASI_MATERIAL, null, where, selectionArgs, null, null, "DATUM ASC,LSNR, LIEFERANT_ID");
+
+                while (cursor.moveToNext())
+                {
+                    String strings = "PROJEKT_NR:" + get_projekt_name_by_id(cursor.getString(cursor.getColumnIndexOrThrow("PROJEKT_NR")));
+                    strings += ",DATUM:" + cursor.getString(cursor.getColumnIndexOrThrow("DATUM"));
+                    strings += ",LSNR:" + cursor.getString(cursor.getColumnIndexOrThrow("LSNR"));
+                    strings += ",LIEFERANT_ID:" + cursor.getString(cursor.getColumnIndexOrThrow("LIEFERANT_ID"));
+                    strings += ",MATERIAL_ID:" + cursor.getString(cursor.getColumnIndexOrThrow("MATERIAL_ID"));
+                    strings += ",MENGE:" + cursor.getString(cursor.getColumnIndexOrThrow("MENGE"));
+                    strings += ",EINHEIT_ID:" + cursor.getString(cursor.getColumnIndexOrThrow("EINHEIT_ID"));
+                    strings += ",SRC:" + bsf.URLencode(cursor.getString(cursor.getColumnIndexOrThrow("SRC")));
+                    strings += ",NOTIZ:" + cursor.getString(cursor.getColumnIndexOrThrow("NOTIZ"));
+                    entry.add(strings);
+                }
+                cursor.close();
+                db.close();
+
+                break;
+
+            case "comp":
+
+                cursor = db.query(BASI_PROJEKTE, new String[]{"ID"}, "PROJEKT_NR=?", new String[]{get_projekt_nr()}, null, null, null); //Listet aller Teilprojekte
+                while (cursor.moveToNext())
+                {
+                    String projekt_nr = cursor.getString(cursor.getColumnIndexOrThrow("ID"));
+
+                    String[] where_args = {projekt_nr};
+
+                    Cursor entry_cursor = db.query(BASI_MATERIAL, null, "PROJEKT_NR=?", where_args, null, null, "DATUM ASC,LSNR, LIEFERANT_ID"); //Listet aller Teilprojekte
+                    if (entry_cursor.getCount() > 0)
+                    {
+                        while (entry_cursor.moveToNext())
+                        {
+                            String strings = "PROJEKT_NR:" + get_projekt_name_by_id(entry_cursor.getString(entry_cursor.getColumnIndexOrThrow("PROJEKT_NR")));
+                            strings += ",DATUM:" + entry_cursor.getString(entry_cursor.getColumnIndexOrThrow("DATUM"));
+                            strings += ",LSNR:" + entry_cursor.getString(entry_cursor.getColumnIndexOrThrow("LSNR"));
+                            strings += ",LIEFERANT_ID:" + entry_cursor.getString(entry_cursor.getColumnIndexOrThrow("LIEFERANT_ID"));
+                            strings += ",MATERIAL_ID:" + entry_cursor.getString(entry_cursor.getColumnIndexOrThrow("MATERIAL_ID"));
+                            strings += ",MENGE:" + entry_cursor.getString(entry_cursor.getColumnIndexOrThrow("MENGE"));
+                            strings += ",EINHEIT_ID:" + entry_cursor.getString(entry_cursor.getColumnIndexOrThrow("EINHEIT_ID"));
+                            strings += ",SRC:" + bsf.URLencode(entry_cursor.getString(entry_cursor.getColumnIndexOrThrow("SRC")));
+                            strings += ",NOTIZ:" + entry_cursor.getString(entry_cursor.getColumnIndexOrThrow("NOTIZ"));
+                            entry.add(strings);
+                        }
+                    }
+                }
+                break;
+        }
+
+        String [] output= new String[entry.size()];
+
+        output = entry.toArray(output);
+
+        return  output;
+    }
 
     //Projekte Funktionen
     public void projekt_add(ContentValues data)
@@ -544,6 +616,11 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         db.close();
 
         return  root;
+    }
+    public String get_projekt_name_by_id(String id)
+    {
+        projekt_ops projekt = new projekt_ops(context);
+        return projekt.get_projekt_name_by_id(id);
     }
 
 
@@ -848,7 +925,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         String[] columns = {"MATERIAL_ID","MENGE", "EINHEIT_ID"};
 
 
-        Cursor cursor = dbr.query(BASI_MATERIAL,columns,"PROJEKT_NR=?",new String[]{get_selectet_projekt_id()},"MATERIAL_ID",null,null);
+        Cursor cursor = dbr.query(BASI_MATERIAL,columns,"PROJEKT_NR=?",new String[]{get_selectet_projekt_id()},"MATERIAL_ID",null,null); //Listet alle Artikel
 
         if(cursor.getCount()>0)
         {
@@ -884,6 +961,116 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
             final_array_counter++;
         }
 
+        return final_array;
+    }
+
+
+    public String[] get_projekt_ids_by_nr()
+    {
+
+        String [] final_array ={","};
+        SQLiteDatabase dbr = this.getReadableDatabase();
+        String[] columns = {"MATERIAL_ID"};
+
+        Cursor materials_id= dbr.query(BASI_MATERIAL,columns,null,null,"MATERIAL_ID",null,null); //Listet alle Artikel
+
+        //Cursor cursor = dbr.query(BASI_PROJEKTE,columns,"PROJEKT_NR=?",new String[]{get_projekt_nr()},null,null,null); //Listet alle Artikel
+
+        ContentValues materials = new ContentValues();
+        if(materials_id.getCount()>0)
+        {
+            while(materials_id.moveToNext())
+            {
+                materials.put(materials_id.getString(materials_id.getColumnIndexOrThrow("MATERIAL_ID")), 0.0);
+
+            }
+
+            Cursor cursor = dbr.query(BASI_PROJEKTE,new String[]{"ID"},"PROJEKT_NR=?",new String[]{get_projekt_nr()},null,null,null); //Listet aller Teilprojekte
+            while(cursor.moveToNext())
+            {
+                String projekt_nr = cursor.getString(cursor.getColumnIndexOrThrow("ID"));
+
+                for(String material_item_id: materials.keySet())
+                {
+                    String [] where_args = {projekt_nr,material_item_id};
+                    Cursor entry_cursor = dbr.query(BASI_MATERIAL,new String[]{"MENGE"},"PROJEKT_NR=? AND MATERIAL_ID=?",where_args,null,null,null); //Listet aller Teilprojekte
+                    if(entry_cursor.getCount()>0)
+                    {
+                        while(entry_cursor.moveToNext())
+                        {
+                            Double pre_value = (Double) materials.get(material_item_id);
+                            Double add_value= Double.valueOf(entry_cursor.getString(entry_cursor.getColumnIndexOrThrow("MENGE")));
+                            materials.put(material_item_id,pre_value+add_value);
+                        }
+
+
+                    }
+                }
+            }
+
+            final_array = new String[materials.size()];
+            int final_array_counter =0;
+
+            for(String l: materials.keySet())
+            {
+                final_array[final_array_counter] =get_artikel_name_by_id(l)+","+materials.get(l)+" "+get_artikel_einheit_by_id(l);
+                final_array_counter++;
+            }
+            Arrays.sort(final_array);
+
+        }
+
+        return final_array;
+
+    }
+
+
+    public String[] get_artikel_summary_comlete(String projekt_nr)
+    {
+        ArrayList<String> final_list = new ArrayList<>();
+        SQLiteDatabase dbr = this.getReadableDatabase();
+        String[] columns = {"MATERIAL_ID","MENGE", "EINHEIT_ID"};
+
+
+
+
+
+
+        Cursor cursor = dbr.query(BASI_MATERIAL,columns,"PROJEKT_NR=?",new String[]{get_selectet_projekt_id()},"MATERIAL_ID",null,null); //Listet alle Artikel
+
+        if(cursor.getCount()>0)
+        {
+            cursor.moveToFirst();
+            while(cursor.moveToNext())
+            {
+                Double sum =0.0;
+                String material_id= cursor.getString(cursor.getColumnIndexOrThrow("MATERIAL_ID"));
+                String einheit= cursor.getString(cursor.getColumnIndexOrThrow("EINHEIT_ID"));
+                Cursor cursor2 =dbr.query(BASI_MATERIAL,new String[]{"MENGE"},"PROJEKT_NR=? AND MATERIAL_ID=?",new String[]{get_selectet_projekt_id(),material_id},null,null,null);
+                while (cursor2.moveToNext())
+                {
+                    try {
+                        sum= sum +Double.valueOf(cursor2.getString(cursor2.getColumnIndexOrThrow("MENGE")));
+                    }
+                    catch (Exception e)
+                    {
+
+                        sum =sum +0.0;
+                    }
+
+                }
+                final_list.add(get_artikel_name_by_id(material_id)+","+    bsf.double_round(String.valueOf(sum),2)+" " +einheit);
+                cursor2.close();
+            }
+        }
+        String [] final_array = new String[final_list.size()];
+        int  final_array_counter=0;
+        Iterator<String> iter= final_list.iterator();
+        while(iter.hasNext())
+        {
+            final_array[final_array_counter] =iter.next();
+            final_array_counter++;
+        }
 
         return final_array;
     }
@@ -1109,6 +1296,16 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
                 new String[]{"NAME"});
 
         return artikel_name;
+    }
+
+    public String get_artikel_einheit_by_id(String id)
+    {
+        String einheit = this.get_artikel_param(
+                new String[]{id},
+                "ID=?",
+                new String[]{"EINHEIT"});
+
+        return einheit;
     }
     public String get_lieferant_name_by_id(String id)
     {
@@ -1415,12 +1612,5 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
         cursor.close();
         db.close();
     }
-
-
-
-
-
-
-
 
 }

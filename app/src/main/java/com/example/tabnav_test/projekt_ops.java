@@ -149,6 +149,34 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
         return  output_id;
     }
 
+    public String get_projekt_name_by_id(String id)
+    {
+        String output_name ="";
+
+        try {
+            SQLiteDatabase db = this.getReadableDatabase();
+
+            String[] where_args = {id};
+            String where  = "ID=?";
+
+            Cursor cursor = db.query(BASI_PROJEKTE,new String[]{"NAME"},where,where_args,null,null,null);
+
+            if(cursor.getCount() > 0)
+            {
+                cursor.moveToFirst();
+                output_name = cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
+            }
+
+            cursor.close();
+            db.close();
+        } catch (IllegalArgumentException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        return  output_name;
+    }
+
 
     public void select_projekt(String id)
     {
