@@ -207,6 +207,9 @@
     <string name="artikel_config_dialog_backup_create">Erstellen</string>
     <string name="artikel_config_dialog_backup_restore">Wiederherstellen</string>
 
+    <string name="personal_label">Personalstamm</string>
+    <string name="personal_name_label">Name:</string>
+
 
     <string name="favorite_strings_connfig_banner">Gespeicherte Favoriten Bearbeiten</string>
     <string name="favorite_strings_connfig_add_banner">Neue Favoriten Hinzufügen</string>

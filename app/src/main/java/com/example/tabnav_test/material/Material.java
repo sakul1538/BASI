@@ -660,9 +660,9 @@ public class Material extends Fragment implements static_finals
         });
 
         try {
-            refresh_artikel_autocomplete();
+           refresh_artikel_autocomplete();
             refresh_autocomplete_liste_zulieferer();
-            clean_temp_dir();
+          clean_temp_dir();
             create_imageset();
 
         } catch (Exception e) {

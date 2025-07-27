@@ -624,6 +624,7 @@ public class material_log_entrys extends Fragment
 
                 for(String i:export_entrys )
                 {
+
                     String[] extract = i.split(",");
 
                     for(String e: extract)
@@ -635,13 +636,14 @@ public class material_log_entrys extends Fragment
                                     string_loop +="\""+ nr[1]+"\",";
                                 break;
 
+
                                 case "DATUM":
                                     string_loop += "\""+bsf.convert_date(nr[1],"format_database_to_readable")+"\",";
                                 break;
 
                                 case "LSNR":
                                     string_loop += "\""+nr[1]+"\",";
-                                break;
+                                    break;
                                 case "LIEFERANT_ID":
                                     string_loop +=  "\""+ mdo.get_lieferant_name_by_id(nr[1])+"\",";
                                 break;
@@ -670,6 +672,7 @@ public class material_log_entrys extends Fragment
                                     }
                                 break;
                         }
+
                     }
                 }
                 filename= mdo.get_projekt_name()+"_dataset_ls@"+bsf.get_date_for_filename()+".csv";

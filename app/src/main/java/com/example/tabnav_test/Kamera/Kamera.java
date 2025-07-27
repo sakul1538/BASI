@@ -279,7 +279,7 @@ public class Kamera<onActivityResult> extends Fragment {
 
                     int kw = get_kw(get_date());
 
-                    image_stamp_text = projekt.projekt_get_selected_name()+" ["+ projekt.projekt_get_selected_nr()+"]"+ "  " + get_date() + " [KW " + kw + "]";
+                    image_stamp_text = projekt.projekt_get_selected_name()+" ["+ projekt.projekt_get_selected_nr()+"]"+ "  " + get_date() + " " +bsf.time_refresh()+ " [KW " + kw + "]";
                     String filename= projekt.projekt_get_selected_name()+"["+ projekt.projekt_get_selected_nr()+"]";
 
                     if (kamera_switch_tag_onoff.isChecked())
@@ -1221,6 +1221,7 @@ public class Kamera<onActivityResult> extends Fragment {
     {
       return curr_date.getText().toString();
     }
+
     private String get_tag()
     {
         if(kamera_switch_tag_onoff.isChecked())

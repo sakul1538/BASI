@@ -112,7 +112,7 @@
 
             <AutoCompleteTextView
                 android:id="@+id/note"
-                android:layout_width="333dp"
+                android:layout_width="330dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"

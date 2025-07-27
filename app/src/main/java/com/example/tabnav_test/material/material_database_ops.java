@@ -155,6 +155,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
                 Log.d("FILE: ", e);
                 File f= new File(search_path+"/"+e);
                 f.delete();
+
             }
         }
     }
@@ -409,7 +410,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
                 break;
 
             case "comp":
-
+                int pos =1;
                 cursor = db.query(BASI_PROJEKTE, new String[]{"ID"}, "PROJEKT_NR=?", new String[]{get_projekt_nr()}, null, null, null); //Listet aller Teilprojekte
                 while (cursor.moveToNext())
                 {
@@ -417,7 +418,7 @@ public class material_database_ops extends SQLiteOpenHelper implements SQL_final
 
                     String[] where_args = {projekt_nr};
 
-                    Cursor entry_cursor = db.query(BASI_MATERIAL, null, "PROJEKT_NR=?", where_args, null, null, "DATUM ASC,LSNR, LIEFERANT_ID"); //Listet aller Teilprojekte
+                    Cursor entry_cursor = db.query(BASI_MATERIAL, null, "PROJEKT_NR=?", where_args, null, null, "LIEFERANT_ID,LSNR"); //Listet aller Teilprojekte
                     if (entry_cursor.getCount() > 0)
                     {
                         while (entry_cursor.moveToNext())
