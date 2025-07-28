@@ -27,6 +27,8 @@ import java.util.Iterator;
 
 public class db_ops extends SQLiteOpenHelper implements SQL_finals
 {
+
+
     // ----------------------------------------------------------------- Variablen
     // ----------------------------------------------------------------- Variablen  String, char
     // ----------------------------------------------------------------- Variablen 	byte,short,int,long,float,double
@@ -56,6 +58,8 @@ public class db_ops extends SQLiteOpenHelper implements SQL_finals
         super(context, DB_NAME, null, 1);
     }
 
+
+
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase)
     {
@@ -63,8 +67,6 @@ public class db_ops extends SQLiteOpenHelper implements SQL_finals
         sqLiteDatabase.execSQL("CREATE TABLE "+BASI_PROJEKTE+" (ID TEXT,DATE TEXT,PROJEKT_NR TEXT,NAME TEXT,DIR_ROOT TEXT,DIR_SUB TEXT,STATUS_FLAG TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE "+BASI_LOG+" (ID TEXT,PROJEKT_NR TEXT,DATE TEXT,TIME TEXT,NOTE TEXT,CHECK_FLAG TEXT,FAV_FLAG TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE "+BASI_MATERIAL+" (ID TEXT,PROJEKT_NR TEXT,DATUM TEXT,LSNR TEXT,LIEFERANT_ID TEXT,MATERIAL_ID TEXT,MENGE TEXT,EINHEIT_ID TEXT,SRC TEXT,NOTIZ TEXT)");
-
-
         //Alte Tabellen
         sqLiteDatabase.execSQL("CREATE TABLE "+TB_NAME_KAMERA_CONF+" (ID TEXT,NAME TEXT,DIR TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE "+TB_NAME_LOG_CONF+" (ID TEXT,NAME TEXT,VALUE TEXT)");
@@ -74,7 +76,9 @@ public class db_ops extends SQLiteOpenHelper implements SQL_finals
         sqLiteDatabase.execSQL("CREATE TABLE "+TB_MATERIAL_PROJEKTE+" (ID TEXT,NAME TEXT,SRC TEXT,SELECT_FLAG TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE "+TB_MATERIAL_ZULIEFERER+" (ID TEXT,NAME TEXT,DATE TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE "+TB_MATERIAL_TYP+" (ID TEXT,NAME TEXT,EINHEIT TEXT,FAV_FLAG TEXT)");
-       // sqLiteDatabase.execSQL("CREATE TABLE "+TB_MATERIAL_LOGTB_MATERIAL_LOG+" (ID TEXT,PROJEKT_ID TEXT,DATUM TEXT,LSNR TEXT,LIEFERANT_ID TEXT,MATERIAL_ID TEXT,MENGE TEXT,EINHEIT_ID TEXT,SRC TEXT,NOTIZ TEXT)");
+        sqLiteDatabase.execSQL("CREATE TABLE "+TB_LISTS_MAIN+" (ID TEXT,NAME TEXT,DATE TEXT,TYP TEXT,NOTE TEXT,ITEMS_ID,PROJ_ID TEXT,POSITION TEXT)");
+        sqLiteDatabase.execSQL("CREATE TABLE "+TB_LISTS_ITEMS+" (ID TEXT,NAME TEXT,PARENT_ID TEXT,POSITION TEXT)");
+        //sqLiteDatabase.execSQL("CREATE TABLE "+TB_MATERIAL_LOG+" (ID TEXT,PROJEKT_ID TEXT,DATUM TEXT,LSNR TEXT,LIEFERANT_ID TEXT,MATERIAL_ID TEXT,MENGE TEXT,EINHEIT_ID TEXT,SRC TEXT,NOTIZ TEXT)");
     }
 
 

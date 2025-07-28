@@ -13,6 +13,8 @@ public interface SQL_finals
     String TB_MATERIAL_PROJEKTE ="material_projekte";
     String TB_MATERIAL_ZULIEFERER ="material_zulieferer";
     String TB_MATERIAL_TYP ="material_typ";
+    String TB_LISTS_MAIN ="lists_main";
+    String TB_LISTS_ITEMS ="lists_items";
 
 
     //Tabellennamen neu

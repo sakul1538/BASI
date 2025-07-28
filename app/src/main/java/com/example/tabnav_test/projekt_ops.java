@@ -1197,6 +1197,7 @@ public class projekt_ops extends SQLiteOpenHelper implements SQL_finals
                 while(cursor.moveToNext())
                 {
                     default_id =cursor.getString(cursor.getColumnIndexOrThrow("ID"));
+
                 }
             }
             cursor.close();
