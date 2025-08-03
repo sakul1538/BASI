@@ -219,8 +219,7 @@
 
 
     <string name="list_name_label">Name:</string>
-    <string name ="list_details_label">Details:</string>
-
+    <string name="list_details_label">Details:</string>
 
 
     <string-array name="summary_typ_array">

@@ -74,7 +74,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:backgroundTint="@color/green"
-                app:srcCompat="@drawable/ic_baseline_settings_24" />
+                app:srcCompat="@drawable/edit_fill0_wght400_grad0_opsz24" />
 
             <ImageButton
                 android:id="@+id/imageButton78"

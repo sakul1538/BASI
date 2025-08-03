@@ -1,7 +1,5 @@
 package com.example.tabnav_test.Listen;
 
-import static androidx.camera.core.impl.utils.ContextUtil.getApplicationContext;
-
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -18,17 +16,13 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.tabnav_test.Basic_funct;
 import com.example.tabnav_test.R;
 import com.example.tabnav_test.SQL_finals;
-import com.example.tabnav_test.ScreenSlidePagerAdapter;
 import com.example.tabnav_test.db_ops;
 import com.example.tabnav_test.projekt_ops;
-import com.google.android.material.tabs.TabLayout;
 
-import java.lang.reflect.Type;
 import java.util.UUID;
 
 public class list_main extends Fragment
@@ -45,11 +39,16 @@ public class list_main extends Fragment
 
     ImageButton add_new_List;
 
+    Basic_funct bsf;
+    projekt_ops po;
     private list_main_rcv_adapter list_main_rcv_adapter;
 
+    db_ops dbo;
+    list_main_db_ops list_main_db_ops;
 
     public list_main()
     {
+
 
 
     }
@@ -75,19 +74,31 @@ public class list_main extends Fragment
         }
 
     }
+
+    //OnResume
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        String[] dataset = list_main_db_ops.get_lists_form_projekt(po.projekt_get_selected_id());
+        list_main_rcv_adapter.reload_dataset(dataset);
+    }
+
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
+        View view = inflater.inflate(R.layout.fragment_list_main, container, false);
+
         Context context = this.getContext();
 
-        projekt_ops po = new projekt_ops(context);
-        db_ops dbo = new db_ops(context);
-        Basic_funct bsf = new Basic_funct();
-        list_main_db_ops list_main_db_ops = new list_main_db_ops(context);
-
-
-        View view = inflater.inflate(R.layout.fragment_list_main, container, false);
+        bsf = new Basic_funct();
+        po = new projekt_ops(context);
+        dbo = new db_ops(context);
+        list_main_db_ops = new list_main_db_ops(context);
 
         String[] dataset = list_main_db_ops.get_lists_form_projekt(po.projekt_get_selected_id());
 
@@ -103,7 +114,9 @@ public class list_main extends Fragment
         add_new_List.setOnClickListener(new View.OnClickListener()
         {
                                             @Override
-                                            public void onClick(View view) {
+                                            public void onClick(View view)
+                                            {
+
                                                 //Make a Dialog to add a new List
                                                 View alert_view_add_list = getLayoutInflater().inflate(R.layout.add_list, null);
                                                 android.app.AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
@@ -134,8 +147,10 @@ public class list_main extends Fragment
                                                             try {
                                                                 dbo.insert(SQL_finals.TB_LISTS_MAIN, values);
                                                                 Toast.makeText(getContext(), "Liste wurde erstellt", Toast.LENGTH_LONG).show();
-                                                               String[] dataset = list_main_db_ops.get_lists_form_projekt(po.projekt_get_selected_id());
-                                                                list_main_rcv_adapter.reload(dataset);
+                                                                String[] dataset = list_main_db_ops.get_lists_form_projekt(po.projekt_get_selected_id());
+
+                                                                list_main_rcv_adapter.reload_dataset(dataset);
+
                                                                 dialogInterface.dismiss();
                                                             }catch (Exception e)
                                                             {
@@ -148,7 +163,8 @@ public class list_main extends Fragment
                                                         }
                                                     }
                                                 });
-                                                alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                                                alertDialogBuilder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener()
+                                                {
                                                     @Override
                                                     public void onClick(DialogInterface dialogInterface, int i)
                                                     {
@@ -157,12 +173,12 @@ public class list_main extends Fragment
                                                 });
                                                 alertDialogBuilder.show();
                                             }
-                                        });
-
-
-            // Inflate the layout for this fragment
+        });
+        // Inflate the layout for this fragment
         return view;
-    }
-
+        }
 }
+
+
+
 

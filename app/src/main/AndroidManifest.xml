@@ -24,6 +24,13 @@
         android:theme="@style/Theme.TABNAV_TEST"
         tools:targetApi="31" >
         <activity
+            android:name=".Listen.list_items"
+            android:exported="false" />
+        <activity
+            android:name=".Listen.List_items_activity"
+            android:exported="false"
+            android:theme="@style/Theme.TABNAV_TEST" />
+        <activity
             android:name=".share.photo_view"
             android:exported="false"
             android:theme="@style/Theme.TABNAV_TEST" />
