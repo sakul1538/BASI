@@ -25,34 +25,113 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_weight="1"
+          android:completionThreshold="1"
           android:text="@string/empty" />
 
+        <ImageButton
+            android:id="@+id/show_spec_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:backgroundTint="#00FFFFFF"
+            app:srcCompat="@drawable/baseline_apps_24" />
+
       <ImageButton
-          android:id="@+id/imageButton91"
+          android:id="@+id/add_item"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_weight="0"
           app:srcCompat="@drawable/baseline_add_box_24" />
 
-      <ImageButton
-          android:id="@+id/imageButton92"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_weight="0"
-          app:srcCompat="@drawable/ic_baseline_cancel_24" />
+        <ImageButton
+            android:id="@+id/textinput_clear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:backgroundTint="#00FFFFFF"
+            app:srcCompat="@drawable/ic_baseline_cancel_24" />
 
-      <ImageButton
-          android:id="@+id/imageButton93"
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/item_spec_detail_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="visible">
+
+      <EditText
+          android:id="@+id/editTextNumberDecimal6"
+          android:layout_width="80dp"
+          android:layout_height="wrap_content"
+          android:ems="10"
+          android:inputType="numberDecimal" />
+
+      <Spinner
+          android:id="@+id/spinner5"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_weight="0"
-          app:srcCompat="@drawable/baseline_apps_24" />
+          android:entries="@array/einheiten_array" />
+
+        <ImageButton
+            android:id="@+id/set_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:backgroundTint="#00FFFFFF"
+            app:srcCompat="@drawable/palette_24dp_1f1f1f_fill0_wght400_grad0_opsz24" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/items_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="#00FFFFFF"
+            app:srcCompat="@drawable/ic_baseline_filter_alt_24" />
+
+        <ImageButton
+            android:id="@+id/items_show_checkboxes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="#00FFFFFF"
+            app:srcCompat="@drawable/event_list_24dp_1f1f1f_fill0_wght400_grad0_opsz24" />
+
+        <ImageButton
+            android:id="@+id/items_select_none"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="#00FFFFFF"
+            app:srcCompat="@drawable/check_box_outline_blank_24dp_1f1f1f_fill0_wght400_grad0_opsz24" />
+
+        <ImageButton
+            android:id="@+id/items_select_all"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#00FFFFFF"
+            app:srcCompat="@drawable/check_box_24dp_1f1f1f_fill0_wght400_grad0_opsz24" />
+
+        <ImageButton
+            android:id="@+id/items_selected_action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="#00FFFFFF"
+            app:srcCompat="@drawable/electric_bolt_24dp_1f1f1f_fill0_wght400_grad0_opsz24" />
 
     </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="0">
 
       <LinearLayout

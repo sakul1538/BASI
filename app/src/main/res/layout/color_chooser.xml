@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <ImageButton
+                android:id="@+id/imageButton95"
+                android:layout_width="@dimen/buttons_1"
+                android:layout_height="@dimen/buttons_1"
+                android:layout_margin="5dp"
+                android:background="#FF5722"
+                app:srcCompat="?attr/selectableItemBackgroundBorderless" />
+
+            <ImageButton
+                android:id="@+id/imageButton97"
+                android:layout_width="@dimen/buttons_1"
+                android:layout_height="@dimen/buttons_1"
+                android:layout_margin="5dp"
+                android:background="#FF9800"
+                app:srcCompat="?attr/selectableItemBackgroundBorderless" />
+
+            <ImageButton
+                android:id="@+id/imageButton101"
+                android:layout_width="@dimen/buttons_1"
+                android:layout_height="@dimen/buttons_1"
+                android:layout_margin="5dp"
+                android:background="#FFEB3B"
+                app:srcCompat="?attr/selectableItemBackgroundBorderless" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </TableLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

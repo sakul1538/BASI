@@ -240,18 +240,17 @@
         <item>Mietmaschine</item>
     </string-array>
 
-
     <string-array name="einheiten_array">
+        <item>Stück</item>
         <item>m3</item>
         <item>m2</item>
-        <item>t</item>
         <item>kg</item>
+        <item>Sack</item>
+        <item>t</item>
+        <item>m</item>
         <item>g</item>
         <item>Liter</item>
         <item>ml</item>
-        <item>m</item>
-        <item>Stück</item>
-        <item>Pack</item>
         <item>Bund</item>
         <item>km</item>
         <item>cm</item>
